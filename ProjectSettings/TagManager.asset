@@ -3,7 +3,16 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Sibling
+  - GasLeak
+  - Floor
+  - Crackcollider
+  - pen
+  - Help
+  - grab
+  - knob
+  - snap
   layers:
   - Default
   - TransparentFX
