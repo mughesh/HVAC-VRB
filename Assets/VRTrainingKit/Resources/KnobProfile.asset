@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: DefaultKnobProfile
+  m_Name: KnobProfile
   m_EditorClassIdentifier: Assembly-CSharp:VRTrainingKit:KnobProfile
-  profileName: Default Knob
+  profileName: New Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   rotationAxis: 1
   minAngle: -90

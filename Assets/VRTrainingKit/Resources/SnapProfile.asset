@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: DefaultSnapProfile
+  m_Name: SnapProfile
   m_EditorClassIdentifier: Assembly-CSharp:VRTrainingKit:SnapProfile
-  profileName: Default Snap
+  profileName: New Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   socketRadius: 0.1
   showInteractableHoverMeshes: 1
