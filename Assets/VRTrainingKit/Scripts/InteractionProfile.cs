@@ -1,6 +1,5 @@
 // InteractionProfile.cs
 using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
@@ -22,6 +21,15 @@ namespace VRTrainingKit
     /// <summary>
     /// Profile for grab interactions
     /// </summary>
+    public enum ColliderType
+    {
+        Box,
+        Sphere,
+        Capsule,
+        Mesh,
+        None
+    }
+    
     [CreateAssetMenu(fileName = "GrabProfile", menuName = "VR Training/Grab Profile")]
     public class GrabProfile : InteractionProfile
     {
@@ -39,9 +47,13 @@ namespace VRTrainingKit
         public bool useDynamicAttach = true;
         public float attachEaseInTime = 0.15f;
         
+        [Header("Collider Settings")]
+        public ColliderType colliderType = ColliderType.Box;
+        public bool addColliderToMeshChild = true;
+        
         public override void ApplyToGameObject(GameObject target)
         {
-            // Add or get XRGrabInteractable
+            // Add or get XRGrabInteractable on parent
             XRGrabInteractable grabInteractable = target.GetComponent<XRGrabInteractable>();
             if (grabInteractable == null)
             {
@@ -58,7 +70,7 @@ namespace VRTrainingKit
             grabInteractable.useDynamicAttach = useDynamicAttach;
             grabInteractable.attachEaseInTime = attachEaseInTime;
             
-            // Ensure Rigidbody exists
+            // Ensure Rigidbody exists on parent
             Rigidbody rb = target.GetComponent<Rigidbody>();
             if (rb == null)
             {
@@ -67,16 +79,83 @@ namespace VRTrainingKit
                 rb.isKinematic = (movementType == XRBaseInteractable.MovementType.Kinematic);
             }
             
-            // Ensure Collider exists
-            if (target.GetComponent<Collider>() == null)
+            // Handle collider - find appropriate target
+            GameObject colliderTarget = target;
+            if (addColliderToMeshChild)
             {
-                BoxCollider col = target.AddComponent<BoxCollider>();
-                // Auto-size based on renderer if available
-                MeshRenderer renderer = target.GetComponent<MeshRenderer>();
-                if (renderer != null)
-                {
-                    col.size = renderer.bounds.size;
-                }
+                colliderTarget = FindMeshChild(target) ?? target;
+            }
+            
+            // Ensure Collider exists on appropriate object
+            if (colliderTarget.GetComponent<Collider>() == null && colliderType != ColliderType.None)
+            {
+                AddCollider(colliderTarget, colliderType);
+            }
+        }
+        
+        private GameObject FindMeshChild(GameObject parent)
+        {
+            // First check direct children
+            MeshRenderer meshRenderer = parent.GetComponentInChildren<MeshRenderer>();
+            if (meshRenderer != null)
+            {
+                return meshRenderer.gameObject;
+            }
+            
+            // If no mesh renderer found in children, check parent itself
+            meshRenderer = parent.GetComponent<MeshRenderer>();
+            if (meshRenderer != null)
+            {
+                return parent;
+            }
+            
+            return null;
+        }
+        
+        private void AddCollider(GameObject target, ColliderType type)
+        {
+            MeshRenderer renderer = target.GetComponent<MeshRenderer>();
+            Bounds bounds = renderer != null ? renderer.bounds : new Bounds(Vector3.zero, Vector3.one);
+            
+            switch (type)
+            {
+                case ColliderType.Box:
+                    BoxCollider boxCol = target.AddComponent<BoxCollider>();
+                    if (renderer != null)
+                    {
+                        boxCol.center = target.transform.InverseTransformPoint(bounds.center);
+                        boxCol.size = bounds.size;
+                    }
+                    break;
+                    
+                case ColliderType.Sphere:
+                    SphereCollider sphereCol = target.AddComponent<SphereCollider>();
+                    if (renderer != null)
+                    {
+                        sphereCol.center = target.transform.InverseTransformPoint(bounds.center);
+                        sphereCol.radius = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z) / 2f;
+                    }
+                    break;
+                    
+                case ColliderType.Capsule:
+                    CapsuleCollider capsuleCol = target.AddComponent<CapsuleCollider>();
+                    if (renderer != null)
+                    {
+                        capsuleCol.center = target.transform.InverseTransformPoint(bounds.center);
+                        capsuleCol.height = bounds.size.y;
+                        capsuleCol.radius = Mathf.Max(bounds.size.x, bounds.size.z) / 2f;
+                    }
+                    break;
+                    
+                case ColliderType.Mesh:
+                    MeshCollider meshCol = target.AddComponent<MeshCollider>();
+                    MeshFilter meshFilter = target.GetComponent<MeshFilter>();
+                    if (meshFilter != null && meshFilter.sharedMesh != null)
+                    {
+                        meshCol.sharedMesh = meshFilter.sharedMesh;
+                        meshCol.convex = true; // Required for physics interactions
+                    }
+                    break;
             }
         }
         

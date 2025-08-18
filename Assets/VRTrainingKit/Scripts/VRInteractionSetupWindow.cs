@@ -315,9 +315,38 @@ public class VRInteractionSetupWindow : EditorWindow
         
         if (selectedGrabProfile == null)
         {
+            // Show list of available profiles
+            string[] grabProfileGuids = AssetDatabase.FindAssets("t:GrabProfile");
+            if (grabProfileGuids.Length > 0)
+            {
+                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
+                foreach (string guid in grabProfileGuids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    GrabProfile profile = AssetDatabase.LoadAssetAtPath<GrabProfile>(path);
+                    if (profile != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("  • " + profile.name, EditorStyles.miniLabel);
+                        if (GUILayout.Button("Select", GUILayout.Width(50)))
+                        {
+                            selectedGrabProfile = profile;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            
             if (GUILayout.Button("Create New Grab Profile"))
             {
                 CreateNewProfile<GrabProfile>("GrabProfile");
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Edit Profile"))
+            {
+                Selection.activeObject = selectedGrabProfile;
             }
         }
         EditorGUILayout.EndVertical();
@@ -332,9 +361,38 @@ public class VRInteractionSetupWindow : EditorWindow
         
         if (selectedKnobProfile == null)
         {
+            // Show list of available profiles
+            string[] knobProfileGuids = AssetDatabase.FindAssets("t:KnobProfile");
+            if (knobProfileGuids.Length > 0)
+            {
+                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
+                foreach (string guid in knobProfileGuids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    KnobProfile profile = AssetDatabase.LoadAssetAtPath<KnobProfile>(path);
+                    if (profile != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("  • " + profile.name, EditorStyles.miniLabel);
+                        if (GUILayout.Button("Select", GUILayout.Width(50)))
+                        {
+                            selectedKnobProfile = profile;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            
             if (GUILayout.Button("Create New Knob Profile"))
             {
                 CreateNewProfile<KnobProfile>("KnobProfile");
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Edit Profile"))
+            {
+                Selection.activeObject = selectedKnobProfile;
             }
         }
         EditorGUILayout.EndVertical();
@@ -349,9 +407,38 @@ public class VRInteractionSetupWindow : EditorWindow
         
         if (selectedSnapProfile == null)
         {
+            // Show list of available profiles
+            string[] snapProfileGuids = AssetDatabase.FindAssets("t:SnapProfile");
+            if (snapProfileGuids.Length > 0)
+            {
+                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
+                foreach (string guid in snapProfileGuids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    SnapProfile profile = AssetDatabase.LoadAssetAtPath<SnapProfile>(path);
+                    if (profile != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("  • " + profile.name, EditorStyles.miniLabel);
+                        if (GUILayout.Button("Select", GUILayout.Width(50)))
+                        {
+                            selectedSnapProfile = profile;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            
             if (GUILayout.Button("Create New Snap Profile"))
             {
                 CreateNewProfile<SnapProfile>("SnapProfile");
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Edit Profile"))
+            {
+                Selection.activeObject = selectedSnapProfile;
             }
         }
         EditorGUILayout.EndVertical();
@@ -373,7 +460,7 @@ public class VRInteractionSetupWindow : EditorWindow
         EditorGUILayout.Space(5);
         
         // Find or create sequence controller
-        sequenceController = FindAnyObjectByType<SequenceController>();
+        sequenceController = FindFirstObjectByType<SequenceController>();
         
         if (sequenceController == null)
         {
