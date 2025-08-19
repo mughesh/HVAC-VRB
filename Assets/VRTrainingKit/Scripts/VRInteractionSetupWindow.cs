@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
-using VRTrainingKit;
 
 public class VRInteractionSetupWindow : EditorWindow
 {
@@ -460,7 +459,7 @@ public class VRInteractionSetupWindow : EditorWindow
         EditorGUILayout.Space(5);
         
         // Find or create sequence controller
-        sequenceController = FindFirstObjectByType<SequenceController>();
+        sequenceController = FindObjectOfType<SequenceController>();
         
         if (sequenceController == null)
         {
@@ -642,8 +641,15 @@ public class VRInteractionSetupWindow : EditorWindow
             knobProfile.rotationAxis = KnobProfile.RotationAxis.Y;
             knobProfile.useLimits = true;
             knobProfile.minAngle = -90f;
-            knobProfile.maxAngle = 90f;
+            knobProfile.maxAngle = 180f;  // Based on your screenshot
+            knobProfile.useSpring = true;
+            knobProfile.springValue = 0f;
+            knobProfile.damper = 1f;
+            knobProfile.targetPosition = 0f;
+            knobProfile.bounceMinVelocity = 0.2f;
+            knobProfile.contactDistance = 0f;
             knobProfile.useHapticFeedback = true;
+            knobProfile.colliderType = ColliderType.Box;
             
             AssetDatabase.CreateAsset(knobProfile, $"{folderPath}/DefaultKnobProfile.asset");
             selectedKnobProfile = knobProfile;

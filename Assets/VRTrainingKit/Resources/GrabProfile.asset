@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
   m_Name: GrabProfile
-  m_EditorClassIdentifier: Assembly-CSharp:VRTrainingKit:GrabProfile
+  m_EditorClassIdentifier: Assembly-CSharp::GrabProfile
   profileName: New Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   movementType: 0
@@ -22,5 +22,5 @@ MonoBehaviour:
   throwAngularVelocityScale: 1
   useDynamicAttach: 1
   attachEaseInTime: 0.15
-  colliderType: 0
+  colliderType: 3
   addColliderToMeshChild: 1

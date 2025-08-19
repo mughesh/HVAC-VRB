@@ -5,12 +5,11 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using System;
 
-namespace VRTrainingKit
-{
-    /// <summary>
-    /// Controls knob rotation behavior and constraints
-    /// </summary>
-    public class KnobController : MonoBehaviour
+// NO NAMESPACE - Fixes ScriptableObject issues
+/// <summary>
+/// Controls knob rotation behavior and constraints
+/// </summary>
+public class KnobController : MonoBehaviour
     {
         private KnobProfile profile;
         private XRGrabInteractable grabInteractable;
@@ -428,4 +427,4 @@ namespace VRTrainingKit
             }
         }
     }
-}
+// End of file - no namespace closing brace
