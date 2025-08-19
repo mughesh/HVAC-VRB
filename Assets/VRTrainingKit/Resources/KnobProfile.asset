@@ -9,18 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: a00f75a4fca48524e8092cd5c9d4dcee, type: 3}
   m_Name: KnobProfile
-  m_EditorClassIdentifier: Assembly-CSharp::KnobProfile
+  m_EditorClassIdentifier: 
   profileName: New Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   rotationAxis: 1
   minAngle: -90
   maxAngle: 180
   useLimits: 1
+  autoConfigureConnectedAnchor: 1
   useSpring: 1
   springValue: 0
-  damper: 0.1
+  damper: 1
   targetPosition: 0
   bounceMinVelocity: 0.2
   contactDistance: 0
