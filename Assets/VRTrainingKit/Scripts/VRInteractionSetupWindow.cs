@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
+// NO using VRTrainingKit - we removed the namespace
 
 public class VRInteractionSetupWindow : EditorWindow
 {
@@ -261,8 +262,8 @@ public class VRInteractionSetupWindow : EditorWindow
         
         EditorGUILayout.EndHorizontal();
         
-        // List objects
-        if (objects.Count > 0 && objects.Count <= 10) // Only show if reasonable number
+        // List objects with layer mask control
+        if (objects.Count > 0 && objects.Count <= 20) // Increased limit for layer editing
         {
             EditorGUI.indentLevel++;
             foreach (var obj in objects)
@@ -271,16 +272,64 @@ public class VRInteractionSetupWindow : EditorWindow
                 
                 // Check if configured
                 bool isConfigured = false;
+                UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable = null;
+                UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor socketInteractor = null;
+                
                 if (tag == "grab" || tag == "knob")
-                    isConfigured = obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>() != null;
+                {
+                    interactable = obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+                    isConfigured = interactable != null;
+                }
                 else if (tag == "snap")
-                    isConfigured = obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor>() != null;
+                {
+                    socketInteractor = obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor>();
+                    isConfigured = socketInteractor != null;
+                }
                 
                 string statusIcon = isConfigured ? "✓" : "○";
                 GUIStyle statusStyle = isConfigured ? successStyle : GUI.skin.label;
                 
-                EditorGUILayout.LabelField($"{statusIcon} {obj.name}", statusStyle);
+                // Object name
+                EditorGUILayout.LabelField($"{statusIcon} {obj.name}", statusStyle, GUILayout.Width(200));
                 
+                // Layer mask dropdown (only if configured)
+                if (isConfigured)
+                {
+                    EditorGUI.BeginChangeCheck();
+                    
+                    LayerMask currentMask = 0;
+                    if (interactable != null)
+                        currentMask = interactable.interactionLayers.value;
+                    else if (socketInteractor != null)
+                        currentMask = socketInteractor.interactionLayers.value;
+                    
+                    // Create a dropdown for interaction layers
+                    LayerMask newMask = DrawInteractionLayerMask(currentMask, GUILayout.Width(150));
+                    
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        Undo.RecordObject(obj, "Change Interaction Layer");
+                        if (interactable != null)
+                        {
+                            var ilm = interactable.interactionLayers;
+                            ilm.value = newMask;
+                            interactable.interactionLayers = ilm;
+                        }
+                        else if (socketInteractor != null)
+                        {
+                            var ilm = socketInteractor.interactionLayers;
+                            ilm.value = newMask;
+                            socketInteractor.interactionLayers = ilm;
+                        }
+                        EditorUtility.SetDirty(obj);
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("Configure first", EditorStyles.miniLabel, GUILayout.Width(150));
+                }
+                
+                // Select button
                 if (GUILayout.Button("Select", GUILayout.Width(50)))
                 {
                     Selection.activeGameObject = obj;
@@ -291,12 +340,24 @@ public class VRInteractionSetupWindow : EditorWindow
             }
             EditorGUI.indentLevel--;
         }
-        else if (objects.Count > 10)
+        else if (objects.Count > 20)
         {
             EditorGUILayout.LabelField($"  (Too many to list - use 'Select All' to view)", EditorStyles.miniLabel);
         }
         
         EditorGUILayout.EndVertical();
+    }
+    
+    // Helper method to draw interaction layer mask dropdown
+    private LayerMask DrawInteractionLayerMask(LayerMask mask, params GUILayoutOption[] options)
+    {
+        return InteractionLayerManager.DrawLayerDropdown(mask, options);
+    }
+    private object GetInteractionLayerSettings()
+    {
+        // This would need to access Unity's XRI InteractionLayerSettings
+        // For now, returning null as placeholder
+        return null;
     }
     
     private void DrawConfigureTab()
