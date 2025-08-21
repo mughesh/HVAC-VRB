@@ -5,8 +5,9 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using System.Linq;
-// NO using VRTrainingKit - we removed the namespace
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+
 
 public class VRInteractionSetupWindow : EditorWindow
 {
@@ -272,17 +273,17 @@ public class VRInteractionSetupWindow : EditorWindow
                 
                 // Check if configured
                 bool isConfigured = false;
-                UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable interactable = null;
-                UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor socketInteractor = null;
+                XRBaseInteractable interactable = null;
+                XRSocketInteractor socketInteractor = null;
                 
                 if (tag == "grab" || tag == "knob")
                 {
-                    interactable = obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+                    interactable = obj.GetComponent<XRGrabInteractable>();
                     isConfigured = interactable != null;
                 }
                 else if (tag == "snap")
                 {
-                    socketInteractor = obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor>();
+                    socketInteractor = obj.GetComponent<XRSocketInteractor>();
                     isConfigured = socketInteractor != null;
                 }
                 
@@ -311,15 +312,15 @@ public class VRInteractionSetupWindow : EditorWindow
                         Undo.RecordObject(obj, "Change Interaction Layer");
                         if (interactable != null)
                         {
-                            var ilm = interactable.interactionLayers;
-                            ilm.value = newMask;
-                            interactable.interactionLayers = ilm;
+                            var layers = interactable.interactionLayers;
+                            layers.value = newMask;
+                            interactable.interactionLayers = layers;
                         }
                         else if (socketInteractor != null)
                         {
-                            var ilm = socketInteractor.interactionLayers;
-                            ilm.value = newMask;
-                            socketInteractor.interactionLayers = ilm;
+                            var layers = socketInteractor.interactionLayers;
+                            layers.value = newMask;
+                            socketInteractor.interactionLayers = layers;
                         }
                         EditorUtility.SetDirty(obj);
                     }
@@ -351,7 +352,7 @@ public class VRInteractionSetupWindow : EditorWindow
     // Helper method to draw interaction layer mask dropdown
     private LayerMask DrawInteractionLayerMask(LayerMask mask, params GUILayoutOption[] options)
     {
-        return InteractionLayerManager.DrawLayerDropdown(mask, options);
+        return InteractionLayerManager.DrawLayerMaskDropdown(mask, options);
     }
     private object GetInteractionLayerSettings()
     {
@@ -685,7 +686,7 @@ public class VRInteractionSetupWindow : EditorWindow
         {
             GrabProfile grabProfile = ScriptableObject.CreateInstance<GrabProfile>();
             grabProfile.profileName = "Default Grab";
-            grabProfile.movementType = UnityEngine.XR.Interaction.Toolkit.Interactables.XRBaseInteractable.MovementType.VelocityTracking;
+            grabProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
             grabProfile.trackPosition = true;
             grabProfile.trackRotation = true;
             grabProfile.throwOnDetach = true;

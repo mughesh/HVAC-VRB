@@ -910,7 +910,7 @@ GameObject:
   m_Component:
   - component: {fileID: 62309634}
   - component: {fileID: 62309636}
-  - component: {fileID: 62309635}
+  - component: {fileID: 62309637}
   m_Layer: 0
   m_Name: ServiceValve
   m_TagString: grab
@@ -934,7 +934,34 @@ Transform:
   - {fileID: 1059936942}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
---- !u!114 &62309635
+--- !u!54 &62309636
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 62309631}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &62309637
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -949,7 +976,7 @@ MonoBehaviour:
   m_InteractionManager: {fileID: 0}
   m_Colliders: []
   m_InteractionLayers:
-    m_Bits: 2048
+    m_Bits: 2
   m_DistanceCalculationMode: 1
   m_SelectMode: 0
   m_FocusMode: 1
@@ -1056,33 +1083,6 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
---- !u!54 &62309636
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 62309631}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &66966671
 GameObject:
   m_ObjectHideFlags: 0
@@ -1496,9 +1496,9 @@ GameObject:
   m_Component:
   - component: {fileID: 100336970}
   - component: {fileID: 100336974}
-  - component: {fileID: 100336977}
   - component: {fileID: 100336976}
-  - component: {fileID: 100336975}
+  - component: {fileID: 100336978}
+  - component: {fileID: 100336977}
   m_Layer: 0
   m_Name: LowSide_Bue_Knob
   m_TagString: knob
@@ -1549,18 +1549,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &100336975
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 100336969}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!59 &100336976
 HingeJoint:
   m_ObjectHideFlags: 0
@@ -1572,13 +1560,13 @@ HingeJoint:
   m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
-  m_Axis: {x: 0, y: 0, z: 0}
+  m_Axis: {x: 0, y: 1, z: 0}
   m_AutoConfigureConnectedAnchor: 1
   m_ConnectedAnchor: {x: 0, y: 0, z: 0}
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 0.01
+    damper: 1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -1601,6 +1589,18 @@ HingeJoint:
   m_MassScale: 1
   m_ConnectedMassScale: 1
 --- !u!114 &100336977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100336969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &100336978
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4898,7 +4898,7 @@ GameObject:
   m_Component:
   - component: {fileID: 617634529}
   - component: {fileID: 617634531}
-  - component: {fileID: 617634530}
+  - component: {fileID: 617634532}
   m_Layer: 0
   m_Name: SuctionValve
   m_TagString: grab
@@ -4922,7 +4922,34 @@ Transform:
   - {fileID: 1405191639}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
---- !u!114 &617634530
+--- !u!54 &617634531
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 617634525}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &617634532
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4937,7 +4964,7 @@ MonoBehaviour:
   m_InteractionManager: {fileID: 0}
   m_Colliders: []
   m_InteractionLayers:
-    m_Bits: 2
+    m_Bits: 4
   m_DistanceCalculationMode: 1
   m_SelectMode: 0
   m_FocusMode: 1
@@ -5044,33 +5071,6 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
---- !u!54 &617634531
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 617634525}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &632294444
 GameObject:
   m_ObjectHideFlags: 0
@@ -5507,21 +5507,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 53fabb67064053841a4a6dab0a244c42, type: 3}
   m_PrefabInstance: {fileID: 671211824}
   m_PrefabAsset: {fileID: 0}
---- !u!115 &671724185
-MonoScript:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  serializedVersion: 7
-  m_DefaultReferences: {}
-  m_Icon: {fileID: 0}
-  m_Type: 0
-  m_ExecutionOrder: 0
-  m_ClassName: SnapValidator
-  m_Namespace: 
-  m_AssemblyName: Assembly-CSharp
 --- !u!1 &684684593
 GameObject:
   m_ObjectHideFlags: 0
@@ -12622,9 +12607,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1057963960}
   - component: {fileID: 1057963964}
-  - component: {fileID: 1057963963}
   - component: {fileID: 1057963962}
-  - component: {fileID: 1057963961}
+  - component: {fileID: 1057963966}
+  - component: {fileID: 1057963965}
   m_Layer: 0
   m_Name: NitrogenValve
   m_TagString: knob
@@ -12648,18 +12633,6 @@ Transform:
   - {fileID: 908932886}
   m_Father: {fileID: 1408039924}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1057963961
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1057963959}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!59 &1057963962
 HingeJoint:
   m_ObjectHideFlags: 0
@@ -12677,7 +12650,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 0.1
+    damper: 1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -12699,7 +12672,46 @@ HingeJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
---- !u!114 &1057963963
+--- !u!54 &1057963964
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1057963959}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &1057963965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1057963959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1057963966
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -12821,33 +12833,6 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
---- !u!54 &1057963964
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1057963959}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1001 &1059093559
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13132,7 +13117,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1068395478}
   - component: {fileID: 1068395480}
-  - component: {fileID: 1068395479}
+  - component: {fileID: 1068395481}
   m_Layer: 0
   m_Name: Red_Hose_Male
   m_TagString: grab
@@ -13157,7 +13142,34 @@ Transform:
   - {fileID: 1344013221}
   m_Father: {fileID: 420342056}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1068395479
+--- !u!54 &1068395480
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068395477}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &1068395481
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -13279,33 +13291,6 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
---- !u!54 &1068395480
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1068395477}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &1079198196
 GameObject:
   m_ObjectHideFlags: 0
@@ -14497,6 +14482,21 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d6878e1999eb4b44a9f5a263af86c185, type: 3}
+--- !u!115 &1113072441
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: SnapValidator
+  m_Namespace: 
+  m_AssemblyName: Assembly-CSharp
 --- !u!1001 &1113770506
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18058,21 +18058,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1365900740}
   m_Mesh: {fileID: -6602441374692447843, guid: ebf5e7fe7014e1841be6ed98fb88207a, type: 3}
---- !u!115 &1382810608
-MonoScript:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  serializedVersion: 7
-  m_DefaultReferences: {}
-  m_Icon: {fileID: 0}
-  m_Type: 0
-  m_ExecutionOrder: 0
-  m_ClassName: SnapValidator
-  m_Namespace: 
-  m_AssemblyName: Assembly-CSharp
 --- !u!1 &1383834729
 GameObject:
   m_ObjectHideFlags: 0
@@ -18664,7 +18649,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 0.1
+    damper: 1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -21782,65 +21767,6 @@ Transform:
   - {fileID: 1496526865}
   m_Father: {fileID: 1399237533}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1918894164
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1918894166}
-  - component: {fileID: 1918894165}
-  m_Layer: 0
-  m_Name: SequenceController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1918894165
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1918894164}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1920429490}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1918894166
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1918894164}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!115 &1920429490
-MonoScript:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  serializedVersion: 7
-  m_DefaultReferences: {}
-  m_Icon: {fileID: 0}
-  m_Type: 0
-  m_ExecutionOrder: 0
-  m_ClassName: SequenceController
-  m_Namespace: 
-  m_AssemblyName: Assembly-CSharp
 --- !u!1 &1927376617
 GameObject:
   m_ObjectHideFlags: 0
@@ -24003,13 +23929,13 @@ HingeJoint:
   m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
-  m_Axis: {x: 0, y: 0, z: 0}
+  m_Axis: {x: 0, y: 1, z: 0}
   m_AutoConfigureConnectedAnchor: 1
   m_ConnectedAnchor: {x: 0, y: 0, z: 0}
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 0.01
+    damper: 1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -59515,7 +59441,7 @@ Transform:
   m_GameObject: {fileID: 6735138772391272057}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: -0.3157, y: 1.0554085, z: 0.9190325}
+  m_LocalPosition: {x: -0.32139996, y: 1.0554085, z: 0.9190325}
   m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -68391,10 +68317,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8477115784999498284}
-  - component: {fileID: 8477115784999498288}
   - component: {fileID: 8477115784999498287}
   - component: {fileID: 8477115784999498286}
-  - component: {fileID: 8477115784999498285}
+  - component: {fileID: 8477115784999498289}
+  - component: {fileID: 8477115784999498288}
   m_Layer: 0
   m_Name: ServiceValve_Colliders
   m_TagString: snap
@@ -70977,10 +70903,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5159835606160940704}
-  - component: {fileID: 6454302809405519018}
   - component: {fileID: 6454302809405519017}
   - component: {fileID: 6454302809405519016}
-  - component: {fileID: 6454302809405519015}
+  - component: {fileID: 6454302809405519019}
+  - component: {fileID: 6454302809405519018}
   m_Layer: 0
   m_Name: SuctionValve_Dropped_Pos
   m_TagString: snap
@@ -70988,18 +70914,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &6454302809405519015
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6454302809405519014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 671724185}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &6454302809405519016
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -71046,9 +70960,21 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 8.87
+  m_Radius: 3.07
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6454302809405519018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6454302809405519014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1113072441}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6454302809405519019
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -71062,7 +70988,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
   m_InteractionLayers:
-    m_Bits: 2
+    m_Bits: 4
   m_Handedness: 0
   m_AttachTransform: {fileID: 0}
   m_KeepSelectedTargetValid: 1
@@ -72575,10 +72501,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5447867989336939057}
-  - component: {fileID: 6735138772391272061}
   - component: {fileID: 6735138772391272060}
   - component: {fileID: 6735138772391272059}
-  - component: {fileID: 6735138772391272058}
+  - component: {fileID: 6735138772391272062}
+  - component: {fileID: 6735138772391272061}
   m_Layer: 0
   m_Name: SuctionValve_Colliders
   m_TagString: snap
@@ -72586,18 +72512,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &6735138772391272058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6735138772391272057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1382810608}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &6735138772391272059
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -72644,9 +72558,21 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 8.87
+  m_Radius: 2.35
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6735138772391272061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6735138772391272057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1113072441}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6735138772391272062
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -72660,7 +72586,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
   m_InteractionLayers:
-    m_Bits: 2
+    m_Bits: 4
   m_Handedness: 0
   m_AttachTransform: {fileID: 0}
   m_KeepSelectedTargetValid: 1
@@ -72675,19 +72601,7 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -79710,10 +79624,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2157154620081358971}
-  - component: {fileID: 7784846844584422944}
   - component: {fileID: 7784846844584422943}
   - component: {fileID: 7784846844584422942}
-  - component: {fileID: 7784846844584422941}
+  - component: {fileID: 7784846844584422945}
+  - component: {fileID: 7784846844584422944}
   m_Layer: 0
   m_Name: ServiceValve_Dropped_Pos
   m_TagString: snap
@@ -79721,18 +79635,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &7784846844584422941
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7784846844584422940}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 671724185}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &7784846844584422942
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -79779,9 +79681,21 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 8.87
+  m_Radius: 3.07
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7784846844584422944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7784846844584422940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1113072441}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7784846844584422945
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -79795,7 +79709,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
   m_InteractionLayers:
-    m_Bits: 2048
+    m_Bits: 2
   m_Handedness: 0
   m_AttachTransform: {fileID: 0}
   m_KeepSelectedTargetValid: 1
@@ -84478,24 +84392,12 @@ Transform:
   m_GameObject: {fileID: 6032650742523777943}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: -0.32680005, y: 1.1048, z: 0.9190325}
+  m_LocalPosition: {x: -0.3212, y: 1.1048, z: 0.9190325}
   m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8477115784999498285
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6032650742523777943}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1382810608}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &8477115784999498286
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -84542,9 +84444,21 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 8.87
+  m_Radius: 2.35
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8477115784999498288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6032650742523777943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1113072441}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8477115784999498289
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -84558,7 +84472,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
   m_InteractionLayers:
-    m_Bits: 1024
+    m_Bits: 2
   m_Handedness: 0
   m_AttachTransform: {fileID: 0}
   m_KeepSelectedTargetValid: 1
@@ -89613,4 +89527,3 @@ SceneRoots:
   - {fileID: 1408039924}
   - {fileID: 767580803}
   - {fileID: 1745716722}
-  - {fileID: 1918894166}
