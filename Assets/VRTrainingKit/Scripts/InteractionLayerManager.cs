@@ -4,139 +4,227 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
-using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 /// <summary>
 /// Helper class for managing XR Interaction Layers in the editor
 /// </summary>
 public static class InteractionLayerManager
 {
-    private static readonly string[] DEFAULT_LAYER_NAMES = new string[]
-    {
-        "Default",
-        "Teleport",
-        "Grab",
-        "UI",
-        // Add more default names as needed
-    };
+    private static ScriptableObject s_CachedSettings;
+    private static SerializedObject s_SerializedSettings;
     
     /// <summary>
-    /// Draw a multi-select interaction layer mask field
+    /// Get the InteractionLayerSettings asset from project
     /// </summary>
-    public static LayerMask DrawLayerMaskField(string label, LayerMask mask, params GUILayoutOption[] options)
+    private static ScriptableObject GetInteractionLayerSettings()
     {
-        // Get current layer names
-        List<string> layerNames = GetAllLayerNames();
+        if (s_CachedSettings == null)
+        {
+            // Try to find the InteractionLayerSettings asset in the project
+            string[] guids = AssetDatabase.FindAssets("t:InteractionLayerSettings");
+            if (guids.Length > 0)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                s_CachedSettings = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+            }
+        }
+        return s_CachedSettings;
+    }
+    
+    /// <summary>
+    /// Get actual layer names from XRI settings
+    /// </summary>
+    public static List<string> GetConfiguredLayerNames()
+    {
+        List<string> layerNames = new List<string>();
+        var settings = GetInteractionLayerSettings();
         
-        // Create the mask field
-        int newMask = EditorGUILayout.MaskField(label, mask.value, layerNames.ToArray(), options);
+        if (settings != null)
+        {
+            // Get the serialized object to read the actual layer names
+            var so = new SerializedObject(settings);
+            var layerNamesProperty = so.FindProperty("m_LayerNames");
+            
+            if (layerNamesProperty != null && layerNamesProperty.isArray)
+            {
+                for (int i = 0; i < layerNamesProperty.arraySize && i < 32; i++)
+                {
+                    string layerName = layerNamesProperty.GetArrayElementAtIndex(i).stringValue;
+                    if (!string.IsNullOrEmpty(layerName))
+                    {
+                        layerNames.Add(layerName);
+                    }
+                }
+            }
+        }
+        
+        // Fallback if we can't get the settings
+        if (layerNames.Count == 0)
+        {
+            for (int i = 0; i < 32; i++)
+            {
+                string name = InteractionLayerMask.LayerToName(i);
+                if (!string.IsNullOrEmpty(name))
+                {
+                    layerNames.Add(name);
+                }
+            }
+        }
+        
+        return layerNames;
+    }
+    
+    /// <summary>
+    /// Draw a layer mask field that mimics Unity's XRI layer dropdown
+    /// </summary>
+    public static LayerMask DrawLayerMaskDropdown(LayerMask currentMask, params GUILayoutOption[] options)
+    {
+        // Get configured layer names  
+        var layerNames = GetConfiguredLayerNames();
+        
+        // Create array of only configured layer names (non-empty)
+        List<string> displayNames = new List<string>();
+        List<int> layerIndices = new List<int>();
+        
+        for (int i = 0; i < 32; i++)
+        {
+            if (i < layerNames.Count && !string.IsNullOrEmpty(layerNames[i]))
+            {
+                displayNames.Add(layerNames[i]);
+                layerIndices.Add(i);
+            }
+        }
+        
+        // Convert current mask to display mask
+        int displayMask = 0;
+        for (int i = 0; i < layerIndices.Count; i++)
+        {
+            if ((currentMask.value & (1 << layerIndices[i])) != 0)
+            {
+                displayMask |= (1 << i);
+            }
+        }
+        
+        // Draw the mask field
+        int newDisplayMask = EditorGUILayout.MaskField(displayMask, displayNames.ToArray(), options);
+        
+        // Convert display mask back to layer mask
+        int newMask = 0;
+        for (int i = 0; i < layerIndices.Count; i++)
+        {
+            if ((newDisplayMask & (1 << i)) != 0)
+            {
+                newMask |= (1 << layerIndices[i]);
+            }
+        }
+        
+        // Add button to open layer settings
+        if (GUILayout.Button("Edit Layers", EditorStyles.miniButton, GUILayout.Width(70)))
+        {
+            OpenInteractionLayerSettings();
+        }
         
         return newMask;
     }
     
     /// <summary>
-    /// Draw a simplified dropdown for single layer selection with multi-layer support
+    /// Get display text for layer mask (showing selected layers)
     /// </summary>
-    public static LayerMask DrawLayerDropdown(LayerMask currentMask, params GUILayoutOption[] options)
+    private static string GetLayerMaskDisplayText(LayerMask mask, List<string> layerNames)
     {
-        List<string> displayNames = new List<string>();
-        List<int> maskValues = new List<int>();
+        if (mask.value == 0)
+            return "Nothing";
+        if (mask.value == -1)
+            return "Everything";
         
-        // Add special options
-        displayNames.Add("Nothing");
-        maskValues.Add(0);
-        
-        displayNames.Add("Everything");
-        maskValues.Add(-1);
-        
-        displayNames.Add("─────────────");  // Separator
-        maskValues.Add(currentMask.value);  // Keep current if separator selected
-        
-        // Add individual layers
-        List<string> layerNames = GetAllLayerNames();
+        List<string> selectedLayers = new List<string>();
         for (int i = 0; i < layerNames.Count && i < 32; i++)
         {
-            displayNames.Add($"{i}: {layerNames[i]}");
-            maskValues.Add(1 << i);
-        }
-        
-        displayNames.Add("─────────────");  // Separator
-        maskValues.Add(currentMask.value);
-        
-        displayNames.Add("Multiple...");
-        maskValues.Add(-2); // Special value for opening multi-select
-        
-        // Find current selection
-        int currentIndex = 0;
-        if (currentMask.value == 0)
-            currentIndex = 0;
-        else if (currentMask.value == -1)
-            currentIndex = 1;
-        else
-        {
-            // Check if it's a single layer
-            for (int i = 3; i < maskValues.Count - 2; i++)
+            if (!string.IsNullOrEmpty(layerNames[i]) && (mask.value & (1 << i)) != 0)
             {
-                if (currentMask.value == maskValues[i])
-                {
-                    currentIndex = i;
-                    break;
-                }
-            }
-            
-            // If multiple layers selected, show current value in label
-            if (currentIndex == 0 && currentMask.value != 0)
-            {
-                displayNames[0] = $"Multiple ({CountSetBits(currentMask.value)} layers)";
+                selectedLayers.Add($"{i}: {layerNames[i]}");
             }
         }
         
-        // Draw dropdown
-        int newIndex = EditorGUILayout.Popup(currentIndex, displayNames.ToArray(), options);
+        if (selectedLayers.Count == 0)
+            return "Nothing";
+        if (selectedLayers.Count == 1)
+            return selectedLayers[0];
+        if (selectedLayers.Count <= 3)
+            return string.Join(", ", selectedLayers);
         
-        // Handle selection
-        if (newIndex == displayNames.Count - 1) // "Multiple..." selected
-        {
-            // Open a separate window or show mask field
-            return DrawLayerMaskField("", currentMask);
-        }
-        else if (newIndex == 2 || newIndex == displayNames.Count - 2) // Separator
-        {
-            return currentMask; // Don't change
-        }
-        else if (newIndex >= 0 && newIndex < maskValues.Count)
-        {
-            return maskValues[newIndex];
-        }
-        
-        return currentMask;
+        return $"Mixed ({selectedLayers.Count} layers)";
     }
     
     /// <summary>
-    /// Get all configured interaction layer names
+    /// Open the Interaction Layer Settings in the Inspector
     /// </summary>
-    public static List<string> GetAllLayerNames()
+    public static void OpenInteractionLayerSettings()
     {
-        List<string> names = new List<string>();
-        
-        // Try to get names from XRI settings
-        // For now, use a combination of defaults and layer indices
-        for (int i = 0; i < 32; i++)
+        var settings = GetInteractionLayerSettings();
+        if (settings != null)
         {
-            if (i < DEFAULT_LAYER_NAMES.Length)
+            Selection.activeObject = settings;
+            EditorGUIUtility.PingObject(settings);
+        }
+        else
+        {
+            // Try to open project settings
+            SettingsService.OpenProjectSettings("Project/XR Plug-in Management/XR Interaction Toolkit");
+        }
+    }
+    
+    /// <summary>
+    /// Add a new layer name to the settings
+    /// </summary>
+    public static bool AddInteractionLayer(string layerName)
+    {
+        var settings = GetInteractionLayerSettings();
+        if (settings == null) return false;
+        
+        var so = new SerializedObject(settings);
+        var layerNamesProperty = so.FindProperty("m_LayerNames");
+        
+        if (layerNamesProperty != null && layerNamesProperty.isArray)
+        {
+            // Find first empty slot
+            for (int i = 0; i < layerNamesProperty.arraySize && i < 32; i++)
             {
-                names.Add(DEFAULT_LAYER_NAMES[i]);
-            }
-            else
-            {
-                names.Add($"Layer {i}");
+                string existingName = layerNamesProperty.GetArrayElementAtIndex(i).stringValue;
+                if (string.IsNullOrEmpty(existingName))
+                {
+                    layerNamesProperty.GetArrayElementAtIndex(i).stringValue = layerName;
+                    so.ApplyModifiedProperties();
+                    AssetDatabase.SaveAssets();
+                    
+                    // Clear cache
+                    s_CachedSettings = null;
+                    return true;
+                }
             }
         }
         
-        return names;
+        return false;
+    }
+    
+    /// <summary>
+    /// Get the name of a specific layer index
+    /// </summary>
+    public static string GetLayerNameAt(int index)
+    {
+        if (index < 0 || index >= 32) return "";
+        
+        var layerNames = GetConfiguredLayerNames();
+        if (index < layerNames.Count)
+            return layerNames[index];
+        
+        return "";
     }
     
     /// <summary>
@@ -183,48 +271,18 @@ public static class InteractionLayerManager
         var grabInteractable = obj.GetComponent<XRGrabInteractable>();
         if (grabInteractable != null)
             return grabInteractable.interactionLayers.value;
-        
+
         // Try XRSocketInteractor
         var socketInteractor = obj.GetComponent<XRSocketInteractor>();
         if (socketInteractor != null)
             return socketInteractor.interactionLayers.value;
-        
+
         // Try XRSimpleInteractable
         var simpleInteractable = obj.GetComponent<XRSimpleInteractable>();
         if (simpleInteractable != null)
             return simpleInteractable.interactionLayers.value;
-        
+
         return 0; // Nothing
-    }
-    
-    /// <summary>
-    /// Apply same layer to multiple objects
-    /// </summary>
-    public static void ApplyLayerToMultiple(List<GameObject> objects, LayerMask layerMask)
-    {
-        foreach (var obj in objects)
-        {
-            SetInteractionLayer(obj, layerMask);
-        }
-    }
-    
-    /// <summary>
-    /// Create a pairing between a grab object and snap point
-    /// </summary>
-    public static void CreateExclusivePairing(GameObject grabObject, GameObject snapPoint, int layerIndex)
-    {
-        if (layerIndex < 0 || layerIndex >= 32)
-        {
-            Debug.LogError("Layer index must be between 0 and 31");
-            return;
-        }
-        
-        LayerMask exclusiveLayer = 1 << layerIndex;
-        
-        SetInteractionLayer(grabObject, exclusiveLayer);
-        SetInteractionLayer(snapPoint, exclusiveLayer);
-        
-        Debug.Log($"Created exclusive pairing on layer {layerIndex} between {grabObject.name} and {snapPoint.name}");
     }
     
     /// <summary>
@@ -232,39 +290,11 @@ public static class InteractionLayerManager
     /// </summary>
     public static int FindNextAvailableLayer(int startIndex = 2)
     {
-        // Check all objects in scene to see which layers are in use
-        HashSet<int> usedLayers = new HashSet<int>();
+        var layerNames = GetConfiguredLayerNames();
         
-        // Find all interactables
-        var allGrabInteractables = GameObject.FindObjectsOfType<XRGrabInteractable>();
-        foreach (var interactable in allGrabInteractables)
-        {
-            for (int i = 0; i < 32; i++)
-            {
-                if ((interactable.interactionLayers.value & (1 << i)) != 0)
-                {
-                    usedLayers.Add(i);
-                }
-            }
-        }
-        
-        // Find all socket interactors
-        var allSocketInteractors = GameObject.FindObjectsOfType<XRSocketInteractor>();
-        foreach (var socket in allSocketInteractors)
-        {
-            for (int i = 0; i < 32; i++)
-            {
-                if ((socket.interactionLayers.value & (1 << i)) != 0)
-                {
-                    usedLayers.Add(i);
-                }
-            }
-        }
-        
-        // Find first unused layer
         for (int i = startIndex; i < 32; i++)
         {
-            if (!usedLayers.Contains(i))
+            if (i >= layerNames.Count || string.IsNullOrEmpty(layerNames[i]))
             {
                 return i;
             }
@@ -274,198 +304,62 @@ public static class InteractionLayerManager
     }
     
     /// <summary>
-    /// Generate a report of layer usage
+    /// Create a quick layer dialog for adding new layers
     /// </summary>
-    public static Dictionary<int, List<GameObject>> GetLayerUsageReport()
+    public class AddLayerDialog : EditorWindow
     {
-        Dictionary<int, List<GameObject>> usage = new Dictionary<int, List<GameObject>>();
+        private string newLayerName = "";
+        private int selectedIndex = -1;
         
-        // Initialize dictionary
-        for (int i = 0; i < 32; i++)
+        public static void ShowDialog()
         {
-            usage[i] = new List<GameObject>();
+            var window = GetWindow<AddLayerDialog>("Add Interaction Layer");
+            window.minSize = new Vector2(300, 150);
+            window.maxSize = new Vector2(300, 150);
         }
         
-        // Check all grab interactables
-        var allGrabInteractables = GameObject.FindObjectsOfType<XRGrabInteractable>();
-        foreach (var interactable in allGrabInteractables)
+        private void OnGUI()
         {
-            for (int i = 0; i < 32; i++)
+            EditorGUILayout.LabelField("Add New Interaction Layer", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+            
+            // Find next available index
+            selectedIndex = FindNextAvailableLayer();
+            
+            if (selectedIndex == -1)
             {
-                if ((interactable.interactionLayers.value & (1 << i)) != 0)
-                {
-                    usage[i].Add(interactable.gameObject);
-                }
+                EditorGUILayout.HelpBox("All 32 interaction layers are in use!", MessageType.Warning);
             }
-        }
-        
-        // Check all socket interactors
-        var allSocketInteractors = GameObject.FindObjectsOfType<XRSocketInteractor>();
-        foreach (var socket in allSocketInteractors)
-        {
-            for (int i = 0; i < 32; i++)
+            else
             {
-                if ((socket.interactionLayers.value & (1 << i)) != 0)
-                {
-                    usage[i].Add(socket.gameObject);
-                }
-            }
-        }
-        
-        return usage;
-    }
-    
-    private static int CountSetBits(int n)
-    {
-        int count = 0;
-        while (n != 0)
-        {
-            count++;
-            n &= (n - 1);
-        }
-        return count;
-    }
-}
-
-/// <summary>
-/// Window for managing interaction layer pairings
-/// </summary>
-public class InteractionLayerPairingWindow : EditorWindow
-{
-    private Vector2 scrollPos;
-    private Dictionary<GameObject, GameObject> pairings = new Dictionary<GameObject, GameObject>();
-    private List<GameObject> grabObjects = new List<GameObject>();
-    private List<GameObject> snapPoints = new List<GameObject>();
-    
-    [MenuItem("VR Training/Interaction Layer Pairing")]
-    public static void ShowWindow()
-    {
-        var window = GetWindow<InteractionLayerPairingWindow>("Layer Pairing");
-        window.minSize = new Vector2(400, 300);
-    }
-    
-    private void OnEnable()
-    {
-        RefreshObjectLists();
-    }
-    
-    private void RefreshObjectLists()
-    {
-        grabObjects.Clear();
-        snapPoints.Clear();
-        
-        // Find all grab objects
-        var allGrabs = GameObject.FindGameObjectsWithTag("grab");
-        grabObjects.AddRange(allGrabs);
-        
-        var allKnobs = GameObject.FindGameObjectsWithTag("knob");
-        grabObjects.AddRange(allKnobs);
-        
-        // Find all snap points
-        var allSnaps = GameObject.FindGameObjectsWithTag("snap");
-        snapPoints.AddRange(allSnaps);
-    }
-    
-    private void OnGUI()
-    {
-        EditorGUILayout.LabelField("Quick Pairing Setup", EditorStyles.boldLabel);
-        
-        if (GUILayout.Button("Refresh Lists"))
-        {
-            RefreshObjectLists();
-        }
-        
-        EditorGUILayout.Space();
-        
-        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-        
-        // Show pairing interface
-        EditorGUILayout.LabelField($"Grab Objects: {grabObjects.Count}");
-        EditorGUILayout.LabelField($"Snap Points: {snapPoints.Count}");
-        
-        EditorGUILayout.Space();
-        
-        // Pairing section
-        EditorGUILayout.LabelField("Create Pairings:", EditorStyles.boldLabel);
-        
-        foreach (var snapPoint in snapPoints)
-        {
-            if (snapPoint == null) continue;
-            
-            EditorGUILayout.BeginHorizontal("box");
-            EditorGUILayout.LabelField(snapPoint.name, GUILayout.Width(150));
-            EditorGUILayout.LabelField("→", GUILayout.Width(20));
-            
-            // Dropdown for grab objects
-            if (!pairings.ContainsKey(snapPoint))
-                pairings[snapPoint] = null;
-            
-            List<string> options = new List<string> { "None" };
-            options.AddRange(grabObjects.Where(g => g != null).Select(g => g.name));
-            
-            int currentIndex = pairings[snapPoint] == null ? 0 : 
-                grabObjects.IndexOf(pairings[snapPoint]) + 1;
-            
-            int newIndex = EditorGUILayout.Popup(currentIndex, options.ToArray());
-            
-            if (newIndex == 0)
-                pairings[snapPoint] = null;
-            else if (newIndex > 0 && newIndex <= grabObjects.Count)
-                pairings[snapPoint] = grabObjects[newIndex - 1];
-            
-            EditorGUILayout.EndHorizontal();
-        }
-        
-        EditorGUILayout.EndScrollView();
-        
-        EditorGUILayout.Space();
-        
-        if (GUILayout.Button("Apply Pairings", GUILayout.Height(30)))
-        {
-            ApplyPairings();
-        }
-        
-        // Show layer usage
-        if (GUILayout.Button("Show Layer Usage"))
-        {
-            ShowLayerUsage();
-        }
-    }
-    
-    private void ApplyPairings()
-    {
-        int layerIndex = 10; // Start from layer 10 for custom pairings
-        
-        foreach (var pair in pairings)
-        {
-            if (pair.Key != null && pair.Value != null)
-            {
-                InteractionLayerManager.CreateExclusivePairing(pair.Value, pair.Key, layerIndex);
-                layerIndex++;
+                EditorGUILayout.LabelField($"Layer Index: {selectedIndex}");
+                newLayerName = EditorGUILayout.TextField("Layer Name:", newLayerName);
                 
-                if (layerIndex >= 32)
+                EditorGUILayout.Space();
+                
+                EditorGUILayout.BeginHorizontal();
+                
+                if (GUILayout.Button("Cancel"))
                 {
-                    EditorUtility.DisplayDialog("Layer Limit", 
-                        "Reached maximum number of interaction layers (32)", "OK");
-                    break;
+                    Close();
                 }
-            }
-        }
-        
-        EditorUtility.DisplayDialog("Complete", 
-            $"Applied {pairings.Count(p => p.Value != null)} pairings", "OK");
-    }
-    
-    private void ShowLayerUsage()
-    {
-        var usage = InteractionLayerManager.GetLayerUsageReport();
-        
-        Debug.Log("=== Interaction Layer Usage ===");
-        for (int i = 0; i < 32; i++)
-        {
-            if (usage[i].Count > 0)
-            {
-                Debug.Log($"Layer {i}: {string.Join(", ", usage[i].Select(g => g.name))}");
+                
+                GUI.enabled = !string.IsNullOrEmpty(newLayerName);
+                if (GUILayout.Button("Add Layer"))
+                {
+                    if (AddInteractionLayer(newLayerName))
+                    {
+                        Debug.Log($"Added interaction layer '{newLayerName}' at index {selectedIndex}");
+                        Close();
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("Error", "Failed to add layer", "OK");
+                    }
+                }
+                GUI.enabled = true;
+                
+                EditorGUILayout.EndHorizontal();
             }
         }
     }
