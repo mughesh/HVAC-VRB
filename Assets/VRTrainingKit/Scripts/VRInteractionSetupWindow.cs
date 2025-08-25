@@ -17,6 +17,7 @@ public class VRInteractionSetupWindow : EditorWindow
         Setup,
         Configure,
         Sequence,
+        TrainingVolumes,
         Validate
     }
     
@@ -36,6 +37,15 @@ public class VRInteractionSetupWindow : EditorWindow
     private SequenceController sequenceController;
     private Vector2 sequenceScrollPos;
     private bool showSequenceHelp = false;
+    
+    // Training Volumes tab
+    private TrainingVolume selectedTrainingVolume;
+    private TrainingChapter selectedChapter;
+    private Vector2 volumesScrollPos;
+    private bool showVolumeCreation = false;
+    private string newVolumeName = "";
+    private string newVolumeDescription = "";
+    private string newChapterName = "";
     
     // Validate tab
     private List<string> validationIssues = new List<string>();
@@ -147,6 +157,8 @@ public class VRInteractionSetupWindow : EditorWindow
             currentTab = Tab.Configure;
         if (GUILayout.Toggle(currentTab == Tab.Sequence, "Sequence", "Button"))
             currentTab = Tab.Sequence;
+        if (GUILayout.Toggle(currentTab == Tab.TrainingVolumes, "Volumes", "Button"))
+            currentTab = Tab.TrainingVolumes;
         if (GUILayout.Toggle(currentTab == Tab.Validate, "Validate", "Button"))
             currentTab = Tab.Validate;
         GUILayout.EndHorizontal();
@@ -164,6 +176,9 @@ public class VRInteractionSetupWindow : EditorWindow
                 break;
             case Tab.Sequence:
                 DrawSequenceTab();
+                break;
+            case Tab.TrainingVolumes:
+                DrawTrainingVolumesTab();
                 break;
             case Tab.Validate:
                 DrawValidateTab();
@@ -608,6 +623,229 @@ public class VRInteractionSetupWindow : EditorWindow
         else if (validationIssues != null)
         {
             EditorGUILayout.LabelField("✓ All checks passed!", successStyle);
+        }
+    }
+    
+    private void DrawTrainingVolumesTab()
+    {
+        EditorGUILayout.LabelField("Training Volumes", headerStyle);
+        EditorGUILayout.Space(5);
+        
+        volumesScrollPos = EditorGUILayout.BeginScrollView(volumesScrollPos);
+        
+        // Current volume selection
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("Volume Selection", subHeaderStyle);
+        
+        selectedTrainingVolume = (TrainingVolume)EditorGUILayout.ObjectField(
+            "Training Volume", selectedTrainingVolume, typeof(TrainingVolume), false);
+            
+        if (selectedTrainingVolume != null)
+        {
+            // Volume info
+            EditorGUILayout.LabelField($"Chapters: {selectedTrainingVolume.chapters.Count}");
+            EditorGUILayout.LabelField($"Category: {selectedTrainingVolume.category}");
+            EditorGUILayout.LabelField($"Duration: {selectedTrainingVolume.estimatedDurationMinutes} min");
+            
+            EditorGUILayout.Space(5);
+            
+            // Volume actions
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Edit Volume", GUILayout.Height(25)))
+            {
+                Selection.activeObject = selectedTrainingVolume;
+            }
+            
+            if (GUILayout.Button("Validate Volume", GUILayout.Height(25)))
+            {
+                var issues = selectedTrainingVolume.ValidateVolume();
+                if (issues.Count > 0)
+                {
+                    string issueText = string.Join("\n", issues);
+                    EditorUtility.DisplayDialog("Volume Validation Issues", 
+                        $"Found {issues.Count} issues:\n\n{issueText}", "OK");
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("Volume Valid", 
+                        "No issues found in volume configuration.", "OK");
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            // Load volume into sequence controller
+            if (GUILayout.Button("Load Into Scene", GUILayout.Height(30)))
+            {
+                LoadVolumeIntoScene();
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("Select a Training Volume asset to view details and load into scene.", MessageType.Info);
+        }
+        
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space(10);
+        
+        // Available volumes
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("Available Volumes", subHeaderStyle);
+        
+        string[] volumeGuids = AssetDatabase.FindAssets("t:TrainingVolume");
+        if (volumeGuids.Length > 0)
+        {
+            EditorGUILayout.LabelField($"Found {volumeGuids.Length} Training Volumes:");
+            
+            foreach (string guid in volumeGuids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                TrainingVolume volume = AssetDatabase.LoadAssetAtPath<TrainingVolume>(path);
+                
+                if (volume != null)
+                {
+                    EditorGUILayout.BeginHorizontal("box");
+                    EditorGUILayout.LabelField($"📚 {volume.volumeName}", EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField($"{volume.chapters.Count} chapters", EditorStyles.miniLabel, GUILayout.Width(80));
+                    
+                    if (GUILayout.Button("Select", GUILayout.Width(60)))
+                    {
+                        selectedTrainingVolume = volume;
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+            }
+        }
+        else
+        {
+            EditorGUILayout.LabelField("No Training Volumes found", EditorStyles.miniLabel);
+        }
+        
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space(10);
+        
+        // Volume creation
+        EditorGUILayout.BeginVertical("box");
+        showVolumeCreation = EditorGUILayout.Foldout(showVolumeCreation, "Create New Volume", true);
+        
+        if (showVolumeCreation)
+        {
+            EditorGUILayout.Space(5);
+            newVolumeName = EditorGUILayout.TextField("Volume Name", newVolumeName);
+            newVolumeDescription = EditorGUILayout.TextField("Description", newVolumeDescription, GUILayout.Height(40));
+            
+            EditorGUILayout.BeginHorizontal();
+            
+            if (GUILayout.Button("Create Training Volume"))
+            {
+                CreateNewTrainingVolume();
+            }
+            
+            if (GUILayout.Button("Create Sample AC Volume"))
+            {
+                CreateSampleACVolume();
+            }
+            
+            EditorGUILayout.EndHorizontal();
+        }
+        
+        EditorGUILayout.EndVertical();
+        
+        EditorGUILayout.EndScrollView();
+    }
+    
+    private void LoadVolumeIntoScene()
+    {
+        if (selectedTrainingVolume == null)
+        {
+            EditorUtility.DisplayDialog("No Volume Selected", 
+                "Please select a Training Volume first.", "OK");
+            return;
+        }
+        
+        // Find or create sequence controller
+        SequenceController controller = FindObjectOfType<SequenceController>();
+        if (controller == null)
+        {
+            GameObject controllerObj = new GameObject("SequenceController");
+            controller = controllerObj.AddComponent<SequenceController>();
+            Selection.activeGameObject = controllerObj;
+        }
+        
+        // Clear existing state groups (old system)
+        controller.stateGroups.Clear();
+        
+        Debug.Log($"[Training] Loaded volume '{selectedTrainingVolume.volumeName}' into scene");
+        EditorUtility.DisplayDialog("Volume Loaded", 
+            $"Training Volume '{selectedTrainingVolume.volumeName}' has been prepared.\n\n" +
+            $"Chapters: {selectedTrainingVolume.chapters.Count}\n" +
+            $"To start training, call StartVolume() on the TrainingVolume at runtime.", "OK");
+    }
+    
+    private void CreateNewTrainingVolume()
+    {
+        if (string.IsNullOrEmpty(newVolumeName))
+        {
+            EditorUtility.DisplayDialog("Invalid Name", "Please enter a volume name.", "OK");
+            return;
+        }
+        
+        string path = EditorUtility.SaveFilePanelInProject(
+            "Save Training Volume", 
+            $"TrainingVolume_{newVolumeName.Replace(" ", "")}", 
+            "asset", 
+            "Save the training volume asset");
+        
+        if (!string.IsNullOrEmpty(path))
+        {
+            TrainingVolume volume = ScriptableObject.CreateInstance<TrainingVolume>();
+            volume.volumeName = newVolumeName;
+            volume.description = newVolumeDescription;
+            
+            AssetDatabase.CreateAsset(volume, path);
+            AssetDatabase.SaveAssets();
+            
+            selectedTrainingVolume = volume;
+            Selection.activeObject = volume;
+            
+            // Reset creation fields
+            newVolumeName = "";
+            newVolumeDescription = "";
+            
+            EditorUtility.DisplayDialog("Volume Created", 
+                $"Training Volume '{volume.volumeName}' created successfully!", "OK");
+        }
+    }
+    
+    private void CreateSampleACVolume()
+    {
+        string path = EditorUtility.SaveFilePanelInProject(
+            "Save Sample AC Volume", 
+            "TrainingVolume_AC_LeakTesting", 
+            "asset", 
+            "Save the sample AC leak testing volume");
+        
+        if (!string.IsNullOrEmpty(path))
+        {
+            TrainingVolume volume = ScriptableObject.CreateInstance<TrainingVolume>();
+            volume.volumeName = "AC Leak Testing Procedure";
+            volume.description = "Complete HVAC leak testing procedure including hose connections, pressure testing, and leak detection.";
+            volume.category = "HVAC";
+            volume.estimatedDurationMinutes = 15;
+            volume.allowMistakes = true;
+            volume.showHints = true;
+            
+            AssetDatabase.CreateAsset(volume, path);
+            AssetDatabase.SaveAssets();
+            
+            selectedTrainingVolume = volume;
+            Selection.activeObject = volume;
+            
+            EditorUtility.DisplayDialog("Sample Volume Created", 
+                "Sample AC Leak Testing volume created!\n\n" +
+                "Next steps:\n" +
+                "1. Create TrainingChapter assets for each phase\n" +
+                "2. Add chapters to the volume\n" +
+                "3. Configure steps within each chapter", "OK");
         }
     }
     
