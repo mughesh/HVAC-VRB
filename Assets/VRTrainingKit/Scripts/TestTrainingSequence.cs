@@ -3,14 +3,25 @@ using UnityEngine;
   public class TestTrainingSequence : MonoBehaviour
   {
       public TrainingProgram testProgram;
+      public TrainingSequenceAsset testAsset;
 
-  void Start()
-  {
-      testProgram = TrainingSequenceFactory.CreateHVACLeakTestingProgram();
+      void Start()
+      {
+          // Test 1: Direct factory method (like Phase 1)
+          testProgram = TrainingSequenceFactory.CreateHVACLeakTestingProgram();
+          Debug.Log($"Direct factory stats: Modules: {testProgram.modules.Count}");
 
-      // Test validation on the first step
-      var firstStep = testProgram.modules[0].taskGroups[0].steps[0];
-      Debug.Log($"Step '{firstStep.stepName}' is valid: {firstStep.IsValid()}");
-      Debug.Log($"Validation message: {firstStep.GetValidationMessage()}");
-  }
+          // Test 2: Create HVAC template asset
+          testAsset = TrainingSequenceAssetManager.CreateHVACTemplateAsset();
+          var stats = testAsset.GetStats();
+          Debug.Log($"Asset template stats: {stats}");
+
+          // Test 3: Validation
+          var validation = testAsset.ValidateProgram();
+          Debug.Log($"Validation - Errors: {validation.errors.Count}, Warnings: {validation.warnings.Count}");
+          foreach(var error in validation.errors)
+          {
+              Debug.LogWarning($"Validation Error: {error}");
+          }
+      }
   }
