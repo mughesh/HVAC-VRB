@@ -32,10 +32,18 @@ public class VRInteractionSetupWindow : EditorWindow
     private SnapProfile selectedSnapProfile;
     private Vector2 configScrollPos;
     
-    // Sequence tab
+    // Sequence tab - Legacy state-based system
     private SequenceController sequenceController;
     private Vector2 sequenceScrollPos;
     private bool showSequenceHelp = false;
+    
+    // Training Sequence tab - New hierarchical system
+    private TrainingSequenceAsset currentTrainingAsset;
+    private TrainingProgram currentProgram;
+    private Vector2 trainingSequenceScrollPos;
+    private TrainingSequenceAsset[] availableAssets;
+    private int selectedAssetIndex = 0;
+    private bool assetsLoaded = false;
     
     // Validate tab
     private List<string> validationIssues = new List<string>();
@@ -517,63 +525,295 @@ public class VRInteractionSetupWindow : EditorWindow
     
     private void DrawSequenceTab()
     {
-        EditorGUILayout.LabelField("Sequence Controller", headerStyle);
+        EditorGUILayout.LabelField("Training Sequence Builder", headerStyle);
         EditorGUILayout.Space(5);
         
-        // Find or create sequence controller
-        sequenceController = FindObjectOfType<SequenceController>();
-        
-        if (sequenceController == null)
+        // Load available assets if needed
+        if (!assetsLoaded)
         {
-            EditorGUILayout.HelpBox("No Sequence Controller found in scene.", MessageType.Warning);
+            LoadAvailableTrainingAssets();
+        }
+        
+        // Asset selection bar
+        DrawAssetSelectionBar();
+        
+        EditorGUILayout.Space(10);
+        
+        // Main content area
+        if (currentTrainingAsset != null && currentProgram != null)
+        {
+            trainingSequenceScrollPos = EditorGUILayout.BeginScrollView(trainingSequenceScrollPos);
             
-            if (GUILayout.Button("Create Sequence Controller", GUILayout.Height(30)))
+            // Draw the hierarchical tree view
+            DrawTrainingProgramTree();
+            
+            EditorGUILayout.EndScrollView();
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("No training sequence loaded. Create a new one or select from dropdown above.", MessageType.Info);
+        }
+    }
+    
+    private void LoadAvailableTrainingAssets()
+    {
+        #if UNITY_EDITOR
+        availableAssets = TrainingSequenceAssetManager.LoadAllSequenceAssets();
+        assetsLoaded = true;
+        
+        // Auto-select first asset if available
+        if (availableAssets.Length > 0 && currentTrainingAsset == null)
+        {
+            selectedAssetIndex = 0;
+            LoadTrainingAsset(availableAssets[0]);
+        }
+        #endif
+    }
+    
+    private void DrawAssetSelectionBar()
+    {
+        EditorGUILayout.BeginHorizontal();
+        
+        // Asset dropdown
+        if (availableAssets != null && availableAssets.Length > 0)
+        {
+            EditorGUILayout.LabelField("Program:", GUILayout.Width(60));
+            
+            string[] assetNames = new string[availableAssets.Length];
+            for (int i = 0; i < availableAssets.Length; i++)
             {
-                GameObject controllerObj = new GameObject("SequenceController");
-                sequenceController = controllerObj.AddComponent<SequenceController>();
-                Selection.activeGameObject = controllerObj;
+                assetNames[i] = availableAssets[i] != null ? availableAssets[i].name : "Missing Asset";
+            }
+            
+            EditorGUI.BeginChangeCheck();
+            selectedAssetIndex = EditorGUILayout.Popup(selectedAssetIndex, assetNames);
+            if (EditorGUI.EndChangeCheck())
+            {
+                if (selectedAssetIndex >= 0 && selectedAssetIndex < availableAssets.Length)
+                {
+                    LoadTrainingAsset(availableAssets[selectedAssetIndex]);
+                }
             }
         }
         else
         {
-            sequenceScrollPos = EditorGUILayout.BeginScrollView(sequenceScrollPos);
-            
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Controller found: " + sequenceController.name);
-            if (GUILayout.Button("Select", GUILayout.Width(60)))
+            EditorGUILayout.LabelField("No training sequence assets found in project");
+        }
+        
+        // Control buttons
+        if (GUILayout.Button("New", GUILayout.Width(50)))
+        {
+            CreateNewTrainingAsset();
+        }
+        
+        if (GUILayout.Button("Load", GUILayout.Width(50)))
+        {
+            LoadAvailableTrainingAssets();
+        }
+        
+        if (GUILayout.Button("Save", GUILayout.Width(50)) && currentTrainingAsset != null)
+        {
+            SaveCurrentAsset();
+        }
+        
+        EditorGUILayout.EndHorizontal();
+    }
+    
+    private void DrawTrainingProgramTree()
+    {
+        if (currentProgram == null) return;
+        
+        // Program level header
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField($"▼ {currentProgram.programName}", headerStyle);
+        
+        if (!string.IsNullOrEmpty(currentProgram.description))
+        {
+            EditorGUILayout.LabelField(currentProgram.description, EditorStyles.wordWrappedLabel);
+        }
+        
+        EditorGUILayout.Space(5);
+        
+        // Draw modules
+        if (currentProgram.modules != null)
+        {
+            for (int moduleIndex = 0; moduleIndex < currentProgram.modules.Count; moduleIndex++)
             {
-                Selection.activeGameObject = sequenceController.gameObject;
+                DrawModuleTree(currentProgram.modules[moduleIndex], moduleIndex);
+                EditorGUILayout.Space(3);
             }
-            EditorGUILayout.EndHorizontal();
-            
-            EditorGUILayout.Space(10);
-            
-            // Show help
-            showSequenceHelp = EditorGUILayout.Foldout(showSequenceHelp, "How to Setup Sequences");
-            if (showSequenceHelp)
+        }
+        
+        EditorGUILayout.EndVertical();
+    }
+    
+    private void DrawModuleTree(TrainingModule module, int moduleIndex)
+    {
+        if (module == null) return;
+        
+        EditorGUILayout.BeginVertical("box");
+        EditorGUI.indentLevel++;
+        
+        // Module header with foldout
+        EditorGUILayout.BeginHorizontal();
+        string moduleIcon = module.isExpanded ? "▼" : "▶";
+        module.isExpanded = EditorGUILayout.Foldout(module.isExpanded, $"{moduleIcon} {module.moduleName}", true);
+        EditorGUILayout.EndHorizontal();
+        
+        // Module content when expanded
+        if (module.isExpanded)
+        {
+            if (!string.IsNullOrEmpty(module.description))
             {
-                EditorGUILayout.HelpBox(
-                    "1. Select the Sequence Controller in the Hierarchy\n" +
-                    "2. In the Inspector, add State Groups\n" +
-                    "3. For each State Group, define:\n" +
-                    "   - Activation Conditions (what triggers this state)\n" +
-                    "   - Allowed/Locked Actions\n" +
-                    "4. Add SequenceValidator components to objects that should be locked\n" +
-                    "5. Set the Required State Group on each SequenceValidator",
-                    MessageType.Info);
+                EditorGUI.indentLevel++;
+                EditorGUILayout.LabelField(module.description, EditorStyles.wordWrappedMiniLabel);
+                EditorGUI.indentLevel--;
             }
             
-            EditorGUILayout.Space(10);
+            EditorGUILayout.Space(3);
             
-            // Quick setup for AC scene
-            EditorGUILayout.LabelField("Quick Setup Templates", subHeaderStyle);
-            
-            if (GUILayout.Button("Setup AC Leak Testing Sequence"))
+            // Draw task groups
+            if (module.taskGroups != null)
             {
-                SetupACLeakTestingSequence();
+                for (int groupIndex = 0; groupIndex < module.taskGroups.Count; groupIndex++)
+                {
+                    DrawTaskGroupTree(module.taskGroups[groupIndex], moduleIndex, groupIndex);
+                }
+            }
+        }
+        
+        EditorGUI.indentLevel--;
+        EditorGUILayout.EndVertical();
+    }
+    
+    private void DrawTaskGroupTree(TaskGroup taskGroup, int moduleIndex, int groupIndex)
+    {
+        if (taskGroup == null) return;
+        
+        EditorGUI.indentLevel++;
+        EditorGUILayout.BeginVertical("box");
+        
+        // Task group header with foldout
+        string groupIcon = taskGroup.isExpanded ? "▼" : "▶";
+        taskGroup.isExpanded = EditorGUILayout.Foldout(taskGroup.isExpanded, $"{groupIcon} {taskGroup.groupName}", true);
+        
+        // Task group content when expanded
+        if (taskGroup.isExpanded)
+        {
+            if (!string.IsNullOrEmpty(taskGroup.description))
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.LabelField(taskGroup.description, EditorStyles.wordWrappedMiniLabel);
+                EditorGUI.indentLevel--;
             }
             
-            EditorGUILayout.EndScrollView();
+            EditorGUILayout.Space(3);
+            
+            // Draw steps
+            if (taskGroup.steps != null)
+            {
+                for (int stepIndex = 0; stepIndex < taskGroup.steps.Count; stepIndex++)
+                {
+                    DrawInteractionStepTree(taskGroup.steps[stepIndex], moduleIndex, groupIndex, stepIndex);
+                }
+            }
+        }
+        
+        EditorGUILayout.EndVertical();
+        EditorGUI.indentLevel--;
+    }
+    
+    private void DrawInteractionStepTree(InteractionStep step, int moduleIndex, int groupIndex, int stepIndex)
+    {
+        if (step == null) return;
+        
+        EditorGUI.indentLevel++;
+        EditorGUILayout.BeginHorizontal();
+        
+        // Status indicator
+        string statusIcon = step.isCompleted ? "✓" : "○";
+        GUIStyle statusStyle = step.isCompleted ? successStyle : GUI.skin.label;
+        EditorGUILayout.LabelField(statusIcon, statusStyle, GUILayout.Width(20));
+        
+        // Step name and type
+        string stepDisplay = $"{step.stepName} [{step.type}]";
+        if (step.allowParallel) stepDisplay += " (Parallel)";
+        if (step.isOptional) stepDisplay += " (Optional)";
+        
+        EditorGUILayout.LabelField(stepDisplay, GUILayout.ExpandWidth(true));
+        
+        // Validation indicator
+        if (!step.IsValid())
+        {
+            EditorGUILayout.LabelField("⚠", warningStyle, GUILayout.Width(20));
+        }
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // Show hint if available
+        if (!string.IsNullOrEmpty(step.hint))
+        {
+            EditorGUI.indentLevel++;
+            EditorGUILayout.LabelField($"Hint: {step.hint}", EditorStyles.miniLabel);
+            EditorGUI.indentLevel--;
+        }
+        
+        // Show missing references
+        if (!step.IsValid())
+        {
+            EditorGUI.indentLevel++;
+            EditorGUILayout.LabelField(step.GetValidationMessage(), warningStyle);
+            EditorGUI.indentLevel--;
+        }
+        
+        EditorGUI.indentLevel--;
+        EditorGUILayout.Space(2);
+    }
+    
+    private void LoadTrainingAsset(TrainingSequenceAsset asset)
+    {
+        currentTrainingAsset = asset;
+        currentProgram = asset?.Program;
+        
+        if (currentTrainingAsset != null)
+        {
+            Debug.Log($"Loaded training asset: {currentTrainingAsset.name}");
+            var stats = currentTrainingAsset.GetStats();
+            Debug.Log($"Asset stats: {stats}");
+        }
+    }
+    
+    private void CreateNewTrainingAsset()
+    {
+        #if UNITY_EDITOR
+        // Show options for template or empty
+        if (EditorUtility.DisplayDialog("Create New Training Sequence", 
+            "Would you like to start with the HVAC template or create an empty sequence?", 
+            "HVAC Template", "Empty Sequence"))
+        {
+            var asset = TrainingSequenceAssetManager.CreateHVACTemplateAsset();
+            TrainingSequenceAssetManager.SaveAssetToSequencesFolder(asset);
+        }
+        else
+        {
+            var asset = TrainingSequenceAssetManager.CreateEmptyAsset();
+            TrainingSequenceAssetManager.SaveAssetToSequencesFolder(asset);
+        }
+        
+        // Reload assets list
+        LoadAvailableTrainingAssets();
+        #endif
+    }
+    
+    private void SaveCurrentAsset()
+    {
+        if (currentTrainingAsset != null)
+        {
+            #if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(currentTrainingAsset);
+            UnityEditor.AssetDatabase.SaveAssets();
+            EditorUtility.DisplayDialog("Save Complete", $"Saved {currentTrainingAsset.name}", "OK");
+            #endif
         }
     }
     

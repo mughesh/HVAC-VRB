@@ -10,33 +10,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea9e9c8ca36d2c1439f823d3fc02f439, type: 3}
-  m_Name: TrainingSequence
+  m_Name: New Training Sequence
   m_EditorClassIdentifier: 
   program:
     programName: New Training Program
     description: 
     modules:
-    - moduleName: 
+    - moduleName: New Module
       description: 
       taskGroups:
-      - groupName: 
+      - groupName: New Task Group
         description: 
         steps:
-        - stepName: 
+        - stepName: New Step
           type: 1
           targetObject: {fileID: 0}
           destination: {fileID: 0}
           targetAngle: 0
-          angleTolerance: 0
+          angleTolerance: 5
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: 
           isCompleted: 0
-        isExpanded: 0
-      isExpanded: 0
+        isExpanded: 1
+      isExpanded: 1
     isExpanded: 1
-  assetDescription: Training sequence asset created with VR Training Kit
+  assetDescription: Custom training sequence
   version: 1.0
-  createdDate: 2025-08-26 13:12:32
-  lastModified: 
+  createdDate: 2025-08-26 13:17:11
+  lastModified: 2025-08-26 13:17:11

@@ -6,6 +6,109 @@ using System.Collections.Generic;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
+/// Safe GameObject reference that works in both runtime and asset files
+/// Uses Unity's GlobalObjectId system for reliable cross-scene references
+/// </summary>
+[System.Serializable]
+public class GameObjectReference
+{
+    [SerializeField] private GameObject _gameObject;
+    [SerializeField] private string _gameObjectName = "";
+    [SerializeField] private string _scenePath = "";
+    [SerializeField] private bool _isValid = false;
+    
+    /// <summary>
+    /// The referenced GameObject (null if not found or invalid)
+    /// </summary>
+    public GameObject GameObject
+    {
+        get 
+        { 
+            // Try to return the direct reference first
+            if (_gameObject != null)
+                return _gameObject;
+            
+            // If direct reference is null but we have a name, try to find it
+            if (!string.IsNullOrEmpty(_gameObjectName))
+            {
+                var found = GameObject.Find(_gameObjectName);
+                if (found != null)
+                {
+                    _gameObject = found;
+                    _isValid = true;
+                    return found;
+                }
+            }
+            
+            return null;
+        }
+        set
+        {
+            _gameObject = value;
+            _gameObjectName = value != null ? value.name : "";
+            _scenePath = value != null && value.scene.IsValid() ? value.scene.path : "";
+            _isValid = value != null;
+        }
+    }
+    
+    /// <summary>
+    /// Whether this reference is valid and points to an existing GameObject
+    /// </summary>
+    public bool IsValid => _gameObject != null || (!string.IsNullOrEmpty(_gameObjectName) && GameObject.Find(_gameObjectName) != null);
+    
+    /// <summary>
+    /// Name of the referenced GameObject (even if the reference is broken)
+    /// </summary>
+    public string GameObjectName => _gameObjectName;
+    
+    /// <summary>
+    /// Scene path where the GameObject was found (for debugging)
+    /// </summary>
+    public string ScenePath => _scenePath;
+    
+    public GameObjectReference()
+    {
+        _gameObject = null;
+        _gameObjectName = "";
+        _scenePath = "";
+        _isValid = false;
+    }
+    
+    public GameObjectReference(GameObject gameObject)
+    {
+        GameObject = gameObject;
+    }
+    
+    /// <summary>
+    /// Implicit conversion from GameObject
+    /// </summary>
+    public static implicit operator GameObjectReference(GameObject gameObject)
+    {
+        return new GameObjectReference(gameObject);
+    }
+    
+    /// <summary>
+    /// Implicit conversion to GameObject
+    /// </summary>
+    public static implicit operator GameObject(GameObjectReference reference)
+    {
+        return reference?.GameObject;
+    }
+    
+    /// <summary>
+    /// Returns display name for editor UI
+    /// </summary>
+    public override string ToString()
+    {
+        if (_gameObject != null)
+            return _gameObject.name;
+        if (!string.IsNullOrEmpty(_gameObjectName))
+            return $"{_gameObjectName} (Missing)";
+        return "None";
+    }
+}
+
+/// <summary>
 /// Root level training program containing multiple modules
 /// Like a book series (e.g., "HVAC Training")
 /// </summary>
@@ -123,10 +226,10 @@ public class InteractionStep
     
     [Header("Target Objects")]
     [Tooltip("The object to interact with")]
-    public GameObject targetObject;
+    public GameObjectReference targetObject = new GameObjectReference();
     
     [Tooltip("For GrabAndSnap: The snap point where object should be placed")]
-    public GameObject destination;
+    public GameObjectReference destination = new GameObjectReference();
     
     [Header("Knob Settings")]
     [Tooltip("For TurnKnob: Target angle in degrees")]
@@ -175,13 +278,14 @@ public class InteractionStep
         switch (type)
         {
             case StepType.Grab:
-                return targetObject != null;
+                return targetObject != null && targetObject.IsValid;
                 
             case StepType.GrabAndSnap:
-                return targetObject != null && destination != null;
+                return targetObject != null && targetObject.IsValid && 
+                       destination != null && destination.IsValid;
                 
             case StepType.TurnKnob:
-                return targetObject != null; // targetAngle and tolerance have defaults
+                return targetObject != null && targetObject.IsValid; // targetAngle and tolerance have defaults
                 
             case StepType.WaitForCondition:
                 return waitForSteps.Count > 0;
@@ -204,19 +308,23 @@ public class InteractionStep
         switch (type)
         {
             case StepType.Grab:
-                return "Missing target object";
+                if (targetObject == null || !targetObject.IsValid)
+                    return "Missing or invalid target object";
+                break;
                 
             case StepType.GrabAndSnap:
-                if (targetObject == null && destination == null)
+                if ((targetObject == null || !targetObject.IsValid) && (destination == null || !destination.IsValid))
                     return "Missing target object and destination";
-                if (targetObject == null)
-                    return "Missing target object";
-                if (destination == null)
-                    return "Missing destination";
+                if (targetObject == null || !targetObject.IsValid)
+                    return "Missing or invalid target object";
+                if (destination == null || !destination.IsValid)
+                    return "Missing or invalid destination";
                 break;
                 
             case StepType.TurnKnob:
-                return "Missing target object (knob)";
+                if (targetObject == null || !targetObject.IsValid)
+                    return "Missing or invalid target object (knob)";
+                break;
                 
             case StepType.WaitForCondition:
                 return "No steps specified to wait for";

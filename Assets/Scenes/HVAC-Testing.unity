@@ -5938,27 +5938,7 @@ MonoBehaviour:
   m_Script: {fileID: 1900988416}
   m_Name: 
   m_EditorClassIdentifier: 
-  stateGroups:
-  - groupName: Initial Setup
-    isActive: 1
-    activationConditions: []
-    allowedActions:
-    - Hose_Male_Connector
-    - Hose_Female_Connector
-    lockedActions:
-    - Nitrogen_Cylinder_Valve
-  - groupName: System Ready
-    isActive: 0
-    activationConditions:
-    - type: 3
-      targetObject: {fileID: 0}
-      secondaryObject: {fileID: 0}
-      targetValue: 0
-      isMet: 0
-    allowedActions:
-    - Nitrogen_Cylinder_Valve
-    - Gauge_Adjustment_Knob
-    lockedActions: []
+  stateGroups: []
   currentStateGroup:
     groupName: New State
     isActive: 0
@@ -5966,21 +5946,9 @@ MonoBehaviour:
     allowedActions: []
     lockedActions: []
   showDebugUI: 1
-  lockedColor:
-    r: 1
-    g: 0
-    b: 0
-    a: 1
-  warningColor:
-    r: 1
-    g: 0.92156863
-    b: 0.015686275
-    a: 1
-  availableColor:
-    r: 0
-    g: 1
-    b: 0
-    a: 1
+  lockedColor: {r: 1, g: 0, b: 0, a: 1}
+  warningColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!4 &766073383
 Transform:
   m_ObjectHideFlags: 0
@@ -12506,7 +12474,7 @@ MonoBehaviour:
     description: 
     modules: []
     isExpanded: 1
-  testAsset: {fileID: 11400000, guid: 99a5d6db96e2d184080f9372c84d309a, type: 2}
+  testAsset: {fileID: 11400000, guid: 70462098099c90044b2f8de75c26a0cf, type: 2}
 --- !u!4 &1035769873
 Transform:
   m_ObjectHideFlags: 0

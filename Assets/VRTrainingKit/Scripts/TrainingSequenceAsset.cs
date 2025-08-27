@@ -19,15 +19,6 @@ public class TrainingSequenceAsset : ScriptableObject
     [TextArea(2, 3)]
     public string assetDescription = "Training sequence asset created with VR Training Kit";
     
-    [Tooltip("Version for tracking asset compatibility")]
-    public string version = "1.0";
-    
-    [Tooltip("When this asset was created")]
-    public string createdDate;
-    
-    [Tooltip("Last modification date")]
-    public string lastModified;
-    
     /// <summary>
     /// Gets the training program stored in this asset
     /// </summary>
@@ -37,7 +28,6 @@ public class TrainingSequenceAsset : ScriptableObject
         set 
         { 
             program = value;
-            UpdateModificationDate();
         }
     }
     
@@ -46,25 +36,11 @@ public class TrainingSequenceAsset : ScriptableObject
     /// </summary>
     private void OnEnable()
     {
-        // Set creation date if not already set
-        if (string.IsNullOrEmpty(createdDate))
-        {
-            createdDate = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        }
-        
         // Initialize empty program if none exists
         if (program == null)
         {
             program = new TrainingProgram();
         }
-    }
-    
-    /// <summary>
-    /// Updates the last modified timestamp
-    /// </summary>
-    private void UpdateModificationDate()
-    {
-        lastModified = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     }
     
     /// <summary>
@@ -139,15 +115,19 @@ public class TrainingSequenceAsset : ScriptableObject
                     }
                     
                     // Check for broken GameObject references
-                    if (step.targetObject == null && step.type != InteractionStep.StepType.WaitForCondition 
-                        && step.type != InteractionStep.StepType.ShowInstruction)
+                    if ((step.targetObject == null || !step.targetObject.IsValid) && 
+                        step.type != InteractionStep.StepType.WaitForCondition && 
+                        step.type != InteractionStep.StepType.ShowInstruction)
                     {
-                        result.AddError($"Step '{step.stepName}' is missing target object reference");
+                        string objName = step.targetObject?.GameObjectName ?? "null";
+                        result.AddError($"Step '{step.stepName}' has missing/invalid target object: {objName}");
                     }
                     
-                    if (step.type == InteractionStep.StepType.GrabAndSnap && step.destination == null)
+                    if (step.type == InteractionStep.StepType.GrabAndSnap && 
+                        (step.destination == null || !step.destination.IsValid))
                     {
-                        result.AddError($"Step '{step.stepName}' is missing destination reference");
+                        string destName = step.destination?.GameObjectName ?? "null";
+                        result.AddError($"Step '{step.stepName}' has missing/invalid destination: {destName}");
                     }
                     
                     // Validate wait conditions

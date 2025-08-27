@@ -13,30 +13,12 @@ MonoBehaviour:
   m_Name: TrainingSequence
   m_EditorClassIdentifier: 
   program:
-    programName: New Training Program
+    programName: HVAC
     description: 
     modules:
     - moduleName: 
       description: 
-      taskGroups:
-      - groupName: 
-        description: 
-        steps:
-        - stepName: 
-          type: 1
-          targetObject: {fileID: 0}
-          destination: {fileID: 0}
-          targetAngle: 0
-          angleTolerance: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: 
-          isCompleted: 0
-        isExpanded: 0
+      taskGroups: []
       isExpanded: 0
     isExpanded: 1
   assetDescription: Training sequence asset created with VR Training Kit
-  version: 1.0
-  createdDate: 2025-08-26 13:12:32
-  lastModified: 
