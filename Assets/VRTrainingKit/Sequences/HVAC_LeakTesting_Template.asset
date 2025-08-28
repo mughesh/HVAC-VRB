@@ -64,33 +64,14 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _gameObjectName: AllenKey
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          allowParallel: 1
-          isOptional: 0
-          waitForSteps: 
-          hint: Connect the allen key to the liquid valve
-          isCompleted: 0
-        - stepName: Place allen key on gas valve
-          type: 1
-          targetObject:
-            _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          destination:
-            _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _gameObjectName: ServiceValve_Colliders
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
           targetAngle: 0
           angleTolerance: 5
           allowParallel: 1
@@ -98,6 +79,44 @@ MonoBehaviour:
           waitForSteps: 
           hint: Connect the allen key to the gas valve
           isCompleted: 0
+        - stepName: Place allen key on gas valve
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _gameObjectName: AllenKey
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _gameObjectName: SuctionValve_Colliders
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          allowParallel: 1
+          isOptional: 0
+          waitForSteps: 
+          hint: Connect the allen key to the gas valve
+          isCompleted: 0
+        - stepName: Place allen key on table
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _gameObjectName: AllenKey
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _gameObjectName: AllenKey_socket_table
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          allowParallel: 1
+          isOptional: 0
+          waitForSteps: 
+          hint: Connect the allen key to the gas valve
+          isCompleted: 1
         isExpanded: 1
       - groupName: Hose Connections
         description: Connect manifold hoses to the system
@@ -106,77 +125,20 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _gameObjectName: Yellow_Hose_Female
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _gameObjectName: YellowHose_snap_male
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
           targetAngle: 0
           angleTolerance: 5
           allowParallel: 1
           isOptional: 0
           waitForSteps: 
           hint: Connect the male end of the yellow hose to the nitrogen gauge
-          isCompleted: 0
-        - stepName: Yellow hose to manifold
-          type: 1
-          targetObject:
-            _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          destination:
-            _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          allowParallel: 1
-          isOptional: 0
-          waitForSteps: 
-          hint: Connect the female end of the yellow hose to the manifold
-          isCompleted: 0
-        - stepName: Blue hose to suction valve
-          type: 1
-          targetObject:
-            _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          destination:
-            _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          allowParallel: 1
-          isOptional: 0
-          waitForSteps: 
-          hint: Connect the male end of the blue hose to the suction valve
-          isCompleted: 0
-        - stepName: Blue hose to manifold
-          type: 1
-          targetObject:
-            _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          destination:
-            _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          allowParallel: 1
-          isOptional: 0
-          waitForSteps: 
-          hint: Connect the female end of the blue hose to the manifold
           isCompleted: 0
         isExpanded: 0
       - groupName: Valve Operations
