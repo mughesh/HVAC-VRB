@@ -34,8 +34,12 @@ public class GameObjectReference
                 var found = GameObject.Find(_gameObjectName);
                 if (found != null)
                 {
-                    _gameObject = found;
-                    _isValid = true;
+                    // Only update the direct reference at runtime to avoid serialization issues
+                    if (Application.isPlaying)
+                    {
+                        _gameObject = found;
+                        _isValid = true;
+                    }
                     return found;
                 }
             }
@@ -103,7 +107,14 @@ public class GameObjectReference
         if (_gameObject != null)
             return _gameObject.name;
         if (!string.IsNullOrEmpty(_gameObjectName))
-            return $"{_gameObjectName} (Missing)";
+        {
+            // Check if the object can be found by name
+            var found = GameObject.Find(_gameObjectName);
+            if (found != null)
+                return _gameObjectName; // Object exists, just not directly referenced
+            else
+                return $"{_gameObjectName} (Missing)"; // Object truly missing
+        }
         return "None";
     }
 }

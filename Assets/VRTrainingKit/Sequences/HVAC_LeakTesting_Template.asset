@@ -31,12 +31,12 @@ MonoBehaviour:
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _gameObjectName: SuctionValve_Dropped_Pos
+            _gameObjectName: ServiceValve_Dropped_Pos
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
-          allowParallel: 1
+          allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Remove the cap from the liquid valve and place it on the table
@@ -45,17 +45,17 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: GameObject
+            _gameObjectName: SuctionValve
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _gameObjectName: SuctionValve_Dropped_Pos
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
           targetAngle: 0
           angleTolerance: 5
-          allowParallel: 1
+          allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Remove the cap from the gas valve and place it on the table
@@ -98,7 +98,7 @@ MonoBehaviour:
           waitForSteps: 
           hint: Connect the allen key to the gas valve
           isCompleted: 0
-        isExpanded: 0
+        isExpanded: 1
       - groupName: Hose Connections
         description: Connect manifold hoses to the system
         steps:
@@ -178,7 +178,7 @@ MonoBehaviour:
           waitForSteps: 
           hint: Connect the female end of the blue hose to the manifold
           isCompleted: 0
-        isExpanded: 1
+        isExpanded: 0
       - groupName: Valve Operations
         description: Operate system valves for leak testing
         steps:
@@ -239,7 +239,7 @@ MonoBehaviour:
           waitForSteps: 
           hint: Turn the manifold valve 90 degrees clockwise
           isCompleted: 0
-        isExpanded: 1
-      isExpanded: 0
+        isExpanded: 0
+      isExpanded: 1
     isExpanded: 0
   assetDescription: Template for HVAC leak testing procedures

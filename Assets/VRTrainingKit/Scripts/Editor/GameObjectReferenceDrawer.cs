@@ -24,16 +24,35 @@ public class GameObjectReferenceDrawer : PropertyDrawer
         // Create the GameObject field
         EditorGUI.BeginChangeCheck();
         
-        // Get current GameObject reference
+        // Get current GameObject reference - try direct reference first
         GameObject currentGameObject = gameObjectProp.objectReferenceValue as GameObject;
+        
+        // If direct reference is null but we have a name, try to find it and use for display
+        if (currentGameObject == null && !string.IsNullOrEmpty(gameObjectNameProp.stringValue))
+        {
+            // Try to find the GameObject by name for display purposes
+            currentGameObject = GameObject.Find(gameObjectNameProp.stringValue);
+            
+            // If found, update the direct reference (this helps with runtime scenarios)
+            if (currentGameObject != null && Application.isPlaying)
+            {
+                gameObjectProp.objectReferenceValue = currentGameObject;
+                isValidProp.boolValue = true;
+            }
+        }
+        
+        // Calculate space for warning icon if needed
+        bool showWarning = currentGameObject == null && !string.IsNullOrEmpty(gameObjectNameProp.stringValue);
+        float fieldWidth = showWarning ? position.width - 25 : position.width;
+        Rect fieldRect = new Rect(position.x, position.y, fieldWidth, position.height);
         
         // Draw the GameObject field with proper type filtering
         GameObject newGameObject = (GameObject)EditorGUI.ObjectField(
-            position, 
+            fieldRect, 
             label, 
             currentGameObject, 
             typeof(GameObject), 
-            true // allowSceneObjects = true (this is key!)
+            true // allowSceneObjects = true
         );
         
         // Update the reference if changed
@@ -55,12 +74,15 @@ public class GameObjectReferenceDrawer : PropertyDrawer
             Debug.Log($"GameObjectReference updated: {(newGameObject != null ? newGameObject.name : "None")}");
         }
         
-        // Show validation status if we have a name but no valid object
-        if (currentGameObject == null && !string.IsNullOrEmpty(gameObjectNameProp.stringValue))
+        // Show validation status if we have a name but no valid direct reference
+        if (showWarning)
         {
             // Create a small rect for the warning icon
             Rect warningRect = new Rect(position.x + position.width - 20, position.y, 20, position.height);
-            EditorGUI.LabelField(warningRect, new GUIContent("⚠", $"Missing: {gameObjectNameProp.stringValue}"));
+            string tooltipText = currentGameObject != null ? 
+                $"Reference found by name: {gameObjectNameProp.stringValue}\n(Scene references don't persist in assets)" :
+                $"Missing GameObject: {gameObjectNameProp.stringValue}";
+            EditorGUI.LabelField(warningRect, new GUIContent("⚠", tooltipText));
         }
         
         EditorGUI.EndProperty();

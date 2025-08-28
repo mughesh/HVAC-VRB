@@ -243,3 +243,191 @@ Add helper components similar to `KnobController` and `SnapValidator` for specia
 
 #### Sequence Conditions
 Extend `SequenceController.StateGroup.Condition` enum for custom training flow triggers and validation logic.
+
+## Hierarchical Training Sequence System
+
+**Status: Phase 3 Complete** (Core Data, Asset System, Read-Only GUI)
+
+The framework includes a comprehensive hierarchical training sequence system for creating structured VR training programs. This system provides a scalable architecture for building complex multi-step training scenarios with proper organization and validation.
+
+### Architecture Overview
+
+The system uses a four-level hierarchy:
+- **TrainingProgram** (e.g., "HVAC Training") - Top-level container
+- **TrainingModule** (e.g., "Leak Testing") - Major training sections  
+- **TaskGroup** (e.g., "Initial Setup") - Related step collections
+- **InteractionStep** (e.g., "Remove valve cap") - Individual actions
+
+### Core Components
+
+#### TrainingSequence.cs - Data Structures (Phase 1)
+Central data model containing all hierarchical classes:
+
+**GameObjectReference Class:**
+- Safe GameObject references that work in both runtime and asset files
+- Automatic fallback using GameObject.Find() for broken references
+- Scene path tracking for debugging
+- Custom property drawer integration for Unity Inspector
+
+**TrainingProgram Class:**
+```csharp
+public class TrainingProgram
+{
+    public string programName;
+    public string description;
+    public List<TrainingModule> modules;
+    public bool isExpanded; // UI state management
+}
+```
+
+**InteractionStep Class:**
+- Five step types: `Grab`, `GrabAndSnap`, `TurnKnob`, `WaitForCondition`, `ShowInstruction`
+- Built-in validation with `IsValid()` and `GetValidationMessage()`
+- Parallel execution support with `allowParallel` flag
+- Optional step handling with `isOptional` flag
+- Wait conditions for step dependencies
+
+**TrainingSequenceFactory:**
+- `CreateHVACLeakTestingProgram()` - Pre-built HVAC template
+- `CreateEmptyProgram()` - Starter template with basic structure
+
+#### TrainingSequenceAsset.cs - Asset System (Phase 2)
+ScriptableObject integration for save/load functionality:
+
+**Key Features:**
+- `[CreateAssetMenu]` integration for asset creation
+- Comprehensive validation system with errors/warnings categories
+- Statistics tracking with `ProgramStats` class
+- Deep copy functionality using JSON serialization
+- Automatic dirty marking for Unity asset management
+
+**TrainingSequenceAssetManager:**
+- `CreateHVACTemplateAsset()` - Template asset generation
+- `SaveAssetToSequencesFolder()` - Automatic folder management
+- `LoadAllSequenceAssets()` - Project-wide asset discovery
+
+**Validation System:**
+```csharp
+public class ValidationResult
+{
+    public List<string> errors;    // Blocking issues
+    public List<string> warnings;  // Non-critical issues
+    public bool HasErrors => errors.Count > 0;
+    public bool IsValid => !HasErrors;
+}
+```
+
+#### VRInteractionSetupWindow.cs - GUI System (Phase 3)
+Extended Setup Assistant with sequence management:
+
+**Sequence Tab Features:**
+- Asset selection dropdown with New/Load/Save operations
+- Hierarchical tree view with expandable foldouts
+- Real-time validation status indicators (✓ completed, ○ pending, ⚠ invalid)
+- Inline error messages and hints display
+- Auto-loading of available training sequence assets
+
+**Tree View Implementation:**
+- Program-level expansion with description display
+- Module foldouts with task group nesting
+- Step-level detail view with type and status indicators
+- Parallel/Optional step badges
+- Validation message inline display
+
+### Phase Implementation Status
+
+#### Phase 1: Core Data Structures ✅ COMPLETED
+- All hierarchical classes implemented in `TrainingSequence.cs`
+- GameObjectReference system with fallback resolution
+- Validation system with detailed error reporting
+- Factory methods for common patterns
+
+#### Phase 2: ScriptableObject Asset System ✅ COMPLETED
+- `TrainingSequenceAsset.cs` with full Unity integration
+- Asset management utilities in `TrainingSequenceAssetManager`
+- Sample HVAC template asset creation
+- Comprehensive validation with error categorization
+
+#### Phase 3: Basic GUI Display ✅ COMPLETED
+- Read-only tree view in VRInteractionSetupWindow
+- Asset selection and loading interface
+- Status indicators and validation feedback
+- Hierarchical display with proper indentation
+
+#### Phase 4: Step Editing Interface 🔄 PLANNED
+- Details panel for step property editing
+- Add/remove functionality for hierarchy elements
+- GameObject pickers and dropdown controls
+- In-place editing with immediate validation
+
+#### Phase 5: Runtime Controller 🔄 PLANNED
+- `TrainingSequenceController.cs` for XRI event integration
+- Step completion detection and progress tracking
+- Parallel step execution management
+- Runtime validation and error handling
+
+#### Phase 6: Testing & Polish 🔄 PLANNED
+- Runtime testing integration in GUI
+- Debug UI for step progress monitoring
+- Enhanced validation for broken references
+
+### Usage Examples
+
+#### Creating Training Sequences
+```csharp
+// Method 1: Factory pattern
+var program = TrainingSequenceFactory.CreateHVACLeakTestingProgram();
+
+// Method 2: Asset creation
+var asset = TrainingSequenceAssetManager.CreateHVACTemplateAsset();
+TrainingSequenceAssetManager.SaveAssetToSequencesFolder(asset);
+
+// Method 3: Manual construction
+var step = new InteractionStep("Remove valve cap", InteractionStep.StepType.GrabAndSnap)
+{
+    targetObject = valveCapReference,
+    destination = tableReference,
+    hint = "Remove the cap and place on table",
+    allowParallel = true
+};
+```
+
+#### Validation Workflow
+```csharp
+var validation = trainingAsset.ValidateProgram();
+if (validation.HasErrors)
+{
+    foreach (var error in validation.errors)
+    {
+        Debug.LogError($"Training Sequence Error: {error}");
+    }
+}
+```
+
+#### Statistics Analysis
+```csharp
+var stats = trainingAsset.GetStats();
+Debug.Log($"Program contains {stats.totalSteps} steps across {stats.moduleCount} modules");
+Debug.Log($"Step breakdown - Grab: {stats.grabSteps}, Snap: {stats.grabAndSnapSteps}, Knob: {stats.knobSteps}");
+```
+
+### File Locations
+- **Core Classes:** `Assets/VRTrainingKit/Scripts/TrainingSequence.cs`
+- **Asset System:** `Assets/VRTrainingKit/Scripts/TrainingSequenceAsset.cs`
+- **GUI Extension:** `Assets/VRTrainingKit/Scripts/VRInteractionSetupWindow.cs`
+- **Property Drawer:** `Assets/VRTrainingKit/Scripts/Editor/GameObjectReferenceDrawer.cs`
+- **Sample Assets:** `Assets/VRTrainingKit/Sequences/`
+- **Testing:** `Assets/VRTrainingKit/Scripts/TestTrainingSequence.cs`
+
+### Integration with Existing Framework
+The hierarchical system complements the existing profile-based interaction setup:
+- Uses same GameObjects tagged with `grab`, `knob`, `snap`
+- InteractionSteps reference objects configured with interaction profiles
+- Runtime controller will subscribe to same XRI events as SequenceController
+- Validation system checks for proper interaction component setup
+
+### Development Commands
+- **Access GUI:** `Window > VR Training > Setup Assistant` → Sequence Tab
+- **Create Assets:** Right-click in Project → Create → VR Training → Training Sequence Asset
+- **Load Template:** Use "New" button in Sequence tab → Select "HVAC Template"
+- **Validate:** Check ⚠ indicators in tree view for validation issues
