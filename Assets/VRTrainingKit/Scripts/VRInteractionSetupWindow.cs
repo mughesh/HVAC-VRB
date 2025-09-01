@@ -45,6 +45,14 @@ public class VRInteractionSetupWindow : EditorWindow
     private int selectedAssetIndex = 0;
     private bool assetsLoaded = false;
     
+    // Phase 5: Two-panel editing system
+    private Vector2 treeViewScrollPos;
+    private Vector2 detailsPanelScrollPos;
+    private object selectedHierarchyItem; // Can be TrainingModule, TaskGroup, or InteractionStep
+    private string selectedItemType; // "module", "taskgroup", "step", "program"
+    private bool showAddMenu = false;
+    private float splitterPosition = 0.4f; // 40% tree view, 60% details panel
+    
     // Validate tab
     private List<string> validationIssues = new List<string>();
     private Vector2 validateScrollPos;
@@ -539,19 +547,692 @@ public class VRInteractionSetupWindow : EditorWindow
         
         EditorGUILayout.Space(10);
         
-        // Main content area
-        if (currentTrainingAsset != null && currentProgram != null)
+        // Debug information
+        if (currentTrainingAsset == null)
         {
-            trainingSequenceScrollPos = EditorGUILayout.BeginScrollView(trainingSequenceScrollPos);
-            
-            // Draw the hierarchical tree view
-            DrawTrainingProgramTree();
-            
-            EditorGUILayout.EndScrollView();
+            EditorGUILayout.HelpBox("currentTrainingAsset is null. Try selecting an asset from the dropdown above.", MessageType.Warning);
+            return;
+        }
+        
+        if (currentProgram == null)
+        {
+            EditorGUILayout.HelpBox($"currentProgram is null for asset: {currentTrainingAsset.name}. The asset may be corrupted.", MessageType.Error);
+            return;
+        }
+        
+        // Main content area with two-panel layout
+        DrawTwoPanelLayout();
+    }
+    
+    /// <summary>
+    /// Draw the main two-panel editing interface
+    /// </summary>
+    private void DrawTwoPanelLayout()
+    {
+        // Use horizontal layout for simplicity
+        EditorGUILayout.BeginHorizontal();
+        
+        // Tree view panel (left) - 40% width
+        EditorGUILayout.BeginVertical(GUILayout.Width(position.width * splitterPosition));
+        DrawTreeViewContent();
+        EditorGUILayout.EndVertical();
+        
+        // Details panel (right) - 60% width  
+        EditorGUILayout.BeginVertical();
+        DrawDetailsContent();
+        EditorGUILayout.EndVertical();
+        
+        EditorGUILayout.EndHorizontal();
+    }
+    
+    /// <summary>
+    /// Draw the tree view content (left side)
+    /// </summary>
+    private void DrawTreeViewContent()
+    {
+        EditorGUILayout.BeginVertical("box");
+        
+        // Header
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Hierarchy", subHeaderStyle);
+        
+        // Add menu button
+        if (GUILayout.Button("+", GUILayout.Width(25), GUILayout.Height(20)))
+        {
+            ShowAddMenu();
+        }
+        
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space(5);
+        
+        // Tree view with scrolling
+        treeViewScrollPos = EditorGUILayout.BeginScrollView(treeViewScrollPos, GUILayout.ExpandHeight(true));
+        
+        // Draw program header
+        DrawProgramTreeItem();
+        
+        // Draw modules
+        if (currentProgram != null && currentProgram.modules != null)
+        {
+            for (int moduleIndex = 0; moduleIndex < currentProgram.modules.Count; moduleIndex++)
+            {
+                DrawModuleTreeItem(currentProgram.modules[moduleIndex], moduleIndex);
+            }
+        }
+        
+        EditorGUILayout.EndScrollView();
+        
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// Draw the details content (right side)
+    /// </summary>
+    private void DrawDetailsContent()
+    {
+        EditorGUILayout.BeginVertical("box");
+        
+        // Header
+        EditorGUILayout.LabelField("Properties", subHeaderStyle);
+        EditorGUILayout.Space(5);
+        
+        // Content based on selection
+        detailsPanelScrollPos = EditorGUILayout.BeginScrollView(detailsPanelScrollPos, GUILayout.ExpandHeight(true));
+        
+        if (selectedHierarchyItem == null)
+        {
+            EditorGUILayout.HelpBox("Select an item from the hierarchy to edit its properties.", MessageType.Info);
         }
         else
         {
-            EditorGUILayout.HelpBox("No training sequence loaded. Create a new one or select from dropdown above.", MessageType.Info);
+            DrawSelectedItemProperties();
+        }
+        
+        EditorGUILayout.EndScrollView();
+        
+        EditorGUILayout.EndVertical();
+    }
+    
+    
+    /// <summary>
+    /// Draw program-level tree item
+    /// </summary>
+    private void DrawProgramTreeItem()
+    {
+        EditorGUILayout.BeginHorizontal();
+        
+        // Selection highlighting
+        Color backgroundColor = selectedItemType == "program" ? Color.blue * 0.3f : Color.clear;
+        if (backgroundColor != Color.clear)
+        {
+            GUI.backgroundColor = backgroundColor;
+        }
+        
+        // Foldout and name
+        currentProgram.isExpanded = EditorGUILayout.Foldout(currentProgram.isExpanded, 
+            $"📋 {currentProgram.programName}", true);
+        
+        GUI.backgroundColor = Color.white;
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // Handle selection
+        Rect lastRect = GUILayoutUtility.GetLastRect();
+        if (Event.current.type == EventType.MouseDown && lastRect.Contains(Event.current.mousePosition))
+        {
+            SelectItem(currentProgram, "program");
+            Event.current.Use();
+        }
+    }
+    
+    /// <summary>
+    /// Draw module tree item
+    /// </summary>
+    private void DrawModuleTreeItem(TrainingModule module, int moduleIndex)
+    {
+        if (!currentProgram.isExpanded) return;
+        
+        EditorGUI.indentLevel++;
+        
+        EditorGUILayout.BeginHorizontal();
+        
+        // Selection highlighting
+        Color backgroundColor = (selectedItemType == "module" && selectedHierarchyItem == module) ? Color.blue * 0.3f : Color.clear;
+        if (backgroundColor != Color.clear)
+        {
+            GUI.backgroundColor = backgroundColor;
+        }
+        
+        // Foldout and name
+        module.isExpanded = EditorGUILayout.Foldout(module.isExpanded, 
+            $"📚 {module.moduleName}", true);
+        
+        // Actions
+        if (GUILayout.Button("➕", GUILayout.Width(25)))
+        {
+            ShowAddTaskGroupMenu(module);
+        }
+        if (GUILayout.Button("❌", GUILayout.Width(25)))
+        {
+            if (EditorUtility.DisplayDialog("Delete Module", $"Delete module '{module.moduleName}'?", "Delete", "Cancel"))
+            {
+                DeleteModule(moduleIndex);
+            }
+        }
+        
+        GUI.backgroundColor = Color.white;
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // Handle selection
+        Rect lastRect = GUILayoutUtility.GetLastRect();
+        if (Event.current.type == EventType.MouseDown && lastRect.Contains(Event.current.mousePosition))
+        {
+            SelectItem(module, "module");
+            Event.current.Use();
+        }
+        
+        // Draw task groups
+        if (module.isExpanded && module.taskGroups != null)
+        {
+            for (int groupIndex = 0; groupIndex < module.taskGroups.Count; groupIndex++)
+            {
+                DrawTaskGroupTreeItem(module.taskGroups[groupIndex], module, groupIndex);
+            }
+        }
+        
+        EditorGUI.indentLevel--;
+    }
+    
+    /// <summary>
+    /// Draw task group tree item
+    /// </summary>
+    private void DrawTaskGroupTreeItem(TaskGroup taskGroup, TrainingModule parentModule, int groupIndex)
+    {
+        EditorGUI.indentLevel++;
+        
+        EditorGUILayout.BeginHorizontal();
+        
+        // Selection highlighting
+        Color backgroundColor = (selectedItemType == "taskgroup" && selectedHierarchyItem == taskGroup) ? Color.blue * 0.3f : Color.clear;
+        if (backgroundColor != Color.clear)
+        {
+            GUI.backgroundColor = backgroundColor;
+        }
+        
+        // Foldout and name
+        taskGroup.isExpanded = EditorGUILayout.Foldout(taskGroup.isExpanded, 
+            $"📁 {taskGroup.groupName}", true);
+        
+        // Actions
+        if (GUILayout.Button("➕", GUILayout.Width(25)))
+        {
+            ShowAddStepMenu(taskGroup);
+        }
+        if (GUILayout.Button("❌", GUILayout.Width(25)))
+        {
+            if (EditorUtility.DisplayDialog("Delete Task Group", $"Delete task group '{taskGroup.groupName}'?", "Delete", "Cancel"))
+            {
+                DeleteTaskGroup(parentModule, groupIndex);
+            }
+        }
+        
+        GUI.backgroundColor = Color.white;
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // Handle selection
+        Rect lastRect = GUILayoutUtility.GetLastRect();
+        if (Event.current.type == EventType.MouseDown && lastRect.Contains(Event.current.mousePosition))
+        {
+            SelectItem(taskGroup, "taskgroup");
+            Event.current.Use();
+        }
+        
+        // Draw steps
+        if (taskGroup.isExpanded && taskGroup.steps != null)
+        {
+            for (int stepIndex = 0; stepIndex < taskGroup.steps.Count; stepIndex++)
+            {
+                DrawStepTreeItem(taskGroup.steps[stepIndex], taskGroup, stepIndex);
+            }
+        }
+        
+        EditorGUI.indentLevel--;
+    }
+    
+    /// <summary>
+    /// Draw step tree item
+    /// </summary>
+    private void DrawStepTreeItem(InteractionStep step, TaskGroup parentTaskGroup, int stepIndex)
+    {
+        EditorGUI.indentLevel++;
+        
+        EditorGUILayout.BeginHorizontal();
+        
+        // Selection highlighting
+        Color backgroundColor = (selectedItemType == "step" && selectedHierarchyItem == step) ? Color.blue * 0.3f : Color.clear;
+        if (backgroundColor != Color.clear)
+        {
+            GUI.backgroundColor = backgroundColor;
+        }
+        
+        // Status icon
+        string statusIcon = step.IsValid() ? "✅" : "⚠️";
+        string typeIcon = GetStepTypeIcon(step.type);
+        
+        // Name and type
+        EditorGUILayout.LabelField($"{statusIcon} {typeIcon} {step.stepName}", GUILayout.ExpandWidth(true));
+        
+        // Actions
+        if (GUILayout.Button("❌", GUILayout.Width(25)))
+        {
+            if (EditorUtility.DisplayDialog("Delete Step", $"Delete step '{step.stepName}'?", "Delete", "Cancel"))
+            {
+                DeleteStep(parentTaskGroup, stepIndex);
+            }
+        }
+        
+        GUI.backgroundColor = Color.white;
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // Handle selection
+        Rect lastRect = GUILayoutUtility.GetLastRect();
+        if (Event.current.type == EventType.MouseDown && lastRect.Contains(Event.current.mousePosition))
+        {
+            SelectItem(step, "step");
+            Event.current.Use();
+        }
+        
+        EditorGUI.indentLevel--;
+    }
+    
+    /// <summary>
+    /// Get icon for step type
+    /// </summary>
+    private string GetStepTypeIcon(InteractionStep.StepType stepType)
+    {
+        switch (stepType)
+        {
+            case InteractionStep.StepType.Grab: return "✋";
+            case InteractionStep.StepType.GrabAndSnap: return "🔗";
+            case InteractionStep.StepType.TurnKnob: return "🔄";
+            case InteractionStep.StepType.WaitForCondition: return "⏳";
+            case InteractionStep.StepType.ShowInstruction: return "💬";
+            default: return "❓";
+        }
+    }
+    
+    /// <summary>
+    /// Select a hierarchy item
+    /// </summary>
+    private void SelectItem(object item, string itemType)
+    {
+        selectedHierarchyItem = item;
+        selectedItemType = itemType;
+        Repaint();
+    }
+    
+    /// <summary>
+    /// Draw properties for the currently selected item
+    /// </summary>
+    private void DrawSelectedItemProperties()
+    {
+        EditorGUI.BeginChangeCheck();
+        
+        switch (selectedItemType)
+        {
+            case "program":
+                DrawProgramProperties();
+                break;
+            case "module":
+                DrawModuleProperties();
+                break;
+            case "taskgroup":
+                DrawTaskGroupProperties();
+                break;
+            case "step":
+                DrawStepProperties();
+                break;
+        }
+        
+        if (EditorGUI.EndChangeCheck())
+        {
+            // Mark the asset as dirty when changes are made
+            if (currentTrainingAsset != null)
+            {
+                EditorUtility.SetDirty(currentTrainingAsset);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Draw program properties
+    /// </summary>
+    private void DrawProgramProperties()
+    {
+        var program = (TrainingProgram)selectedHierarchyItem;
+        
+        EditorGUILayout.LabelField("Program Settings", EditorStyles.boldLabel);
+        
+        program.programName = EditorGUILayout.TextField("Program Name", program.programName);
+        
+        EditorGUILayout.LabelField("Description");
+        program.description = EditorGUILayout.TextArea(program.description, GUILayout.Height(60));
+        
+        EditorGUILayout.Space(10);
+        
+        // Statistics
+        EditorGUILayout.LabelField("Statistics", EditorStyles.boldLabel);
+        int moduleCount = program.modules?.Count ?? 0;
+        int totalSteps = 0;
+        int totalTaskGroups = 0;
+        
+        if (program.modules != null)
+        {
+            foreach (var module in program.modules)
+            {
+                if (module.taskGroups != null)
+                {
+                    totalTaskGroups += module.taskGroups.Count;
+                    foreach (var taskGroup in module.taskGroups)
+                    {
+                        if (taskGroup.steps != null)
+                            totalSteps += taskGroup.steps.Count;
+                    }
+                }
+            }
+        }
+        
+        EditorGUILayout.LabelField($"Modules: {moduleCount}");
+        EditorGUILayout.LabelField($"Task Groups: {totalTaskGroups}");
+        EditorGUILayout.LabelField($"Total Steps: {totalSteps}");
+    }
+    
+    /// <summary>
+    /// Draw module properties
+    /// </summary>
+    private void DrawModuleProperties()
+    {
+        var module = (TrainingModule)selectedHierarchyItem;
+        
+        EditorGUILayout.LabelField("Module Settings", EditorStyles.boldLabel);
+        
+        module.moduleName = EditorGUILayout.TextField("Module Name", module.moduleName);
+        
+        EditorGUILayout.LabelField("Description");
+        module.description = EditorGUILayout.TextArea(module.description, GUILayout.Height(60));
+        
+        EditorGUILayout.Space(10);
+        
+        // Statistics
+        EditorGUILayout.LabelField("Statistics", EditorStyles.boldLabel);
+        int taskGroupCount = module.taskGroups?.Count ?? 0;
+        int stepCount = 0;
+        
+        if (module.taskGroups != null)
+        {
+            foreach (var taskGroup in module.taskGroups)
+            {
+                if (taskGroup.steps != null)
+                    stepCount += taskGroup.steps.Count;
+            }
+        }
+        
+        EditorGUILayout.LabelField($"Task Groups: {taskGroupCount}");
+        EditorGUILayout.LabelField($"Total Steps: {stepCount}");
+    }
+    
+    /// <summary>
+    /// Draw task group properties
+    /// </summary>
+    private void DrawTaskGroupProperties()
+    {
+        var taskGroup = (TaskGroup)selectedHierarchyItem;
+        
+        EditorGUILayout.LabelField("Task Group Settings", EditorStyles.boldLabel);
+        
+        taskGroup.groupName = EditorGUILayout.TextField("Group Name", taskGroup.groupName);
+        
+        EditorGUILayout.LabelField("Description");
+        taskGroup.description = EditorGUILayout.TextArea(taskGroup.description, GUILayout.Height(60));
+        
+        EditorGUILayout.Space(10);
+        
+        // Statistics
+        EditorGUILayout.LabelField("Statistics", EditorStyles.boldLabel);
+        int stepCount = taskGroup.steps?.Count ?? 0;
+        int validSteps = 0;
+        
+        if (taskGroup.steps != null)
+        {
+            foreach (var step in taskGroup.steps)
+            {
+                if (step.IsValid())
+                    validSteps++;
+            }
+        }
+        
+        EditorGUILayout.LabelField($"Steps: {stepCount}");
+        EditorGUILayout.LabelField($"Valid Steps: {validSteps}");
+        EditorGUILayout.LabelField($"Invalid Steps: {stepCount - validSteps}");
+    }
+    
+    /// <summary>
+    /// Draw step properties
+    /// </summary>
+    private void DrawStepProperties()
+    {
+        var step = (InteractionStep)selectedHierarchyItem;
+        
+        EditorGUILayout.LabelField("Step Settings", EditorStyles.boldLabel);
+        
+        // Basic properties
+        step.stepName = EditorGUILayout.TextField("Step Name", step.stepName);
+        step.type = (InteractionStep.StepType)EditorGUILayout.EnumPopup("Type", step.type);
+        
+        EditorGUILayout.Space(10);
+        
+        // Target objects based on type
+        if (step.type == InteractionStep.StepType.Grab || 
+            step.type == InteractionStep.StepType.GrabAndSnap || 
+            step.type == InteractionStep.StepType.TurnKnob)
+        {
+            EditorGUILayout.LabelField("Target Objects", EditorStyles.boldLabel);
+            
+            // Custom GameObject field using our drawer system
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Target Object", GUILayout.Width(100));
+            
+            GameObject currentTarget = step.targetObject.GameObject;
+            GameObject newTarget = (GameObject)EditorGUILayout.ObjectField(currentTarget, typeof(GameObject), true);
+            
+            if (newTarget != currentTarget)
+            {
+                step.targetObject.GameObject = newTarget;
+            }
+            
+            EditorGUILayout.EndHorizontal();
+            
+            if (step.type == InteractionStep.StepType.GrabAndSnap)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Destination", GUILayout.Width(100));
+                
+                GameObject currentDest = step.destination.GameObject;
+                GameObject newDest = (GameObject)EditorGUILayout.ObjectField(currentDest, typeof(GameObject), true);
+                
+                if (newDest != currentDest)
+                {
+                    step.destination.GameObject = newDest;
+                }
+                
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+        
+        // Knob-specific settings
+        if (step.type == InteractionStep.StepType.TurnKnob)
+        {
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("Knob Settings", EditorStyles.boldLabel);
+            step.targetAngle = EditorGUILayout.FloatField("Target Angle", step.targetAngle);
+            step.angleTolerance = EditorGUILayout.FloatField("Angle Tolerance", step.angleTolerance);
+        }
+        
+        // Execution settings
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("Execution Settings", EditorStyles.boldLabel);
+        step.allowParallel = EditorGUILayout.Toggle("Allow Parallel", step.allowParallel);
+        step.isOptional = EditorGUILayout.Toggle("Is Optional", step.isOptional);
+        
+        // Hint
+        EditorGUILayout.Space(5);
+        EditorGUILayout.LabelField("Instruction");
+        step.hint = EditorGUILayout.TextArea(step.hint, GUILayout.Height(40));
+        
+        // Validation
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("Validation", EditorStyles.boldLabel);
+        
+        bool isValid = step.IsValid();
+        string validationMessage = step.GetValidationMessage();
+        
+        GUIStyle validationStyle = isValid ? successStyle : errorStyle;
+        EditorGUILayout.LabelField($"Status: {validationMessage}", validationStyle);
+        
+        if (!isValid)
+        {
+            EditorGUILayout.HelpBox("This step has validation errors. Check the target objects and settings above.", MessageType.Warning);
+        }
+    }
+    
+    /// <summary>
+    /// Show add menu for top-level items
+    /// </summary>
+    private void ShowAddMenu()
+    {
+        GenericMenu menu = new GenericMenu();
+        menu.AddItem(new GUIContent("Add Module"), false, () => AddNewModule());
+        menu.ShowAsContext();
+    }
+    
+    /// <summary>
+    /// Show add menu for task groups
+    /// </summary>
+    private void ShowAddTaskGroupMenu(TrainingModule module)
+    {
+        GenericMenu menu = new GenericMenu();
+        menu.AddItem(new GUIContent("Add Task Group"), false, () => AddNewTaskGroup(module));
+        menu.ShowAsContext();
+    }
+    
+    /// <summary>
+    /// Show add menu for steps
+    /// </summary>
+    private void ShowAddStepMenu(TaskGroup taskGroup)
+    {
+        GenericMenu menu = new GenericMenu();
+        menu.AddItem(new GUIContent("Grab Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Grab));
+        menu.AddItem(new GUIContent("Grab and Snap Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.GrabAndSnap));
+        menu.AddItem(new GUIContent("Turn Knob Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TurnKnob));
+        menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
+        menu.AddItem(new GUIContent("Show Instruction Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.ShowInstruction));
+        menu.ShowAsContext();
+    }
+    
+    /// <summary>
+    /// Add a new module
+    /// </summary>
+    private void AddNewModule()
+    {
+        if (currentProgram.modules == null)
+            currentProgram.modules = new List<TrainingModule>();
+        
+        var newModule = new TrainingModule("New Module", "Module description");
+        currentProgram.modules.Add(newModule);
+        
+        // Auto-select the new module
+        SelectItem(newModule, "module");
+        
+        EditorUtility.SetDirty(currentTrainingAsset);
+    }
+    
+    /// <summary>
+    /// Add a new task group
+    /// </summary>
+    private void AddNewTaskGroup(TrainingModule module)
+    {
+        if (module.taskGroups == null)
+            module.taskGroups = new List<TaskGroup>();
+        
+        var newTaskGroup = new TaskGroup("New Task Group", "Task group description");
+        module.taskGroups.Add(newTaskGroup);
+        
+        // Auto-select the new task group
+        SelectItem(newTaskGroup, "taskgroup");
+        
+        EditorUtility.SetDirty(currentTrainingAsset);
+    }
+    
+    /// <summary>
+    /// Add a new step
+    /// </summary>
+    private void AddNewStep(TaskGroup taskGroup, InteractionStep.StepType stepType)
+    {
+        if (taskGroup.steps == null)
+            taskGroup.steps = new List<InteractionStep>();
+        
+        var newStep = new InteractionStep("New Step", stepType);
+        newStep.hint = "Step instruction goes here";
+        taskGroup.steps.Add(newStep);
+        
+        // Auto-select the new step
+        SelectItem(newStep, "step");
+        
+        EditorUtility.SetDirty(currentTrainingAsset);
+    }
+    
+    /// <summary>
+    /// Delete a module
+    /// </summary>
+    private void DeleteModule(int moduleIndex)
+    {
+        if (currentProgram.modules != null && moduleIndex >= 0 && moduleIndex < currentProgram.modules.Count)
+        {
+            currentProgram.modules.RemoveAt(moduleIndex);
+            selectedHierarchyItem = null;
+            selectedItemType = null;
+            EditorUtility.SetDirty(currentTrainingAsset);
+        }
+    }
+    
+    /// <summary>
+    /// Delete a task group
+    /// </summary>
+    private void DeleteTaskGroup(TrainingModule module, int groupIndex)
+    {
+        if (module.taskGroups != null && groupIndex >= 0 && groupIndex < module.taskGroups.Count)
+        {
+            module.taskGroups.RemoveAt(groupIndex);
+            selectedHierarchyItem = null;
+            selectedItemType = null;
+            EditorUtility.SetDirty(currentTrainingAsset);
+        }
+    }
+    
+    /// <summary>
+    /// Delete a step
+    /// </summary>
+    private void DeleteStep(TaskGroup taskGroup, int stepIndex)
+    {
+        if (taskGroup.steps != null && stepIndex >= 0 && stepIndex < taskGroup.steps.Count)
+        {
+            taskGroup.steps.RemoveAt(stepIndex);
+            selectedHierarchyItem = null;
+            selectedItemType = null;
+            EditorUtility.SetDirty(currentTrainingAsset);
         }
     }
     
@@ -617,157 +1298,6 @@ public class VRInteractionSetupWindow : EditorWindow
         }
         
         EditorGUILayout.EndHorizontal();
-    }
-    
-    private void DrawTrainingProgramTree()
-    {
-        if (currentProgram == null) return;
-        
-        // Program level header
-        EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField($"▼ {currentProgram.programName}", headerStyle);
-        
-        if (!string.IsNullOrEmpty(currentProgram.description))
-        {
-            EditorGUILayout.LabelField(currentProgram.description, EditorStyles.wordWrappedLabel);
-        }
-        
-        EditorGUILayout.Space(5);
-        
-        // Draw modules
-        if (currentProgram.modules != null)
-        {
-            for (int moduleIndex = 0; moduleIndex < currentProgram.modules.Count; moduleIndex++)
-            {
-                DrawModuleTree(currentProgram.modules[moduleIndex], moduleIndex);
-                EditorGUILayout.Space(3);
-            }
-        }
-        
-        EditorGUILayout.EndVertical();
-    }
-    
-    private void DrawModuleTree(TrainingModule module, int moduleIndex)
-    {
-        if (module == null) return;
-        
-        EditorGUILayout.BeginVertical("box");
-        EditorGUI.indentLevel++;
-        
-        // Module header with foldout
-        EditorGUILayout.BeginHorizontal();
-        string moduleIcon = module.isExpanded ? "▼" : "▶";
-        module.isExpanded = EditorGUILayout.Foldout(module.isExpanded, $"{moduleIcon} {module.moduleName}", true);
-        EditorGUILayout.EndHorizontal();
-        
-        // Module content when expanded
-        if (module.isExpanded)
-        {
-            if (!string.IsNullOrEmpty(module.description))
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.LabelField(module.description, EditorStyles.wordWrappedMiniLabel);
-                EditorGUI.indentLevel--;
-            }
-            
-            EditorGUILayout.Space(3);
-            
-            // Draw task groups
-            if (module.taskGroups != null)
-            {
-                for (int groupIndex = 0; groupIndex < module.taskGroups.Count; groupIndex++)
-                {
-                    DrawTaskGroupTree(module.taskGroups[groupIndex], moduleIndex, groupIndex);
-                }
-            }
-        }
-        
-        EditorGUI.indentLevel--;
-        EditorGUILayout.EndVertical();
-    }
-    
-    private void DrawTaskGroupTree(TaskGroup taskGroup, int moduleIndex, int groupIndex)
-    {
-        if (taskGroup == null) return;
-        
-        EditorGUI.indentLevel++;
-        EditorGUILayout.BeginVertical("box");
-        
-        // Task group header with foldout
-        string groupIcon = taskGroup.isExpanded ? "▼" : "▶";
-        taskGroup.isExpanded = EditorGUILayout.Foldout(taskGroup.isExpanded, $"{groupIcon} {taskGroup.groupName}", true);
-        
-        // Task group content when expanded
-        if (taskGroup.isExpanded)
-        {
-            if (!string.IsNullOrEmpty(taskGroup.description))
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.LabelField(taskGroup.description, EditorStyles.wordWrappedMiniLabel);
-                EditorGUI.indentLevel--;
-            }
-            
-            EditorGUILayout.Space(3);
-            
-            // Draw steps
-            if (taskGroup.steps != null)
-            {
-                for (int stepIndex = 0; stepIndex < taskGroup.steps.Count; stepIndex++)
-                {
-                    DrawInteractionStepTree(taskGroup.steps[stepIndex], moduleIndex, groupIndex, stepIndex);
-                }
-            }
-        }
-        
-        EditorGUILayout.EndVertical();
-        EditorGUI.indentLevel--;
-    }
-    
-    private void DrawInteractionStepTree(InteractionStep step, int moduleIndex, int groupIndex, int stepIndex)
-    {
-        if (step == null) return;
-        
-        EditorGUI.indentLevel++;
-        EditorGUILayout.BeginHorizontal();
-        
-        // Status indicator
-        string statusIcon = step.isCompleted ? "✓" : "○";
-        GUIStyle statusStyle = step.isCompleted ? successStyle : GUI.skin.label;
-        EditorGUILayout.LabelField(statusIcon, statusStyle, GUILayout.Width(20));
-        
-        // Step name and type
-        string stepDisplay = $"{step.stepName} [{step.type}]";
-        if (step.allowParallel) stepDisplay += " (Parallel)";
-        if (step.isOptional) stepDisplay += " (Optional)";
-        
-        EditorGUILayout.LabelField(stepDisplay, GUILayout.ExpandWidth(true));
-        
-        // Validation indicator
-        if (!step.IsValid())
-        {
-            EditorGUILayout.LabelField("⚠", warningStyle, GUILayout.Width(20));
-        }
-        
-        EditorGUILayout.EndHorizontal();
-        
-        // Show hint if available
-        if (!string.IsNullOrEmpty(step.hint))
-        {
-            EditorGUI.indentLevel++;
-            EditorGUILayout.LabelField($"Hint: {step.hint}", EditorStyles.miniLabel);
-            EditorGUI.indentLevel--;
-        }
-        
-        // Show missing references
-        if (!step.IsValid())
-        {
-            EditorGUI.indentLevel++;
-            EditorGUILayout.LabelField(step.GetValidationMessage(), warningStyle);
-            EditorGUI.indentLevel--;
-        }
-        
-        EditorGUI.indentLevel--;
-        EditorGUILayout.Space(2);
     }
     
     private void LoadTrainingAsset(TrainingSequenceAsset asset)
