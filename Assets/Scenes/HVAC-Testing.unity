@@ -1707,7 +1707,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 1
+    damper: 0.1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -1741,6 +1741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: cfa269699b80fb549aa5d2c8089170ff, type: 2}
 --- !u!114 &100336978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3473,6 +3474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 0}
 --- !u!153 &417602380
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -13347,7 +13349,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 1
+    damper: 0.1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -13408,6 +13410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: cfa269699b80fb549aa5d2c8089170ff, type: 2}
 --- !u!114 &1057963966
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14572,6 +14575,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 0}
 --- !u!153 &1097696600
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -14835,6 +14839,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 0}
 --- !u!153 &1097696604
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -19346,7 +19351,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 1
+    damper: 0.1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -19407,6 +19412,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: cfa269699b80fb549aa5d2c8089170ff, type: 2}
 --- !u!114 &1496526872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24005,6 +24011,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 0}
 --- !u!153 &2027933668
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -24481,7 +24488,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 1
+    damper: 0.1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -24542,6 +24549,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: cfa269699b80fb549aa5d2c8089170ff, type: 2}
 --- !u!114 &2064890786
 MonoBehaviour:
   m_ObjectHideFlags: 0

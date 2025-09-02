@@ -15,7 +15,7 @@ public class KnobController : MonoBehaviour
         [SerializeField] private KnobProfile profile;  // Made serialized to test persistence
         
         private XRGrabInteractable grabInteractable;
-        private HingeJoint hingeJoint;
+        private new HingeJoint hingeJoint;
         private float currentAngle = 0f;
         private float startAngle = 0f;
         private Transform originalParent;
@@ -122,7 +122,7 @@ public class KnobController : MonoBehaviour
                 float clampedAngle = Mathf.Clamp(newAngle, profile.minAngle, profile.maxAngle);
                 if (clampedAngle != newAngle)
                 {
-                    Debug.Log($"[KnobController] {gameObject.name} Angle clamped from {newAngle:F2}° to {clampedAngle:F2}° (limits: {profile.minAngle}° to {profile.maxAngle}°)");
+                  //  Debug.Log($"[KnobController] {gameObject.name} Angle clamped from {newAngle:F2}° to {clampedAngle:F2}° (limits: {profile.minAngle}° to {profile.maxAngle}°)");
                     newAngle = clampedAngle;
                     ApplyRotation(newAngle);
                 }
@@ -135,7 +135,7 @@ public class KnobController : MonoBehaviour
                 float previousAngle = currentAngle;
                 currentAngle = newAngle;
                 
-                Debug.Log($"[KnobController] {gameObject.name} ANGLE CHANGED! {previousAngle:F3}° → {currentAngle:F3}° (diff: {angleDifference:F3}°) - FIRING EVENT");
+                //Debug.Log($"[KnobController] {gameObject.name} ANGLE CHANGED! {previousAngle:F3}° → {currentAngle:F3}° (diff: {angleDifference:F3}°) - FIRING EVENT");
                 OnAngleChanged?.Invoke(currentAngle);
                 
                 // Haptic feedback
@@ -176,7 +176,7 @@ public class KnobController : MonoBehaviour
             // Safety check for NaN values
             if (float.IsNaN(jointAngle))
             {
-                Debug.LogError($"[KnobController] {gameObject.name} HingeJoint angle is NaN! Returning 0°");
+             //   Debug.LogError($"[KnobController] {gameObject.name} HingeJoint angle is NaN! Returning 0°");
                 return 0f;
             }
             

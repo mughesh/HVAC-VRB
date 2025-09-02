@@ -514,7 +514,7 @@ public class InteractionSetupService
         private void UpdateAllObjectsFeedback()
         {
             // Update all sequence validators
-            var validators = FindObjectsOfType<SequenceValidator>();
+            var validators = FindObjectsByType<SequenceValidator>(FindObjectsSortMode.None);
             foreach (var validator in validators)
             {
                 // Trigger re-evaluation
