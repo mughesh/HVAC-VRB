@@ -41,11 +41,18 @@ public class KnobProfile : InteractionProfile
     
     public override void ApplyToGameObject(GameObject target)
     {
+        Debug.Log($"[KnobProfile] ApplyToGameObject() called for: {target.name} with profile: {profileName}");
+        
         // Add XRGrabInteractable to parent
         XRGrabInteractable grabInteractable = target.GetComponent<XRGrabInteractable>();
         if (grabInteractable == null)
         {
             grabInteractable = target.AddComponent<XRGrabInteractable>();
+            Debug.Log($"[KnobProfile] Added XRGrabInteractable to {target.name}");
+        }
+        else
+        {
+            Debug.Log($"[KnobProfile] Found existing XRGrabInteractable on {target.name}");
         }
         
         // Configure for knob - MUST use these settings for joint to work
@@ -88,8 +95,16 @@ public class KnobProfile : InteractionProfile
         if (knobController == null)
         {
             knobController = target.AddComponent<KnobController>();
+            Debug.Log($"[KnobProfile] Added KnobController to {target.name}");
         }
+        else
+        {
+            Debug.Log($"[KnobProfile] Found existing KnobController on {target.name}");
+        }
+        
+        Debug.Log($"[KnobProfile] Calling Configure() on KnobController for {target.name}");
         knobController.Configure(this);
+        Debug.Log($"[KnobProfile] Successfully configured KnobController for {target.name}");
     }
     
     private void ConfigureHingeJoint(HingeJoint joint)

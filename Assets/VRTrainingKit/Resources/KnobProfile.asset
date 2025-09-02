@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a00f75a4fca48524e8092cd5c9d4dcee, type: 3}
   m_Name: KnobProfile
   m_EditorClassIdentifier: 
-  profileName: New Profile
+  profileName: Knob Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   rotationAxis: 1
   minAngle: -180

@@ -41,6 +41,7 @@ public class InteractionSetupService
                 else if (obj.CompareTag("knob"))
                 {
                     analysis.knobObjects.Add(obj);
+                    Debug.Log($"[InteractionSetupService] Found knob object: {obj.name} (Tag: {obj.tag})");
                 }
                 else if (obj.CompareTag("snap"))
                 {
@@ -61,6 +62,8 @@ public class InteractionSetupService
         /// </summary>
         public static void ApplyComponentsToObjects(List<GameObject> objects, InteractionProfile profile)
         {
+            Debug.Log($"[InteractionSetupService] ApplyComponentsToObjects called with {objects.Count} objects and profile: {profile?.profileName ?? "NULL"}");
+            
             if (profile == null)
             {
                 Debug.LogError("No profile provided for component application");
@@ -72,24 +75,27 @@ public class InteractionSetupService
             
             foreach (var obj in objects)
             {
+                Debug.Log($"[InteractionSetupService] Processing object: {obj.name} (Tag: {obj.tag})");
+                
                 if (profile.ValidateGameObject(obj))
                 {
+                    Debug.Log($"[InteractionSetupService] Object {obj.name} passed validation, applying profile...");
                     try
                     {
                         profile.ApplyToGameObject(obj);
                         successCount++;
-                        Debug.Log($"Successfully configured: {obj.name}");
+                        Debug.Log($"[InteractionSetupService] Successfully configured: {obj.name}");
                     }
                     catch (System.Exception e)
                     {
                         failCount++;
-                        Debug.LogError($"Failed to configure {obj.name}: {e.Message}");
+                        Debug.LogError($"[InteractionSetupService] Failed to configure {obj.name}: {e.Message}");
                     }
                 }
                 else
                 {
                     failCount++;
-                    Debug.LogWarning($"Object {obj.name} failed validation for profile {profile.profileName}");
+                    Debug.LogWarning($"[InteractionSetupService] Object {obj.name} failed validation for profile {profile.profileName}");
                 }
             }
             

@@ -123,6 +123,9 @@ public class TrainingSequenceController : MonoBehaviour
         
         // Validate knob configurations
         ValidateKnobConfigurations();
+        
+        // Restore any missing profiles
+        RestoreMissingProfiles();
     }
     
     /// <summary>
@@ -648,6 +651,115 @@ public class TrainingSequenceController : MonoBehaviour
                 }
             }
         }
+    }
+    
+    /// <summary>
+    /// Restore missing profiles using stored editor preferences or default profiles
+    /// </summary>
+    void RestoreMissingProfiles()
+    {
+        LogDebug("Checking for objects with missing profiles...");
+        
+        int restoredCount = 0;
+        
+        foreach (var kvp in knobControllers)
+        {
+            var knobObject = kvp.Key;
+            var knobController = kvp.Value;
+            
+            // Check if this knob controller is missing its profile
+            if (IsProfileMissing(knobController, knobObject.name))
+            {
+                LogWarning($"Profile missing for {knobObject.name}! Attempting to restore...");
+                
+                if (RestoreKnobProfile(knobObject, knobController))
+                {
+                    restoredCount++;
+                    LogInfo($"Successfully restored profile for {knobObject.name}");
+                }
+                else
+                {
+                    LogError($"Failed to restore profile for {knobObject.name} - knob may not work correctly");
+                }
+            }
+        }
+        
+        if (restoredCount > 0)
+        {
+            LogInfo($"Restored profiles for {restoredCount} objects that were missing configurations");
+        }
+        else
+        {
+            LogDebug("All objects have valid profiles");
+        }
+    }
+    
+    /// <summary>
+    /// Check if a KnobController is missing its profile
+    /// </summary>
+    bool IsProfileMissing(KnobController knobController, string objectName)
+    {
+        // Use reflection to safely check the profile field
+        var profileField = typeof(KnobController).GetField("profile", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        if (profileField != null)
+        {
+            var profile = profileField.GetValue(knobController);
+            return profile == null;
+        }
+        
+        // If we can't check, assume it might be missing
+        LogWarning($"Could not check profile status for {objectName} - reflection failed");
+        return false;
+    }
+    
+    /// <summary>
+    /// Restore a knob profile using available methods
+    /// </summary>
+    bool RestoreKnobProfile(GameObject knobObject, KnobController knobController)
+    {
+        // Method 1: Try to find a default knob profile in Resources
+        KnobProfile defaultProfile = Resources.Load<KnobProfile>("KnobProfile");
+        if (defaultProfile != null)
+        {
+            try
+            {
+                LogDebug($"Applying default resource profile to {knobObject.name}");
+                defaultProfile.ApplyToGameObject(knobObject);
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                LogError($"Failed to apply default profile to {knobObject.name}: {e.Message}");
+            }
+        }
+        
+        // Method 2: Scan for available knob profiles in project
+        #if UNITY_EDITOR
+        var profileGuids = UnityEditor.AssetDatabase.FindAssets("t:KnobProfile");
+        if (profileGuids.Length > 0)
+        {
+            var profilePath = UnityEditor.AssetDatabase.GUIDToAssetPath(profileGuids[0]);
+            var profile = UnityEditor.AssetDatabase.LoadAssetAtPath<KnobProfile>(profilePath);
+            if (profile != null)
+            {
+                try
+                {
+                    LogDebug($"Applying found project profile '{profile.profileName}' to {knobObject.name}");
+                    profile.ApplyToGameObject(knobObject);
+                    return true;
+                }
+                catch (System.Exception e)
+                {
+                    LogError($"Failed to apply project profile to {knobObject.name}: {e.Message}");
+                }
+            }
+        }
+        #endif
+        
+        LogWarning($"No suitable profile found for {knobObject.name}");
+        return false;
     }
     
     /// <summary>

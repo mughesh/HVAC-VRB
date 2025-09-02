@@ -40,7 +40,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Remove the cap from the liquid valve and place it on the table
-          isCompleted: 1
+          isCompleted: 0
         - stepName: Remove Suction valve cap
           type: 1
           targetObject:
@@ -59,7 +59,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Remove the cap from the gas valve and place it on the table
-          isCompleted: 1
+          isCompleted: 0
         - stepName: Place allen key on service valve
           type: 1
           targetObject:
@@ -78,7 +78,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Connect the allen key to the liquid valve
-          isCompleted: 1
+          isCompleted: 0
         - stepName: Place allen key on suction valve
           type: 1
           targetObject:
@@ -97,7 +97,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Connect the allen key to the gas valve
-          isCompleted: 1
+          isCompleted: 0
         - stepName: Place allen key on the table
           type: 1
           targetObject:
