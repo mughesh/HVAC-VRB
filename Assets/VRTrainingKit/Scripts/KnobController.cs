@@ -13,6 +13,7 @@ public class KnobController : MonoBehaviour
     {
         private KnobProfile profile;
         private XRGrabInteractable grabInteractable;
+        private HingeJoint hingeJoint;
         private float currentAngle = 0f;
         private float startAngle = 0f;
         private Transform originalParent;
@@ -28,6 +29,7 @@ public class KnobController : MonoBehaviour
         private void Awake()
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
+            hingeJoint = GetComponent<HingeJoint>();
             originalRotation = transform.localRotation;
         }
         
@@ -54,6 +56,11 @@ public class KnobController : MonoBehaviour
             profile = knobProfile;
             currentAngle = GetCurrentAngle();
             startAngle = currentAngle;
+            
+            // Debug configuration info
+            Debug.Log($"[KnobController] Configured {gameObject.name}: " +
+                     $"Axis={profile.rotationAxis}, Range=[{profile.minAngle:F1}° to {profile.maxAngle:F1}°], " +
+                     $"HingeJoint={(hingeJoint != null ? "Yes" : "No")}, StartAngle={startAngle:F2}°");
         }
         
         private void OnGrab(SelectEnterEventArgs args)
@@ -105,10 +112,44 @@ public class KnobController : MonoBehaviour
         
         private float GetCurrentAngle()
         {
+            // Try to get angle from HingeJoint first (more accurate)
+            if (hingeJoint != null)
+            {
+                return GetHingeAngle();
+            }
+            
+            // Fallback to transform-based angle reading
+            return GetTransformAngle();
+        }
+        
+        /// <summary>
+        /// Get angle from HingeJoint - more accurate for physics-based knobs
+        /// </summary>
+        private float GetHingeAngle()
+        {
+            if (hingeJoint == null) return 0f;
+            
+            // HingeJoint angle is relative to its initial position
+            float jointAngle = hingeJoint.angle;
+            
+            // Debug output for troubleshooting
+            if (grabInteractable != null && grabInteractable.isSelected)
+            {
+                Debug.Log($"[KnobController] {gameObject.name} HingeJoint angle: {jointAngle:F2}°");
+            }
+            
+            return jointAngle;
+        }
+        
+        /// <summary>
+        /// Get angle from Transform - fallback method
+        /// </summary>
+        private float GetTransformAngle()
+        {
             Vector3 euler = transform.localEulerAngles;
             float angle = 0f;
             
-            switch (profile.rotationAxis)
+            switch (profile?.rotationAxis ?? KnobProfile.RotationAxis.Y)
             {
                 case KnobProfile.RotationAxis.X:
                     angle = euler.x;

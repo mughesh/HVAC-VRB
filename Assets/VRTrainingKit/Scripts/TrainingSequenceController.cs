@@ -33,6 +33,9 @@ public class TrainingSequenceController : MonoBehaviour
     private Dictionary<GameObject, XRSocketInteractor> socketInteractors = new Dictionary<GameObject, XRSocketInteractor>();
     private Dictionary<GameObject, KnobController> knobControllers = new Dictionary<GameObject, KnobController>();
     
+    // Store delegate references for proper cleanup
+    private Dictionary<KnobController, System.Action<float>> knobEventDelegates = new Dictionary<KnobController, System.Action<float>>();
+    
     // Progress tracking
     private int currentModuleIndex = 0;
     private int currentTaskGroupIndex = 0;
@@ -117,6 +120,9 @@ public class TrainingSequenceController : MonoBehaviour
         }
         
         LogInfo($"Cached {this.grabInteractables.Count} grab interactables, {this.socketInteractors.Count} socket interactors, {this.knobControllers.Count} knob controllers");
+        
+        // Validate knob configurations
+        ValidateKnobConfigurations();
     }
     
     /// <summary>
@@ -239,8 +245,13 @@ public class TrainingSequenceController : MonoBehaviour
         if (targetObject != null && knobControllers.ContainsKey(targetObject))
         {
             var knobController = knobControllers[targetObject];
-            knobController.OnAngleChanged += (angle) => OnKnobRotated(step, angle);
-            LogDebug($"Subscribed to knob events for: {targetObject.name}");
+            
+            // Create and store delegate reference for proper cleanup
+            System.Action<float> angleDelegate = (angle) => OnKnobRotated(step, angle);
+            knobEventDelegates[knobController] = angleDelegate;
+            
+            knobController.OnAngleChanged += angleDelegate;
+            LogDebug($"Subscribed to knob events for: {targetObject.name} (Current angle: {knobController.CurrentAngle:F1}°)");
         }
         else
         {
@@ -294,9 +305,23 @@ public class TrainingSequenceController : MonoBehaviour
         
         float angleDifference = Mathf.Abs(Mathf.DeltaAngle(currentAngle, targetAngle));
         
+        // Enhanced debug logging
+        LogDebug($"Knob rotation detected - {step.stepName}: " +
+                $"Current: {currentAngle:F2}°, Target: {targetAngle:F2}°, " +
+                $"Difference: {angleDifference:F2}°, Tolerance: {tolerance:F2}°");
+        
         if (angleDifference <= tolerance)
         {
-            CompleteStep(step, $"Knob rotated to {currentAngle:F1}° (target: {targetAngle}°)");
+            CompleteStep(step, $"Knob rotated to {currentAngle:F1}° (target: {targetAngle}°, tolerance: ±{tolerance}°)");
+        }
+        else
+        {
+            // Show progress toward target
+            float progress = Mathf.Max(0f, 1f - (angleDifference / (tolerance * 3f))); // 3x tolerance = 0% progress
+            if (enableDebugLogging && progress > 0.1f)
+            {
+                LogDebug($"Knob progress: {(progress * 100f):F0}% toward target");
+            }
         }
     }
     
@@ -476,6 +501,8 @@ public class TrainingSequenceController : MonoBehaviour
     /// </summary>
     void CleanupEventSubscriptions()
     {
+        LogDebug("Cleaning up event subscriptions...");
+        
         // Cleanup grab interactables
         foreach (var kvp in grabInteractables)
         {
@@ -494,14 +521,131 @@ public class TrainingSequenceController : MonoBehaviour
             }
         }
         
-        // Cleanup knob controllers
+        // Cleanup knob controllers - FIXED VERSION
+        foreach (var kvp in knobEventDelegates)
+        {
+            var knobController = kvp.Key;
+            var angleDelegate = kvp.Value;
+            
+            if (knobController != null)
+            {
+                knobController.OnAngleChanged -= angleDelegate;
+                LogDebug($"Unsubscribed from knob controller: {knobController.name}");
+            }
+        }
+        knobEventDelegates.Clear();
+        
+        LogDebug("Event subscription cleanup complete");
+    }
+    
+    /// <summary>
+    /// Validate knob configurations for common setup issues
+    /// </summary>
+    void ValidateKnobConfigurations()
+    {
+        LogDebug("Validating knob configurations...");
+        
         foreach (var kvp in knobControllers)
         {
-            if (kvp.Value != null)
+            var knobObject = kvp.Key;
+            var knobController = kvp.Value;
+            
+            // Check for required components
+            var grabInteractable = knobObject.GetComponent<XRGrabInteractable>();
+            var hingeJoint = knobObject.GetComponent<HingeJoint>();
+            var rigidbody = knobObject.GetComponent<Rigidbody>();
+            
+            if (grabInteractable == null)
             {
-                // Remove all listeners using -= (events don't support direct null assignment)
-                // Note: This requires tracking the specific delegates that were added
-                // For proper cleanup, consider storing references to the added delegates
+                LogWarning($"Knob {knobObject.name} missing XRGrabInteractable component!");
+                continue;
+            }
+            
+            if (hingeJoint == null)
+            {
+                LogWarning($"Knob {knobObject.name} missing HingeJoint component!");
+                continue;
+            }
+            
+            if (rigidbody == null)
+            {
+                LogWarning($"Knob {knobObject.name} missing Rigidbody component!");
+                continue;
+            }
+            
+            // Check grab interactable settings
+            if (grabInteractable.movementType != XRBaseInteractable.MovementType.VelocityTracking)
+            {
+                LogWarning($"Knob {knobObject.name}: movementType should be VelocityTracking for joint compatibility");
+            }
+            
+            if (grabInteractable.trackPosition != false)
+            {
+                LogWarning($"Knob {knobObject.name}: trackPosition should be false for rotation-only knobs");
+            }
+            
+            if (grabInteractable.trackRotation != true)
+            {
+                LogWarning($"Knob {knobObject.name}: trackRotation should be true for knob interaction");
+            }
+            
+            // Check rigidbody settings
+            if (rigidbody.isKinematic != false)
+            {
+                LogWarning($"Knob {knobObject.name}: Rigidbody.isKinematic should be false for HingeJoint physics");
+            }
+            
+            // Check if there are knob steps that reference this object
+            ValidateKnobSteps(knobObject, hingeJoint);
+        }
+        
+        LogDebug("Knob configuration validation complete");
+    }
+    
+    /// <summary>
+    /// Validate knob steps against the actual knob configuration
+    /// </summary>
+    void ValidateKnobSteps(GameObject knobObject, HingeJoint hingeJoint)
+    {
+        if (currentProgram?.modules == null) return;
+        
+        foreach (var module in currentProgram.modules)
+        {
+            if (module.taskGroups == null) continue;
+            
+            foreach (var taskGroup in module.taskGroups)
+            {
+                if (taskGroup.steps == null) continue;
+                
+                foreach (var step in taskGroup.steps)
+                {
+                    if (step.type == InteractionStep.StepType.TurnKnob && 
+                        step.targetObject.GameObject == knobObject)
+                    {
+                        // Check if target angle is within joint limits
+                        if (hingeJoint.useLimits)
+                        {
+                            var limits = hingeJoint.limits;
+                            if (step.targetAngle < limits.min || step.targetAngle > limits.max)
+                            {
+                                LogWarning($"Step '{step.stepName}': target angle {step.targetAngle}° is outside " +
+                                          $"HingeJoint limits [{limits.min}° to {limits.max}°] for {knobObject.name}");
+                            }
+                        }
+                        
+                        // Check for reasonable tolerance
+                        if (step.angleTolerance <= 0f)
+                        {
+                            LogWarning($"Step '{step.stepName}': angleTolerance should be > 0 (current: {step.angleTolerance})");
+                        }
+                        else if (step.angleTolerance > 45f)
+                        {
+                            LogWarning($"Step '{step.stepName}': angleTolerance {step.angleTolerance}° seems too large (> 45°)");
+                        }
+                        
+                        LogDebug($"Validated knob step '{step.stepName}': target={step.targetAngle}°, tolerance=±{step.angleTolerance}°");
+                    }
+                }
             }
         }
     }
