@@ -39,7 +39,10 @@ public class KnobProfile : InteractionProfile
     [Header("Collider Settings")]
     public ColliderType colliderType = ColliderType.Box;
     
-    public override void ApplyToGameObject(GameObject target)
+    /// <summary>
+    /// Apply XRI-specific components for knob interactions
+    /// </summary>
+    protected override void ApplyXRIComponents(GameObject target)
     {
         Debug.Log($"[KnobProfile] ApplyToGameObject() called for: {target.name} with profile: {profileName}");
         
@@ -214,8 +217,215 @@ public class KnobProfile : InteractionProfile
         }
     }
     
-    public override bool ValidateGameObject(GameObject target)
+    /// <summary>
+    /// Apply AutoHand-specific components for knob interactions
+    /// </summary>
+    protected override void ApplyAutoHandComponents(GameObject target)
+    {
+        Debug.Log($"[KnobProfile] Applying AutoHand components to {target.name}");
+        
+        // Remove any existing XRI components to avoid conflicts
+        var existingXRI = target.GetComponent<XRGrabInteractable>();
+        if (existingXRI != null)
+        {
+            Debug.Log($"[KnobProfile] Removing existing XRGrabInteractable from {target.name}");
+            #if UNITY_EDITOR
+            if (Application.isPlaying)
+                Object.Destroy(existingXRI);
+            else
+                Object.DestroyImmediate(existingXRI);
+            #else
+            Object.Destroy(existingXRI);
+            #endif
+        }
+        
+        // Remove existing KnobController as it's XRI-specific
+        var existingKnobController = target.GetComponent<KnobController>();
+        if (existingKnobController != null)
+        {
+            Debug.Log($"[KnobProfile] Removing existing KnobController from {target.name}");
+            #if UNITY_EDITOR
+            if (Application.isPlaying)
+                Object.Destroy(existingKnobController);
+            else
+                Object.DestroyImmediate(existingKnobController);
+            #else
+            Object.Destroy(existingKnobController);
+            #endif
+        }
+        
+        // Check if AutoHand is available
+        if (!IsAutoHandAvailable())
+        {
+            Debug.LogError("[KnobProfile] AutoHand components not found in project. Please ensure AutoHand asset is imported.");
+            return;
+        }
+        
+        // Add AutoHand Grabbable component using robust type detection
+        try
+        {
+            var grabbableType = GetAutoHandType("Grabbable");
+            if (grabbableType == null)
+            {
+                Debug.LogError("[KnobProfile] Autohand.Grabbable type not found. Please check AutoHand installation.");
+                return;
+            }
+            
+            var grabbable = target.GetComponent(grabbableType);
+            if (grabbable == null)
+            {
+                grabbable = target.AddComponent(grabbableType);
+                Debug.Log($"[KnobProfile] Added Grabbable component to {target.name}");
+            }
+            
+            // Set AutoHand properties for knob interaction
+            SetAutoHandGrabbableProperties(grabbable, grabbableType);
+            
+            // Add AutoHand PhysicsGadgetHingeAngleReader for angle tracking
+            var angleReaderType = GetAutoHandType("PhysicsGadgetHingeAngleReader");
+            if (angleReaderType != null)
+            {
+                var angleReader = target.GetComponent(angleReaderType);
+                if (angleReader == null)
+                {
+                    angleReader = target.AddComponent(angleReaderType);
+                    Debug.Log($"[KnobProfile] Added PhysicsGadgetHingeAngleReader to {target.name}");
+                }
+                
+                // Configure angle reader properties
+                SetAutoHandAngleReaderProperties(angleReader, angleReaderType);
+            }
+            else
+            {
+                Debug.LogWarning("[KnobProfile] PhysicsGadgetHingeAngleReader type not found in AutoHand");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[KnobProfile] Failed to add AutoHand components: {e.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Apply common components needed by both systems
+    /// </summary>
+    protected override void ApplyCommonComponents(GameObject target)
+    {
+        // Ensure Rigidbody exists
+        Rigidbody rb = target.GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            rb = target.AddComponent<Rigidbody>();
+            rb.useGravity = true;
+            Debug.Log($"[KnobProfile] Added Rigidbody to {target.name}");
+        }
+        
+        // Configure rigidbody based on system type
+        if (handSystem == HandSystemType.AutoHand)
+        {
+            rb.isKinematic = false; // AutoHand needs non-kinematic for physics
+        }
+        
+        // Add and configure HingeJoint (both systems use this for rotation)
+        HingeJoint joint = target.GetComponent<HingeJoint>();
+        if (joint == null)
+        {
+            joint = target.AddComponent<HingeJoint>();
+            Debug.Log($"[KnobProfile] Added HingeJoint to {target.name}");
+        }
+        
+        ConfigureHingeJoint(joint);
+        
+        // Handle collider
+        GameObject colliderTarget = target;
+        if (colliderTarget.GetComponent<Collider>() == null && colliderType != ColliderType.None)
+        {
+            AddCollider(colliderTarget, colliderType);
+        }
+    }
+    
+    /// <summary>
+    /// Set AutoHand Grabbable properties for knob interactions
+    /// </summary>
+    private void SetAutoHandGrabbableProperties(Component grabbable, System.Type grabbableType)
+    {
+        try
+        {
+            // Set properties appropriate for knobs
+            SetFieldValue(grabbable, grabbableType, "instantGrab", false);
+            SetFieldValue(grabbable, grabbableType, "useGentleGrab", true); // Good for knobs
+            SetFieldValue(grabbable, grabbableType, "maintainGrabOffset", true); // Good for jointed objects
+            SetFieldValue(grabbable, grabbableType, "parentOnGrab", false); // Don't parent jointed objects
+            SetFieldValue(grabbable, grabbableType, "throwPower", 0f); // Knobs shouldn't be throwable
+            SetFieldValue(grabbable, grabbableType, "jointBreakForce", 10000f); // High break force for knobs
+            SetFieldValue(grabbable, grabbableType, "grabPriorityWeight", 1.0f);
+            
+            Debug.Log($"[KnobProfile] Successfully configured AutoHand Grabbable properties for {grabbable.name}");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[KnobProfile] Could not set all AutoHand Grabbable properties: {e.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Set AutoHand PhysicsGadgetHingeAngleReader properties
+    /// </summary>
+    private void SetAutoHandAngleReaderProperties(Component angleReader, System.Type angleReaderType)
+    {
+        try
+        {
+            // Set properties for angle reading
+            SetFieldValue(angleReader, angleReaderType, "invertValue", false);
+            SetFieldValue(angleReader, angleReaderType, "playRange", 0.05f);
+            
+            Debug.Log($"[KnobProfile] Successfully configured AutoHand angle reader properties for {angleReader.name}");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[KnobProfile] Could not set all AutoHand angle reader properties: {e.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Helper method to set field values using reflection
+    /// </summary>
+    private void SetFieldValue(Component component, System.Type type, string fieldName, object value)
+    {
+        var field = type.GetField(fieldName);
+        if (field != null)
+        {
+            field.SetValue(component, value);
+        }
+        else
+        {
+            Debug.LogWarning($"[KnobProfile] Field '{fieldName}' not found in {type.Name}");
+        }
+    }
+    
+    /// <summary>
+    /// Validate GameObject for XRI system
+    /// </summary>
+    protected override bool ValidateForXRI(GameObject target)
     {
         return target != null && target.CompareTag("knob");
+    }
+    
+    /// <summary>
+    /// Validate GameObject for AutoHand system
+    /// </summary>
+    protected override bool ValidateForAutoHand(GameObject target)
+    {
+        if (target == null || !target.CompareTag("knob"))
+            return false;
+            
+        // Additional AutoHand-specific validation
+        if (!IsAutoHandAvailable())
+        {
+            Debug.LogWarning("[KnobProfile] AutoHand not available in project");
+            return false;
+        }
+        
+        return true;
     }
 }

@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   profileName: New Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  handSystem: 1
+  showAutoHandSettings: 0
   movementType: 0
   trackPosition: 1
   trackRotation: 1
@@ -22,5 +24,12 @@ MonoBehaviour:
   throwAngularVelocityScale: 1
   useDynamicAttach: 1
   attachEaseInTime: 0.15
+  instantGrab: 0
+  useGentleGrab: 0
+  maintainGrabOffset: 0
+  parentOnGrab: 1
+  throwPower: 1
+  jointBreakForce: 3500
+  grabPriorityWeight: 1
   colliderType: 3
   addColliderToMeshChild: 1
