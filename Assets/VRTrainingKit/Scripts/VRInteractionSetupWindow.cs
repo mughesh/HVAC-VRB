@@ -75,6 +75,53 @@ public class VRInteractionSetupWindow : EditorWindow
     {
         InitializeStyles();
         LoadDefaultProfiles();
+        
+        // Subscribe to play mode state changes
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        
+        // Try to restore scene analysis if we had one before
+        if (sceneAnalysis == null && EditorPrefs.HasKey("VRTrainingKit_LastSceneAnalysisValid"))
+        {
+            bool wasValid = EditorPrefs.GetBool("VRTrainingKit_LastSceneAnalysisValid", false);
+            if (wasValid)
+            {
+                Debug.Log("[VRInteractionSetupWindow] Restoring scene analysis after play mode transition");
+                sceneAnalysis = InteractionSetupService.ScanScene();
+            }
+        }
+    }
+    
+    private void OnDisable()
+    {
+        // Unsubscribe from play mode state changes
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        
+        // Save that we had a valid scene analysis
+        if (sceneAnalysis != null)
+        {
+            EditorPrefs.SetBool("VRTrainingKit_LastSceneAnalysisValid", true);
+        }
+    }
+    
+    private void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.EnteredPlayMode)
+        {
+            Debug.Log("[VRInteractionSetupWindow] Entered play mode - refreshing scene analysis");
+            if (sceneAnalysis != null)
+            {
+                // Refresh the analysis in play mode to show current state
+                sceneAnalysis = InteractionSetupService.ScanScene();
+            }
+        }
+        else if (state == PlayModeStateChange.EnteredEditMode)
+        {
+            Debug.Log("[VRInteractionSetupWindow] Entered edit mode - refreshing scene analysis");
+            if (EditorPrefs.GetBool("VRTrainingKit_LastSceneAnalysisValid", false))
+            {
+                sceneAnalysis = InteractionSetupService.ScanScene();
+            }
+        }
     }
     
     private void InitializeStyles()

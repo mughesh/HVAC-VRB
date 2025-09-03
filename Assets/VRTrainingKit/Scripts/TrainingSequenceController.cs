@@ -33,6 +33,9 @@ public class TrainingSequenceController : MonoBehaviour
     private Dictionary<GameObject, XRSocketInteractor> socketInteractors = new Dictionary<GameObject, XRSocketInteractor>();
     private Dictionary<GameObject, KnobController> knobControllers = new Dictionary<GameObject, KnobController>();
     
+    // Store delegate references for proper cleanup
+    private Dictionary<KnobController, System.Action<float>> knobEventDelegates = new Dictionary<KnobController, System.Action<float>>();
+    
     // Progress tracking
     private int currentModuleIndex = 0;
     private int currentTaskGroupIndex = 0;
@@ -117,6 +120,12 @@ public class TrainingSequenceController : MonoBehaviour
         }
         
         LogInfo($"Cached {this.grabInteractables.Count} grab interactables, {this.socketInteractors.Count} socket interactors, {this.knobControllers.Count} knob controllers");
+        
+        // Validate knob configurations
+        ValidateKnobConfigurations();
+        
+        // Restore any missing profiles
+        RestoreMissingProfiles();
     }
     
     /// <summary>
@@ -239,8 +248,13 @@ public class TrainingSequenceController : MonoBehaviour
         if (targetObject != null && knobControllers.ContainsKey(targetObject))
         {
             var knobController = knobControllers[targetObject];
-            knobController.OnAngleChanged += (angle) => OnKnobRotated(step, angle);
-            LogDebug($"Subscribed to knob events for: {targetObject.name}");
+            
+            // Create and store delegate reference for proper cleanup
+            System.Action<float> angleDelegate = (angle) => OnKnobRotated(step, angle);
+            knobEventDelegates[knobController] = angleDelegate;
+            
+            knobController.OnAngleChanged += angleDelegate;
+            LogDebug($"Subscribed to knob events for: {targetObject.name} (Current angle: {knobController.CurrentAngle:F1}°)");
         }
         else
         {
@@ -294,9 +308,23 @@ public class TrainingSequenceController : MonoBehaviour
         
         float angleDifference = Mathf.Abs(Mathf.DeltaAngle(currentAngle, targetAngle));
         
+        // Enhanced debug logging
+        LogDebug($"Knob rotation detected - {step.stepName}: " +
+                $"Current: {currentAngle:F2}°, Target: {targetAngle:F2}°, " +
+                $"Difference: {angleDifference:F2}°, Tolerance: {tolerance:F2}°");
+        
         if (angleDifference <= tolerance)
         {
-            CompleteStep(step, $"Knob rotated to {currentAngle:F1}° (target: {targetAngle}°)");
+            CompleteStep(step, $"Knob rotated to {currentAngle:F1}° (target: {targetAngle}°, tolerance: ±{tolerance}°)");
+        }
+        else
+        {
+            // Show progress toward target
+            float progress = Mathf.Max(0f, 1f - (angleDifference / (tolerance * 3f))); // 3x tolerance = 0% progress
+            if (enableDebugLogging && progress > 0.1f)
+            {
+                LogDebug($"Knob progress: {(progress * 100f):F0}% toward target");
+            }
         }
     }
     
@@ -476,6 +504,8 @@ public class TrainingSequenceController : MonoBehaviour
     /// </summary>
     void CleanupEventSubscriptions()
     {
+        LogDebug("Cleaning up event subscriptions...");
+        
         // Cleanup grab interactables
         foreach (var kvp in grabInteractables)
         {
@@ -494,16 +524,242 @@ public class TrainingSequenceController : MonoBehaviour
             }
         }
         
-        // Cleanup knob controllers
-        foreach (var kvp in knobControllers)
+        // Cleanup knob controllers - FIXED VERSION
+        foreach (var kvp in knobEventDelegates)
         {
-            if (kvp.Value != null)
+            var knobController = kvp.Key;
+            var angleDelegate = kvp.Value;
+            
+            if (knobController != null)
             {
-                // Remove all listeners using -= (events don't support direct null assignment)
-                // Note: This requires tracking the specific delegates that were added
-                // For proper cleanup, consider storing references to the added delegates
+                knobController.OnAngleChanged -= angleDelegate;
+                LogDebug($"Unsubscribed from knob controller: {knobController.name}");
             }
         }
+        knobEventDelegates.Clear();
+        
+        LogDebug("Event subscription cleanup complete");
+    }
+    
+    /// <summary>
+    /// Validate knob configurations for common setup issues
+    /// </summary>
+    void ValidateKnobConfigurations()
+    {
+        LogDebug("Validating knob configurations...");
+        
+        foreach (var kvp in knobControllers)
+        {
+            var knobObject = kvp.Key;
+            var knobController = kvp.Value;
+            
+            // Check for required components
+            var grabInteractable = knobObject.GetComponent<XRGrabInteractable>();
+            var hingeJoint = knobObject.GetComponent<HingeJoint>();
+            var rigidbody = knobObject.GetComponent<Rigidbody>();
+            
+            if (grabInteractable == null)
+            {
+                LogWarning($"Knob {knobObject.name} missing XRGrabInteractable component!");
+                continue;
+            }
+            
+            if (hingeJoint == null)
+            {
+                LogWarning($"Knob {knobObject.name} missing HingeJoint component!");
+                continue;
+            }
+            
+            if (rigidbody == null)
+            {
+                LogWarning($"Knob {knobObject.name} missing Rigidbody component!");
+                continue;
+            }
+            
+            // Check grab interactable settings
+            if (grabInteractable.movementType != XRBaseInteractable.MovementType.VelocityTracking)
+            {
+                LogWarning($"Knob {knobObject.name}: movementType should be VelocityTracking for joint compatibility");
+            }
+            
+            if (grabInteractable.trackPosition != false)
+            {
+                LogWarning($"Knob {knobObject.name}: trackPosition should be false for rotation-only knobs");
+            }
+            
+            if (grabInteractable.trackRotation != true)
+            {
+                LogWarning($"Knob {knobObject.name}: trackRotation should be true for knob interaction");
+            }
+            
+            // Check rigidbody settings
+            if (rigidbody.isKinematic != false)
+            {
+                LogWarning($"Knob {knobObject.name}: Rigidbody.isKinematic should be false for HingeJoint physics");
+            }
+            
+            // Check if there are knob steps that reference this object
+            ValidateKnobSteps(knobObject, hingeJoint);
+        }
+        
+        LogDebug("Knob configuration validation complete");
+    }
+    
+    /// <summary>
+    /// Validate knob steps against the actual knob configuration
+    /// </summary>
+    void ValidateKnobSteps(GameObject knobObject, HingeJoint hingeJoint)
+    {
+        if (currentProgram?.modules == null) return;
+        
+        foreach (var module in currentProgram.modules)
+        {
+            if (module.taskGroups == null) continue;
+            
+            foreach (var taskGroup in module.taskGroups)
+            {
+                if (taskGroup.steps == null) continue;
+                
+                foreach (var step in taskGroup.steps)
+                {
+                    if (step.type == InteractionStep.StepType.TurnKnob && 
+                        step.targetObject.GameObject == knobObject)
+                    {
+                        // Check if target angle is within joint limits
+                        if (hingeJoint.useLimits)
+                        {
+                            var limits = hingeJoint.limits;
+                            if (step.targetAngle < limits.min || step.targetAngle > limits.max)
+                            {
+                                LogWarning($"Step '{step.stepName}': target angle {step.targetAngle}° is outside " +
+                                          $"HingeJoint limits [{limits.min}° to {limits.max}°] for {knobObject.name}");
+                            }
+                        }
+                        
+                        // Check for reasonable tolerance
+                        if (step.angleTolerance <= 0f)
+                        {
+                            LogWarning($"Step '{step.stepName}': angleTolerance should be > 0 (current: {step.angleTolerance})");
+                        }
+                        else if (step.angleTolerance > 45f)
+                        {
+                            LogWarning($"Step '{step.stepName}': angleTolerance {step.angleTolerance}° seems too large (> 45°)");
+                        }
+                        
+                        LogDebug($"Validated knob step '{step.stepName}': target={step.targetAngle}°, tolerance=±{step.angleTolerance}°");
+                    }
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Restore missing profiles using stored editor preferences or default profiles
+    /// </summary>
+    void RestoreMissingProfiles()
+    {
+        LogDebug("Checking for objects with missing profiles...");
+        
+        int restoredCount = 0;
+        
+        foreach (var kvp in knobControllers)
+        {
+            var knobObject = kvp.Key;
+            var knobController = kvp.Value;
+            
+            // Check if this knob controller is missing its profile
+            if (IsProfileMissing(knobController, knobObject.name))
+            {
+                LogWarning($"Profile missing for {knobObject.name}! Attempting to restore...");
+                
+                if (RestoreKnobProfile(knobObject, knobController))
+                {
+                    restoredCount++;
+                    LogInfo($"Successfully restored profile for {knobObject.name}");
+                }
+                else
+                {
+                    LogError($"Failed to restore profile for {knobObject.name} - knob may not work correctly");
+                }
+            }
+        }
+        
+        if (restoredCount > 0)
+        {
+            LogInfo($"Restored profiles for {restoredCount} objects that were missing configurations");
+        }
+        else
+        {
+            LogDebug("All objects have valid profiles");
+        }
+    }
+    
+    /// <summary>
+    /// Check if a KnobController is missing its profile
+    /// </summary>
+    bool IsProfileMissing(KnobController knobController, string objectName)
+    {
+        // Use reflection to safely check the profile field
+        var profileField = typeof(KnobController).GetField("profile", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        if (profileField != null)
+        {
+            var profile = profileField.GetValue(knobController);
+            return profile == null;
+        }
+        
+        // If we can't check, assume it might be missing
+        LogWarning($"Could not check profile status for {objectName} - reflection failed");
+        return false;
+    }
+    
+    /// <summary>
+    /// Restore a knob profile using available methods
+    /// </summary>
+    bool RestoreKnobProfile(GameObject knobObject, KnobController knobController)
+    {
+        // Method 1: Try to find a default knob profile in Resources
+        KnobProfile defaultProfile = Resources.Load<KnobProfile>("KnobProfile");
+        if (defaultProfile != null)
+        {
+            try
+            {
+                LogDebug($"Applying default resource profile to {knobObject.name}");
+                defaultProfile.ApplyToGameObject(knobObject);
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                LogError($"Failed to apply default profile to {knobObject.name}: {e.Message}");
+            }
+        }
+        
+        // Method 2: Scan for available knob profiles in project
+        #if UNITY_EDITOR
+        var profileGuids = UnityEditor.AssetDatabase.FindAssets("t:KnobProfile");
+        if (profileGuids.Length > 0)
+        {
+            var profilePath = UnityEditor.AssetDatabase.GUIDToAssetPath(profileGuids[0]);
+            var profile = UnityEditor.AssetDatabase.LoadAssetAtPath<KnobProfile>(profilePath);
+            if (profile != null)
+            {
+                try
+                {
+                    LogDebug($"Applying found project profile '{profile.profileName}' to {knobObject.name}");
+                    profile.ApplyToGameObject(knobObject);
+                    return true;
+                }
+                catch (System.Exception e)
+                {
+                    LogError($"Failed to apply project profile to {knobObject.name}: {e.Message}");
+                }
+            }
+        }
+        #endif
+        
+        LogWarning($"No suitable profile found for {knobObject.name}");
+        return false;
     }
     
     /// <summary>

@@ -11,8 +11,11 @@ using System;
 /// </summary>
 public class KnobController : MonoBehaviour
     {
-        private KnobProfile profile;
+        [Header("Profile Configuration")]
+        [SerializeField] private KnobProfile profile;  // Made serialized to test persistence
+        
         private XRGrabInteractable grabInteractable;
+        private new HingeJoint hingeJoint;
         private float currentAngle = 0f;
         private float startAngle = 0f;
         private Transform originalParent;
@@ -28,8 +31,24 @@ public class KnobController : MonoBehaviour
         private void Awake()
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
+            hingeJoint = GetComponent<HingeJoint>();
             originalRotation = transform.localRotation;
+            
+            Debug.Log($"[KnobController] {gameObject.name} Awake() - Profile state: {(profile != null ? profile.profileName : "NULL")}");
         }
+        
+        private void Start()
+        {
+            Debug.Log($"[KnobController] {gameObject.name} Start() - Profile state: {(profile != null ? profile.profileName : "NULL")}");
+        }
+        
+        #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            // This gets called when the component is modified in the editor
+            Debug.Log($"[KnobController] {gameObject.name} OnValidate() - Profile state: {(profile != null ? profile.profileName : "NULL")}");
+        }
+        #endif
         
         private void OnEnable()
         {
@@ -51,9 +70,21 @@ public class KnobController : MonoBehaviour
         
         public void Configure(KnobProfile knobProfile)
         {
+            var previousProfile = profile?.profileName ?? "NULL";
             profile = knobProfile;
             currentAngle = GetCurrentAngle();
             startAngle = currentAngle;
+            
+            // Debug configuration info
+            Debug.Log($"[KnobController] Configure() called for {gameObject.name}: " +
+                     $"Previous={previousProfile} → New={profile.profileName}, " +
+                     $"Axis={profile.rotationAxis}, Range=[{profile.minAngle:F1}° to {profile.maxAngle:F1}°], " +
+                     $"HingeJoint={(hingeJoint != null ? "Yes" : "No")}, StartAngle={startAngle:F2}°");
+                     
+            #if UNITY_EDITOR
+            // Force the object to be dirty in editor so changes are saved
+            UnityEditor.EditorUtility.SetDirty(this);
+            #endif
         }
         
         private void OnGrab(SelectEnterEventArgs args)
@@ -75,6 +106,10 @@ public class KnobController : MonoBehaviour
             {
                 UpdateRotation();
             }
+            else if (grabInteractable != null && grabInteractable.isSelected && profile == null)
+            {
+                Debug.LogWarning($"[KnobController] {gameObject.name} is grabbed but has no profile configured!");
+            }
         }
         
         private void UpdateRotation()
@@ -84,14 +119,23 @@ public class KnobController : MonoBehaviour
             // Apply limits if enabled
             if (profile.useLimits)
             {
-                newAngle = Mathf.Clamp(newAngle, profile.minAngle, profile.maxAngle);
-                ApplyRotation(newAngle);
+                float clampedAngle = Mathf.Clamp(newAngle, profile.minAngle, profile.maxAngle);
+                if (clampedAngle != newAngle)
+                {
+                  //  Debug.Log($"[KnobController] {gameObject.name} Angle clamped from {newAngle:F2}° to {clampedAngle:F2}° (limits: {profile.minAngle}° to {profile.maxAngle}°)");
+                    newAngle = clampedAngle;
+                    ApplyRotation(newAngle);
+                }
             }
             
-            // Fire event if angle changed
-            if (Mathf.Abs(newAngle - currentAngle) > 0.01f)
+            // Fire event if angle changed - LOWERED THRESHOLD FOR TESTING
+            float angleDifference = Mathf.Abs(newAngle - currentAngle);
+            if (angleDifference > 0.001f) // Lowered from 0.01f to 0.001f
             {
+                float previousAngle = currentAngle;
                 currentAngle = newAngle;
+                
+                //Debug.Log($"[KnobController] {gameObject.name} ANGLE CHANGED! {previousAngle:F3}° → {currentAngle:F3}° (diff: {angleDifference:F3}°) - FIRING EVENT");
                 OnAngleChanged?.Invoke(currentAngle);
                 
                 // Haptic feedback
@@ -105,10 +149,57 @@ public class KnobController : MonoBehaviour
         
         private float GetCurrentAngle()
         {
+            // Try to get angle from HingeJoint first (more accurate)
+            if (hingeJoint != null)
+            {
+                return GetHingeAngle();
+            }
+            
+            // Fallback to transform-based angle reading
+            return GetTransformAngle();
+        }
+        
+        /// <summary>
+        /// Get angle from HingeJoint - more accurate for physics-based knobs
+        /// </summary>
+        private float GetHingeAngle()
+        {
+            if (hingeJoint == null) 
+            {
+                Debug.LogWarning($"[KnobController] {gameObject.name} GetHingeAngle(): HingeJoint is null, falling back to transform");
+                return GetTransformAngle();
+            }
+            
+            // HingeJoint angle is relative to its initial position
+            float jointAngle = hingeJoint.angle;
+            
+            // Safety check for NaN values
+            if (float.IsNaN(jointAngle))
+            {
+             //   Debug.LogError($"[KnobController] {gameObject.name} HingeJoint angle is NaN! Returning 0°");
+                return 0f;
+            }
+            
+            return jointAngle;
+        }
+        
+        /// <summary>
+        /// Get angle from Transform - fallback method
+        /// </summary>
+        private float GetTransformAngle()
+        {
             Vector3 euler = transform.localEulerAngles;
+            
+            // Safety check for NaN values in euler angles
+            if (float.IsNaN(euler.x) || float.IsNaN(euler.y) || float.IsNaN(euler.z))
+            {
+                Debug.LogError($"[KnobController] {gameObject.name} Transform euler angles contain NaN! Returning 0°");
+                return 0f;
+            }
+            
             float angle = 0f;
             
-            switch (profile.rotationAxis)
+            switch (profile?.rotationAxis ?? KnobProfile.RotationAxis.Y)
             {
                 case KnobProfile.RotationAxis.X:
                     angle = euler.x;
@@ -123,6 +214,13 @@ public class KnobController : MonoBehaviour
             
             // Convert to -180 to 180 range
             if (angle > 180f) angle -= 360f;
+            
+            // Final NaN check
+            if (float.IsNaN(angle))
+            {
+                Debug.LogError($"[KnobController] {gameObject.name} Final angle calculation resulted in NaN! Returning 0°");
+                return 0f;
+            }
             
             return angle;
         }

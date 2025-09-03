@@ -569,6 +569,7 @@ GameObject:
   - component: {fileID: 33017839}
   - component: {fileID: 33017838}
   - component: {fileID: 33017837}
+  - component: {fileID: 33017841}
   m_Layer: 0
   m_Name: AllenKey_socket_table
   m_TagString: snap
@@ -685,6 +686,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &33017841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 33017835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 749730159}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &34354765
 GameObject:
   m_ObjectHideFlags: 0
@@ -1694,7 +1707,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 1
+    damper: 0.1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -1705,7 +1718,7 @@ HingeJoint:
   m_ExtendedLimits: 0
   m_UseAcceleration: 0
   m_Limits:
-    min: -90
+    min: -180
     max: 180
     bounciness: 0
     bounceMinVelocity: 0.2
@@ -1728,6 +1741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: cfa269699b80fb549aa5d2c8089170ff, type: 2}
 --- !u!114 &100336978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3460,6 +3474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 0}
 --- !u!153 &417602380
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -6371,6 +6386,21 @@ Transform:
   - {fileID: 6509477568784260228}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!115 &749730159
+MonoScript:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 7
+  m_DefaultReferences: {}
+  m_Icon: {fileID: 0}
+  m_Type: 0
+  m_ExecutionOrder: 0
+  m_ClassName: SnapValidator
+  m_Namespace: 
+  m_AssemblyName: Assembly-CSharp
 --- !u!1 &767580802
 GameObject:
   m_ObjectHideFlags: 0
@@ -12773,6 +12803,7 @@ GameObject:
   - component: {fileID: 1027256203}
   - component: {fileID: 1027256202}
   - component: {fileID: 1027256201}
+  - component: {fileID: 1027256205}
   m_Layer: 0
   m_Name: YellowHose_snap_male
   m_TagString: snap
@@ -12883,12 +12914,24 @@ Transform:
   m_GameObject: {fileID: 1027256199}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.4926, y: 1.0892, z: 0.5968}
+  m_LocalPosition: {x: 0.104, y: 1.0892, z: 0.793}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1027256205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1027256199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 749730159}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1028893675
 GameObject:
   m_ObjectHideFlags: 0
@@ -13306,7 +13349,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 1
+    damper: 0.1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -13317,7 +13360,7 @@ HingeJoint:
   m_ExtendedLimits: 0
   m_UseAcceleration: 0
   m_Limits:
-    min: -90
+    min: -180
     max: 180
     bounciness: 0
     bounceMinVelocity: 0.2
@@ -13367,6 +13410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: cfa269699b80fb549aa5d2c8089170ff, type: 2}
 --- !u!114 &1057963966
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14531,6 +14575,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 0}
 --- !u!153 &1097696600
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -14794,6 +14839,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 0}
 --- !u!153 &1097696604
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -19305,7 +19351,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 1
+    damper: 0.1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -19316,7 +19362,7 @@ HingeJoint:
   m_ExtendedLimits: 0
   m_UseAcceleration: 0
   m_Limits:
-    min: -90
+    min: -180
     max: 180
     bounciness: 0
     bounceMinVelocity: 0.2
@@ -19366,6 +19412,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: cfa269699b80fb549aa5d2c8089170ff, type: 2}
 --- !u!114 &1496526872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23964,6 +24011,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 0}
 --- !u!153 &2027933668
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -24440,7 +24488,7 @@ HingeJoint:
   m_UseSpring: 1
   m_Spring:
     spring: 0
-    damper: 1
+    damper: 0.1
     targetPosition: 0
   m_UseMotor: 0
   m_Motor:
@@ -24451,7 +24499,7 @@ HingeJoint:
   m_ExtendedLimits: 0
   m_UseAcceleration: 0
   m_Limits:
-    min: -90
+    min: -180
     max: 180
     bounciness: 0
     bounceMinVelocity: 0.2
@@ -24501,6 +24549,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172966c909dd3334ba83f6b4ac739c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: cfa269699b80fb549aa5d2c8089170ff, type: 2}
 --- !u!114 &2064890786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71529,7 +71578,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 6.67
+  m_Radius: 6
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6454302809405519018
 MonoBehaviour:
@@ -73142,7 +73191,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 4
+  m_Radius: 3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6735138772391272061
 MonoBehaviour:
@@ -85058,7 +85107,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 4
+  m_Radius: 3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8477115784999498288
 MonoBehaviour:

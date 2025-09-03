@@ -246,7 +246,7 @@ Extend `SequenceController.StateGroup.Condition` enum for custom training flow t
 
 ## Hierarchical Training Sequence System
 
-**Status: Phase 3 Complete** (Core Data, Asset System, Read-Only GUI)
+**Status: Phase 5 Complete** (Core Data, Asset System, Full Two-Panel GUI Editor)
 
 The framework includes a comprehensive hierarchical training sequence system for creating structured VR training programs. This system provides a scalable architecture for building complex multi-step training scenarios with proper organization and validation.
 
@@ -317,22 +317,38 @@ public class ValidationResult
 }
 ```
 
-#### VRInteractionSetupWindow.cs - GUI System (Phase 3)
-Extended Setup Assistant with sequence management:
+#### VRInteractionSetupWindow.cs - GUI System (Phases 3-5)
+Extended Setup Assistant with comprehensive sequence management:
 
-**Sequence Tab Features:**
-- Asset selection dropdown with New/Load/Save operations
-- Hierarchical tree view with expandable foldouts
-- Real-time validation status indicators (✓ completed, ○ pending, ⚠ invalid)
-- Inline error messages and hints display
-- Auto-loading of available training sequence assets
+**Two-Panel Layout (Phase 5):**
+- Left panel: Hierarchical tree view (40% width)
+- Right panel: Properties editor (60% width)
+- Adjustable splitter position for custom layouts
+- Independent scrolling areas for each panel
 
-**Tree View Implementation:**
+**Advanced Tree View Features:**
 - Program-level expansion with description display
 - Module foldouts with task group nesting
 - Step-level detail view with type and status indicators
-- Parallel/Optional step badges
-- Validation message inline display
+- Context-sensitive emoji icons for all element types
+- Selection highlighting with blue background tinting
+- Add/delete buttons with confirmation dialogs
+
+**Dynamic Icon System:**
+- **Program:** 📋 (clipboard icon for training programs)
+- **Module:** 📚 (books icon for training modules)
+- **Task Group:** 📁 (folder icon for step collections)
+- **Step Types:** ✋ Grab, 🔗 GrabAndSnap, 🔄 TurnKnob, ⏳ WaitForCondition, 💬 ShowInstruction
+- **Status Icons:** ✅ Valid steps, ⚠️ Invalid steps, ○ Pending configuration
+- **Action Buttons:** ➕ Add, ❌ Delete with hover tooltips
+
+**Properties Panel Features:**
+- Context-sensitive property editing based on selection type
+- Real-time GameObject reference pickers with validation
+- Automatic asset dirtying and save state management
+- Comprehensive validation feedback with color-coded messages
+- Statistics display for programs, modules, and task groups
+- Step-specific controls (angle settings for knobs, destination pickers for snaps)
 
 ### Phase Implementation Status
 
@@ -354,22 +370,18 @@ Extended Setup Assistant with sequence management:
 - Status indicators and validation feedback
 - Hierarchical display with proper indentation
 
-#### Phase 4: Step Editing Interface 🔄 PLANNED
+#### Phase 4: Step Editing Interface ✅ COMPLETED
 - Details panel for step property editing
 - Add/remove functionality for hierarchy elements
 - GameObject pickers and dropdown controls
 - In-place editing with immediate validation
 
-#### Phase 5: Runtime Controller 🔄 PLANNED
-- `TrainingSequenceController.cs` for XRI event integration
-- Step completion detection and progress tracking
-- Parallel step execution management
-- Runtime validation and error handling
-
-#### Phase 6: Testing & Polish 🔄 PLANNED
-- Runtime testing integration in GUI
-- Debug UI for step progress monitoring
-- Enhanced validation for broken references
+#### Phase 5: Two-Panel Editor Interface ✅ COMPLETED
+- Split-screen layout with tree view (40%) and properties panel (60%)
+- Advanced selection system with visual highlighting
+- Context-sensitive add/delete menus with emoji icons
+- Real-time property editing with automatic asset dirtying
+- Dynamic icon system for step types and validation states
 
 ### Usage Examples
 
@@ -430,4 +442,8 @@ The hierarchical system complements the existing profile-based interaction setup
 - **Access GUI:** `Window > VR Training > Setup Assistant` → Sequence Tab
 - **Create Assets:** Right-click in Project → Create → VR Training → Training Sequence Asset
 - **Load Template:** Use "New" button in Sequence tab → Select "HVAC Template"
-- **Validate:** Check ⚠ indicators in tree view for validation issues
+- **Edit Elements:** Select items in tree view to edit properties in right panel
+- **Add Elements:** Use ➕ buttons in tree view for context menus
+- **Delete Elements:** Use ❌ buttons with confirmation dialogs
+- **Validate:** Check ✅/⚠️ indicators in tree view for validation status
+- **Save Changes:** Use "Save" button or automatic asset dirtying
