@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(C:\\Users\\SKILLVERI DEV\\Desktop/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

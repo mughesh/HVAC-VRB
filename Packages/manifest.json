@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "co.mindport.vrbuilder.core": "https://github.com/MindPort-GmbH/VR-Builder.git",
     "com.coplaydev.unity-mcp": "https://github.com/CoplayDev/unity-mcp.git?path=/UnityMcpBridge",
     "com.unity.ai.navigation": "2.0.8",
     "com.unity.collab-proxy": "2.8.2",
