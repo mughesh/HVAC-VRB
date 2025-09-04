@@ -200,16 +200,6 @@ public class VRInteractionSetupWindow : EditorWindow
                 selectedSnapProfile = AssetDatabase.LoadAssetAtPath<SnapProfile>(path);
             }
         }
-        
-        if (selectedToolProfile == null)
-        {
-            string[] guids = AssetDatabase.FindAssets("t:ToolProfile");
-            if (guids.Length > 0)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                selectedToolProfile = AssetDatabase.LoadAssetAtPath<ToolProfile>(path);
-            }
-        }
     }
     
     private void OnGUI()
@@ -302,11 +292,6 @@ public class VRInteractionSetupWindow : EditorWindow
                 }
             }
             
-            if (GUILayout.Button("Edit Layers", GUILayout.Height(35)))
-            {
-                ShowLayerEditWindow();
-            }
-            
             EditorGUILayout.EndHorizontal();
         }
         else
@@ -377,21 +362,41 @@ public class VRInteractionSetupWindow : EditorWindow
                 // Object name
                 EditorGUILayout.LabelField($"{statusIcon} {obj.name}", statusStyle, GUILayout.Width(200));
                 
-                // Configure button for individual objects
-                if (GUILayout.Button("Configure", GUILayout.Width(80)))
+                // Layer mask dropdown (only if configured)
+                if (isConfigured)
                 {
-                    if (profile != null)
+                    EditorGUI.BeginChangeCheck();
+                    
+                    LayerMask currentMask = 0;
+                    if (interactable != null)
+                        currentMask = interactable.interactionLayers.value;
+                    else if (socketInteractor != null)
+                        currentMask = socketInteractor.interactionLayers.value;
+                    
+                    // Create a dropdown for interaction layers
+                    LayerMask newMask = DrawInteractionLayerMask(currentMask, GUILayout.Width(150));
+                    
+                    if (EditorGUI.EndChangeCheck())
                     {
-                        var singleObjectList = new List<GameObject> { obj };
-                        InteractionSetupService.ApplyComponentsToObjects(singleObjectList, profile);
-                        EditorUtility.DisplayDialog("Configuration Complete", 
-                            $"Applied {profile.profileName} to {obj.name}", "OK");
+                        Undo.RecordObject(obj, "Change Interaction Layer");
+                        if (interactable != null)
+                        {
+                            var layers = interactable.interactionLayers;
+                            layers.value = newMask;
+                            interactable.interactionLayers = layers;
+                        }
+                        else if (socketInteractor != null)
+                        {
+                            var layers = socketInteractor.interactionLayers;
+                            layers.value = newMask;
+                            socketInteractor.interactionLayers = layers;
+                        }
+                        EditorUtility.SetDirty(obj);
                     }
-                    else
-                    {
-                        EditorUtility.DisplayDialog("No Profile", 
-                            $"Please select a profile for {tag} objects in the Configure tab", "OK");
-                    }
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("Configure first", EditorStyles.miniLabel, GUILayout.Width(150));
                 }
                 
                 // Select button
@@ -1509,12 +1514,6 @@ public class VRInteractionSetupWindow : EditorWindow
         
         // Refresh the scene analysis
         sceneAnalysis = InteractionSetupService.ScanScene();
-    }
-    
-    private void ShowLayerEditWindow()
-    {
-        // Open XRI Interaction Layer Settings
-        SettingsService.OpenProjectSettings("Project/XR Plug-in Management/XR Interaction Toolkit");
     }
     
     private void CreateNewProfile<T>(string defaultName) where T : InteractionProfile
