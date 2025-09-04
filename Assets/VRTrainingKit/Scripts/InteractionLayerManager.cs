@@ -124,12 +124,6 @@ public static class InteractionLayerManager
             }
         }
         
-        // Add button to open layer settings
-        if (GUILayout.Button("Edit Layers", EditorStyles.miniButton, GUILayout.Width(70)))
-        {
-            OpenInteractionLayerSettings();
-        }
-        
         return newMask;
     }
     

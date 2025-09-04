@@ -304,7 +304,7 @@ public class VRInteractionSetupWindow : EditorWindow
             
             if (GUILayout.Button("Edit Layers", GUILayout.Height(35)))
             {
-                ShowLayerEditWindow();
+                InteractionLayerManager.OpenInteractionLayerSettings();
             }
             
             EditorGUILayout.EndHorizontal();
@@ -377,15 +377,54 @@ public class VRInteractionSetupWindow : EditorWindow
                 // Object name
                 EditorGUILayout.LabelField($"{statusIcon} {obj.name}", statusStyle, GUILayout.Width(200));
                 
-                // Configure button for individual objects
-                if (GUILayout.Button("Configure", GUILayout.Width(80)))
+                // Layer mask dropdown (only if configured)
+                if (isConfigured)
+                {
+                    EditorGUI.BeginChangeCheck();
+                    
+                    LayerMask currentMask = 0;
+                    if (interactable != null)
+                        currentMask = interactable.interactionLayers.value;
+                    else if (socketInteractor != null)
+                        currentMask = socketInteractor.interactionLayers.value;
+                    
+                    // Create a dropdown for interaction layers
+                    LayerMask newMask = DrawInteractionLayerMask(currentMask, GUILayout.Width(150));
+                    
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        Undo.RecordObject(obj, "Change Interaction Layer");
+                        if (interactable != null)
+                        {
+                            var layers = interactable.interactionLayers;
+                            layers.value = newMask;
+                            interactable.interactionLayers = layers;
+                        }
+                        else if (socketInteractor != null)
+                        {
+                            var layers = socketInteractor.interactionLayers;
+                            layers.value = newMask;
+                            socketInteractor.interactionLayers = layers;
+                        }
+                        EditorUtility.SetDirty(obj);
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("Configure first", EditorStyles.miniLabel, GUILayout.Width(150));
+                }
+                
+                // Configure button (individual)
+                if (GUILayout.Button("Configure", GUILayout.Width(70)))
                 {
                     if (profile != null)
                     {
-                        var singleObjectList = new List<GameObject> { obj };
-                        InteractionSetupService.ApplyComponentsToObjects(singleObjectList, profile);
+                        InteractionSetupService.ApplyComponentsToObjects(new List<GameObject> { obj }, profile);
                         EditorUtility.DisplayDialog("Configuration Complete", 
                             $"Applied {profile.profileName} to {obj.name}", "OK");
+                        
+                        // Refresh analysis after configuration
+                        sceneAnalysis = InteractionSetupService.ScanScene();
                     }
                     else
                     {
@@ -1509,12 +1548,6 @@ public class VRInteractionSetupWindow : EditorWindow
         
         // Refresh the scene analysis
         sceneAnalysis = InteractionSetupService.ScanScene();
-    }
-    
-    private void ShowLayerEditWindow()
-    {
-        // Open XRI Interaction Layer Settings
-        SettingsService.OpenProjectSettings("Project/XR Plug-in Management/XR Interaction Toolkit");
     }
     
     private void CreateNewProfile<T>(string defaultName) where T : InteractionProfile
