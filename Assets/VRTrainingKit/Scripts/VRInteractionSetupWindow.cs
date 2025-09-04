@@ -30,6 +30,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private GrabProfile selectedGrabProfile;
     private KnobProfile selectedKnobProfile;
     private SnapProfile selectedSnapProfile;
+    private ToolProfile selectedToolProfile;
     private Vector2 configScrollPos;
     
     // Sequence tab - Legacy state-based system
@@ -167,6 +168,7 @@ public class VRInteractionSetupWindow : EditorWindow
         selectedGrabProfile = Resources.Load<GrabProfile>("DefaultGrabProfile");
         selectedKnobProfile = Resources.Load<KnobProfile>("DefaultKnobProfile");
         selectedSnapProfile = Resources.Load<SnapProfile>("DefaultSnapProfile");
+        selectedToolProfile = Resources.Load<ToolProfile>("DefaultToolProfile");
         
         // If not found in Resources, search in Assets
         if (selectedGrabProfile == null)
@@ -196,6 +198,16 @@ public class VRInteractionSetupWindow : EditorWindow
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[0]);
                 selectedSnapProfile = AssetDatabase.LoadAssetAtPath<SnapProfile>(path);
+            }
+        }
+        
+        if (selectedToolProfile == null)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:ToolProfile");
+            if (guids.Length > 0)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                selectedToolProfile = AssetDatabase.LoadAssetAtPath<ToolProfile>(path);
             }
         }
     }
@@ -262,6 +274,10 @@ public class VRInteractionSetupWindow : EditorWindow
             
             // Snap points
             DrawObjectGroup("Snap Points", sceneAnalysis.snapObjects, "snap", selectedSnapProfile);
+            EditorGUILayout.Space(10);
+            
+            // Tool objects
+            DrawObjectGroup("Tool Objects", sceneAnalysis.toolObjects, "tool", selectedToolProfile);
             
             EditorGUILayout.EndScrollView();
             
@@ -284,6 +300,11 @@ public class VRInteractionSetupWindow : EditorWindow
                     InteractionSetupService.CleanupComponents();
                     sceneAnalysis = InteractionSetupService.ScanScene();
                 }
+            }
+            
+            if (GUILayout.Button("Edit Layers", GUILayout.Height(35)))
+            {
+                ShowLayerEditWindow();
             }
             
             EditorGUILayout.EndHorizontal();
@@ -339,7 +360,7 @@ public class VRInteractionSetupWindow : EditorWindow
                 XRBaseInteractable interactable = null;
                 XRSocketInteractor socketInteractor = null;
                 
-                if (tag == "grab" || tag == "knob")
+                if (tag == "grab" || tag == "knob" || tag == "tool")
                 {
                     interactable = obj.GetComponent<XRGrabInteractable>();
                     isConfigured = interactable != null;
@@ -356,41 +377,21 @@ public class VRInteractionSetupWindow : EditorWindow
                 // Object name
                 EditorGUILayout.LabelField($"{statusIcon} {obj.name}", statusStyle, GUILayout.Width(200));
                 
-                // Layer mask dropdown (only if configured)
-                if (isConfigured)
+                // Configure button for individual objects
+                if (GUILayout.Button("Configure", GUILayout.Width(80)))
                 {
-                    EditorGUI.BeginChangeCheck();
-                    
-                    LayerMask currentMask = 0;
-                    if (interactable != null)
-                        currentMask = interactable.interactionLayers.value;
-                    else if (socketInteractor != null)
-                        currentMask = socketInteractor.interactionLayers.value;
-                    
-                    // Create a dropdown for interaction layers
-                    LayerMask newMask = DrawInteractionLayerMask(currentMask, GUILayout.Width(150));
-                    
-                    if (EditorGUI.EndChangeCheck())
+                    if (profile != null)
                     {
-                        Undo.RecordObject(obj, "Change Interaction Layer");
-                        if (interactable != null)
-                        {
-                            var layers = interactable.interactionLayers;
-                            layers.value = newMask;
-                            interactable.interactionLayers = layers;
-                        }
-                        else if (socketInteractor != null)
-                        {
-                            var layers = socketInteractor.interactionLayers;
-                            layers.value = newMask;
-                            socketInteractor.interactionLayers = layers;
-                        }
-                        EditorUtility.SetDirty(obj);
+                        var singleObjectList = new List<GameObject> { obj };
+                        InteractionSetupService.ApplyComponentsToObjects(singleObjectList, profile);
+                        EditorUtility.DisplayDialog("Configuration Complete", 
+                            $"Applied {profile.profileName} to {obj.name}", "OK");
                     }
-                }
-                else
-                {
-                    EditorGUILayout.LabelField("Configure first", EditorStyles.miniLabel, GUILayout.Width(150));
+                    else
+                    {
+                        EditorUtility.DisplayDialog("No Profile", 
+                            $"Please select a profile for {tag} objects in the Configure tab", "OK");
+                    }
                 }
                 
                 // Select button
@@ -563,6 +564,51 @@ public class VRInteractionSetupWindow : EditorWindow
             if (GUILayout.Button("Edit Profile"))
             {
                 Selection.activeObject = selectedSnapProfile;
+            }
+        }
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space(10);
+        
+        // Tool Profile
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("Tool Profile", subHeaderStyle);
+        selectedToolProfile = (ToolProfile)EditorGUILayout.ObjectField(
+            "Profile Asset", selectedToolProfile, typeof(ToolProfile), false);
+        
+        if (selectedToolProfile == null)
+        {
+            // Show list of available profiles
+            string[] toolProfileGuids = AssetDatabase.FindAssets("t:ToolProfile");
+            if (toolProfileGuids.Length > 0)
+            {
+                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
+                foreach (string guid in toolProfileGuids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    ToolProfile profile = AssetDatabase.LoadAssetAtPath<ToolProfile>(path);
+                    if (profile != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("  • " + profile.name, EditorStyles.miniLabel);
+                        if (GUILayout.Button("Select", GUILayout.Width(50)))
+                        {
+                            selectedToolProfile = profile;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            
+            if (GUILayout.Button("Create New Tool Profile"))
+            {
+                CreateNewProfile<ToolProfile>("ToolProfile");
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Edit Profile"))
+            {
+                Selection.activeObject = selectedToolProfile;
             }
         }
         EditorGUILayout.EndVertical();
@@ -1452,11 +1498,23 @@ public class VRInteractionSetupWindow : EditorWindow
             appliedCount += sceneAnalysis.snapObjects.Count;
         }
         
+        if (selectedToolProfile != null)
+        {
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.toolObjects, selectedToolProfile);
+            appliedCount += sceneAnalysis.toolObjects.Count;
+        }
+        
         EditorUtility.DisplayDialog("Setup Complete", 
             $"Successfully configured {appliedCount} objects", "OK");
         
         // Refresh the scene analysis
         sceneAnalysis = InteractionSetupService.ScanScene();
+    }
+    
+    private void ShowLayerEditWindow()
+    {
+        // Open XRI Interaction Layer Settings
+        SettingsService.OpenProjectSettings("Project/XR Plug-in Management/XR Interaction Toolkit");
     }
     
     private void CreateNewProfile<T>(string defaultName) where T : InteractionProfile
