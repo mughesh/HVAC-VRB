@@ -200,6 +200,16 @@ public class VRInteractionSetupWindow : EditorWindow
                 selectedSnapProfile = AssetDatabase.LoadAssetAtPath<SnapProfile>(path);
             }
         }
+        
+        if (selectedToolProfile == null)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:ToolProfile");
+            if (guids.Length > 0)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                selectedToolProfile = AssetDatabase.LoadAssetAtPath<ToolProfile>(path);
+            }
+        }
     }
     
     private void OnGUI()
@@ -290,6 +300,11 @@ public class VRInteractionSetupWindow : EditorWindow
                     InteractionSetupService.CleanupComponents();
                     sceneAnalysis = InteractionSetupService.ScanScene();
                 }
+            }
+            
+            if (GUILayout.Button("Edit Layers", GUILayout.Height(35)))
+            {
+                InteractionLayerManager.OpenInteractionLayerSettings();
             }
             
             EditorGUILayout.EndHorizontal();
@@ -397,6 +412,25 @@ public class VRInteractionSetupWindow : EditorWindow
                 else
                 {
                     EditorGUILayout.LabelField("Configure first", EditorStyles.miniLabel, GUILayout.Width(150));
+                }
+                
+                // Configure button (individual)
+                if (GUILayout.Button("Configure", GUILayout.Width(70)))
+                {
+                    if (profile != null)
+                    {
+                        InteractionSetupService.ApplyComponentsToObjects(new List<GameObject> { obj }, profile);
+                        EditorUtility.DisplayDialog("Configuration Complete", 
+                            $"Applied {profile.profileName} to {obj.name}", "OK");
+                        
+                        // Refresh analysis after configuration
+                        sceneAnalysis = InteractionSetupService.ScanScene();
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("No Profile", 
+                            $"Please select a profile for {tag} objects in the Configure tab", "OK");
+                    }
                 }
                 
                 // Select button
