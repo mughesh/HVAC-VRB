@@ -14,9 +14,10 @@ public class InteractionSetupService
             public List<GameObject> grabObjects = new List<GameObject>();
             public List<GameObject> knobObjects = new List<GameObject>();
             public List<GameObject> snapObjects = new List<GameObject>();
+            public List<GameObject> toolObjects = new List<GameObject>();
             public List<GameObject> untaggedObjects = new List<GameObject>();
             
-            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count;
+            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count + toolObjects.Count;
         }
         
         /// <summary>
@@ -47,12 +48,18 @@ public class InteractionSetupService
                 {
                     analysis.snapObjects.Add(obj);
                 }
+                else if (obj.CompareTag("tool"))
+                {
+                    analysis.toolObjects.Add(obj);
+                    Debug.Log($"[InteractionSetupService] Found tool object: {obj.name} (Tag: {obj.tag})");
+                }
             }
             
             Debug.Log($"Scene Analysis Complete: {analysis.TotalInteractables} interactables found");
             Debug.Log($"  - Grab Objects: {analysis.grabObjects.Count}");
             Debug.Log($"  - Knob Objects: {analysis.knobObjects.Count}");
             Debug.Log($"  - Snap Points: {analysis.snapObjects.Count}");
+            Debug.Log($"  - Tool Objects: {analysis.toolObjects.Count}");
             
             return analysis;
         }
@@ -113,6 +120,7 @@ public class InteractionSetupService
             GrabProfile defaultGrab = Resources.Load<GrabProfile>("DefaultGrabProfile");
             KnobProfile defaultKnob = Resources.Load<KnobProfile>("DefaultKnobProfile");
             SnapProfile defaultSnap = Resources.Load<SnapProfile>("DefaultSnapProfile");
+            ToolProfile defaultTool = Resources.Load<ToolProfile>("DefaultToolProfile");
             
             if (defaultGrab != null)
                 ApplyComponentsToObjects(analysis.grabObjects, defaultGrab);
@@ -128,6 +136,11 @@ public class InteractionSetupService
                 ApplyComponentsToObjects(analysis.snapObjects, defaultSnap);
             else
                 Debug.LogWarning("No default snap profile found in Resources folder");
+            
+            if (defaultTool != null)
+                ApplyComponentsToObjects(analysis.toolObjects, defaultTool);
+            else
+                Debug.LogWarning("No default tool profile found in Resources folder");
         }
         
         /// <summary>
@@ -165,6 +178,23 @@ public class InteractionSetupService
                 if (obj.GetComponent<KnobController>() == null)
                 {
                     issues.Add($"Knob object '{obj.name}' missing KnobController");
+                }
+            }
+            
+            // Check tool objects
+            foreach (var obj in analysis.toolObjects)
+            {
+                if (obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>() == null)
+                {
+                    issues.Add($"Tool object '{obj.name}' missing XRGrabInteractable");
+                }
+                if (obj.GetComponent<Rigidbody>() == null)
+                {
+                    issues.Add($"Tool object '{obj.name}' missing Rigidbody");
+                }
+                if (obj.GetComponent<Collider>() == null)
+                {
+                    issues.Add($"Tool object '{obj.name}' missing Collider");
                 }
             }
             
@@ -217,6 +247,13 @@ public class InteractionSetupService
             
             // Clean snap objects
             foreach (var obj in analysis.snapObjects)
+            {
+                if (RemoveInteractionComponents(obj))
+                    cleanedCount++;
+            }
+            
+            // Clean tool objects
+            foreach (var obj in analysis.toolObjects)
             {
                 if (RemoveInteractionComponents(obj))
                     cleanedCount++;

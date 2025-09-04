@@ -30,6 +30,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private GrabProfile selectedGrabProfile;
     private KnobProfile selectedKnobProfile;
     private SnapProfile selectedSnapProfile;
+    private ToolProfile selectedToolProfile;
     private Vector2 configScrollPos;
     
     // Sequence tab - Legacy state-based system
@@ -167,6 +168,7 @@ public class VRInteractionSetupWindow : EditorWindow
         selectedGrabProfile = Resources.Load<GrabProfile>("DefaultGrabProfile");
         selectedKnobProfile = Resources.Load<KnobProfile>("DefaultKnobProfile");
         selectedSnapProfile = Resources.Load<SnapProfile>("DefaultSnapProfile");
+        selectedToolProfile = Resources.Load<ToolProfile>("DefaultToolProfile");
         
         // If not found in Resources, search in Assets
         if (selectedGrabProfile == null)
@@ -262,6 +264,10 @@ public class VRInteractionSetupWindow : EditorWindow
             
             // Snap points
             DrawObjectGroup("Snap Points", sceneAnalysis.snapObjects, "snap", selectedSnapProfile);
+            EditorGUILayout.Space(10);
+            
+            // Tool objects
+            DrawObjectGroup("Tool Objects", sceneAnalysis.toolObjects, "tool", selectedToolProfile);
             
             EditorGUILayout.EndScrollView();
             
@@ -339,7 +345,7 @@ public class VRInteractionSetupWindow : EditorWindow
                 XRBaseInteractable interactable = null;
                 XRSocketInteractor socketInteractor = null;
                 
-                if (tag == "grab" || tag == "knob")
+                if (tag == "grab" || tag == "knob" || tag == "tool")
                 {
                     interactable = obj.GetComponent<XRGrabInteractable>();
                     isConfigured = interactable != null;
@@ -563,6 +569,51 @@ public class VRInteractionSetupWindow : EditorWindow
             if (GUILayout.Button("Edit Profile"))
             {
                 Selection.activeObject = selectedSnapProfile;
+            }
+        }
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space(10);
+        
+        // Tool Profile
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("Tool Profile", subHeaderStyle);
+        selectedToolProfile = (ToolProfile)EditorGUILayout.ObjectField(
+            "Profile Asset", selectedToolProfile, typeof(ToolProfile), false);
+        
+        if (selectedToolProfile == null)
+        {
+            // Show list of available profiles
+            string[] toolProfileGuids = AssetDatabase.FindAssets("t:ToolProfile");
+            if (toolProfileGuids.Length > 0)
+            {
+                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
+                foreach (string guid in toolProfileGuids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    ToolProfile profile = AssetDatabase.LoadAssetAtPath<ToolProfile>(path);
+                    if (profile != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("  • " + profile.name, EditorStyles.miniLabel);
+                        if (GUILayout.Button("Select", GUILayout.Width(50)))
+                        {
+                            selectedToolProfile = profile;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            
+            if (GUILayout.Button("Create New Tool Profile"))
+            {
+                CreateNewProfile<ToolProfile>("ToolProfile");
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Edit Profile"))
+            {
+                Selection.activeObject = selectedToolProfile;
             }
         }
         EditorGUILayout.EndVertical();
@@ -1450,6 +1501,12 @@ public class VRInteractionSetupWindow : EditorWindow
         {
             InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.snapObjects, selectedSnapProfile);
             appliedCount += sceneAnalysis.snapObjects.Count;
+        }
+        
+        if (selectedToolProfile != null)
+        {
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.toolObjects, selectedToolProfile);
+            appliedCount += sceneAnalysis.toolObjects.Count;
         }
         
         EditorUtility.DisplayDialog("Setup Complete", 
