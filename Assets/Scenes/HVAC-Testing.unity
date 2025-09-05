@@ -6255,6 +6255,7 @@ GameObject:
   - component: {fileID: 721413978}
   - component: {fileID: 721413980}
   - component: {fileID: 721413979}
+  - component: {fileID: 721413981}
   m_Layer: 0
   m_Name: AllenKey
   m_TagString: tool
@@ -6427,6 +6428,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &721413981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 721413975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8965d282ac651ce41a877070a79fc560, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: 7837bce39e48df249b6aacfcc037bcef, type: 2}
+  currentState: 0
+  currentRotationAngle: 0
+  isInitialized: 1
 --- !u!115 &749730159
 MonoScript:
   m_ObjectHideFlags: 0
@@ -23141,13 +23158,15 @@ GameObject:
   - component: {fileID: 1967729120}
   - component: {fileID: 1967729119}
   - component: {fileID: 1967729118}
+  - component: {fileID: 1967729122}
+  - component: {fileID: 1967729121}
   m_Layer: 0
   m_Name: ww
-  m_TagString: Untagged
+  m_TagString: snap
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &1967729118
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -23167,7 +23186,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.07
+  m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1967729119
 MonoBehaviour:
@@ -23224,12 +23243,51 @@ Transform:
   m_GameObject: {fileID: 1967729117}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.1705, y: 1.007, z: 0.8354}
+  m_LocalPosition: {x: 0.154, y: 1.087, z: 0.8354}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1967729121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1967729117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff68410da622af04fbb9120cd0d0619a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!54 &1967729122
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1967729117}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1988909407
 GameObject:
   m_ObjectHideFlags: 0
@@ -71734,7 +71792,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 6
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6454302809405519018
 MonoBehaviour:
@@ -73347,7 +73405,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6735138772391272061
 MonoBehaviour:
@@ -80470,7 +80528,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 6
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7784846844584422944
 MonoBehaviour:
@@ -85263,7 +85321,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8477115784999498288
 MonoBehaviour:
