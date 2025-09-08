@@ -36,6 +36,7 @@ public class ToolController : MonoBehaviour
     // Rotation tracking
     private Vector3 lastRotation;
     private float totalRotation = 0f;
+    private float lastLoggedRotation = 0f;
     
     // Events
     public event Action<ToolState> OnStateChanged;
@@ -112,8 +113,8 @@ public class ToolController : MonoBehaviour
     {
         if (!isInitialized || profile == null) return;
         
-        // Track rotation when grabbed or locked
-        if (grabInteractable.isSelected)
+        // Track rotation when grabbed AND in snapped or locked state
+        if (grabInteractable.isSelected && (currentState == ToolState.Snapped || currentState == ToolState.Locked))
         {
             TrackRotation();
         }
@@ -236,7 +237,7 @@ public class ToolController : MonoBehaviour
                 break;
                 
             case ToolState.Snapped:
-                // Tool is snapped but not locked yet
+                ApplySnappedConstraints();
                 break;
                 
             case ToolState.Locked:
@@ -248,7 +249,7 @@ public class ToolController : MonoBehaviour
     }
     
     /// <summary>
-    /// Lock tool in position, only allow rotation
+    /// Lock tool in position, only allow rotation (same as ApplySnappedConstraints but for locked state)
     /// </summary>
     private void LockToolPosition()
     {
@@ -275,7 +276,42 @@ public class ToolController : MonoBehaviour
             
             rigidBody.constraints = constraints;
             
-            Debug.Log($"[ToolController] {gameObject.name} position locked, rotation constraints set");
+            // Disable socket interactor so tool cannot be removed
+            DisableSocketInteractor();
+            
+            VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} LOCKED - position fixed, socket disabled");
+        }
+    }
+    
+    /// <summary>
+    /// Disable socket interactor to prevent tool removal when locked
+    /// </summary>
+    private void DisableSocketInteractor()
+    {
+        if (currentSocket != null)
+        {
+            XRSocketInteractor socketInteractor = currentSocket.GetComponent<XRSocketInteractor>();
+            if (socketInteractor != null)
+            {
+                socketInteractor.socketActive = false;
+                VRTrainingDebug.LogEvent($"[ToolController] Disabled socket interactor on {currentSocket.name}");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Re-enable socket interactor when tool is unlocked
+    /// </summary>
+    private void EnableSocketInteractor()
+    {
+        if (currentSocket != null)
+        {
+            XRSocketInteractor socketInteractor = currentSocket.GetComponent<XRSocketInteractor>();
+            if (socketInteractor != null)
+            {
+                socketInteractor.socketActive = true;
+                VRTrainingDebug.LogEvent($"[ToolController] Re-enabled socket interactor on {currentSocket.name}");
+            }
         }
     }
     
@@ -292,8 +328,51 @@ public class ToolController : MonoBehaviour
             // Remove all constraints
             rigidBody.constraints = RigidbodyConstraints.None;
             
-            Debug.Log($"[ToolController] {gameObject.name} unlocked for free movement");
+            // Re-enable socket interactor if it was disabled
+            EnableSocketInteractor();
+            
+            VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} unlocked for free movement");
         }
+    }
+    
+    /// <summary>
+    /// Apply physics constraints when tool is snapped (allows rotation on specified axis)
+    /// </summary>
+    private void ApplySnappedConstraints()
+    {
+        if (rigidBody != null && profile != null)
+        {
+            // Make kinematic to prevent physics movement but allow XRI manipulation
+            rigidBody.isKinematic = true;
+            
+            // Set constraints to freeze position but allow rotation on specified axis
+            RigidbodyConstraints constraints = RigidbodyConstraints.FreezePosition;
+            
+            // Allow rotation only on the specified axis
+            if (profile.rotationAxis.x == 0) constraints |= RigidbodyConstraints.FreezeRotationX;
+            if (profile.rotationAxis.y == 0) constraints |= RigidbodyConstraints.FreezeRotationY;
+            if (profile.rotationAxis.z == 0) constraints |= RigidbodyConstraints.FreezeRotationZ;
+            
+            rigidBody.constraints = constraints;
+            
+            VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} snapped - applying kinematic constraints (rotation axis: {profile.rotationAxis})");
+        }
+        else
+        {
+            VRTrainingDebug.LogError($"[ToolController] Cannot apply snapped constraints - missing rigidbody or profile");
+        }
+    }
+    
+    /// <summary>
+    /// Reset rotation tracking when tool snaps to socket
+    /// </summary>
+    private void ResetRotationTracking()
+    {
+        totalRotation = 0f;
+        currentRotationAngle = 0f;
+        lastRotation = transform.eulerAngles;
+        
+        VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} rotation tracking reset");
     }
     
     /// <summary>
@@ -304,6 +383,9 @@ public class ToolController : MonoBehaviour
         currentSocket = socket;
         snapPosition = socket.transform.position;
         snapRotation = socket.transform.rotation;
+        
+        // Reset rotation tracking for new snap
+        ResetRotationTracking();
         
         SetState(ToolState.Snapped);
         
@@ -367,8 +449,10 @@ public class ToolController : MonoBehaviour
         {
             case ToolState.Snapped:
                 // Check if tightened enough to lock
-                if (Mathf.Abs(currentRotationAngle) >= profile.tightenThreshold - profile.angleTolerance)
+                float rotationProgress = Mathf.Abs(currentRotationAngle);
+                if (rotationProgress >= profile.tightenThreshold - profile.angleTolerance)
                 {
+                    VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} TIGHTENED! {rotationProgress:F1}° reached (threshold: {profile.tightenThreshold}°)");
                     SetState(ToolState.Locked);
                     OnTightened?.Invoke();
                     
@@ -376,12 +460,22 @@ public class ToolController : MonoBehaviour
                     totalRotation = 0f;
                     currentRotationAngle = 0f;
                 }
+                else
+                {
+                    // Log rotation progress periodically
+                    if (Mathf.FloorToInt(rotationProgress / 10f) != Mathf.FloorToInt(lastLoggedRotation / 10f))
+                    {
+                        VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} rotation: {rotationProgress:F1}° (threshold: {profile.tightenThreshold}°)");
+                        lastLoggedRotation = rotationProgress;
+                    }
+                }
                 break;
                 
             case ToolState.Locked:
                 // Check if loosened enough to unlock
                 if (Mathf.Abs(currentRotationAngle) >= profile.loosenThreshold - profile.angleTolerance)
                 {
+                    VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} LOOSENED! Unlocking...");
                     SetState(ToolState.Unlocked);
                     OnLoosened?.Invoke();
                     
