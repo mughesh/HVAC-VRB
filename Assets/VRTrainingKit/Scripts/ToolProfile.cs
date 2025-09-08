@@ -30,7 +30,7 @@ public class ToolProfile : InteractionProfile
     public string[] compatibleSocketTags = new string[] { "snap" };
     
     [Tooltip("Specific socket objects this tool works with (if empty, uses tags)")]
-    public GameObject[] specificCompatibleSockets;
+    public GameObjectReference[] specificCompatibleSockets;
     
     [Tooltip("Use specific socket objects instead of tag-based matching")]
     public bool requireSpecificSockets = false;

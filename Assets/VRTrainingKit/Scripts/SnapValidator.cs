@@ -23,6 +23,7 @@ public class SnapValidator : MonoBehaviour
     {
         if (socketInteractor != null)
         {
+            Debug.Log($"[SnapValidator] OnEnable called on {gameObject.name}");
             socketInteractor.selectEntered.AddListener(OnObjectSnapped);
             socketInteractor.selectExited.AddListener(OnObjectRemoved);
         }
@@ -32,6 +33,7 @@ public class SnapValidator : MonoBehaviour
     {
         if (socketInteractor != null)
         {
+            Debug.Log($"[SnapValidator] OnDisable called on {gameObject.name}");
             socketInteractor.selectEntered.RemoveListener(OnObjectSnapped);
             socketInteractor.selectExited.RemoveListener(OnObjectRemoved);
         }
@@ -96,7 +98,15 @@ public class SnapValidator : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Successfully snapped: {snappedObject.name}");
+            Debug.Log($"[SnapValidator] Successfully snapped: {snappedObject.name}");
+            
+            // Notify ToolController if the snapped object is a tool
+            ToolController toolController = snappedObject.GetComponent<ToolController>();
+            if (toolController != null)
+            {
+                toolController.OnSocketSnapped(gameObject);
+                Debug.Log($"[SnapValidator] Notified ToolController on {snappedObject.name} about socket snap");
+            }
             
             // Fire event for sequence system
             var sequenceController = FindObjectOfType<SequenceController>();
@@ -107,7 +117,15 @@ public class SnapValidator : MonoBehaviour
     private void OnObjectRemoved(SelectExitEventArgs args)
     {
         GameObject removedObject = args.interactableObject.transform.gameObject;
-        Debug.Log($"Object removed: {removedObject.name}");
+        Debug.Log($"[SnapValidator] Object removed: {removedObject.name}");
+        
+        // Notify ToolController if the removed object is a tool
+        ToolController toolController = removedObject.GetComponent<ToolController>();
+        if (toolController != null)
+        {
+            toolController.OnSocketReleased(gameObject);
+            Debug.Log($"[SnapValidator] Notified ToolController on {removedObject.name} about socket release");
+        }
         
         // Fire event for sequence system
         var sequenceController = FindObjectOfType<SequenceController>();

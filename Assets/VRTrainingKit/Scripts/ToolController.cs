@@ -120,7 +120,7 @@ public class ToolController : MonoBehaviour
     }
     
     /// <summary>
-    /// Find compatible sockets in range
+    /// Check if a socket is compatible with this tool (used by SnapValidator)
     /// </summary>
     public List<GameObject> FindCompatibleSockets(float maxDistance = 1.0f)
     {
@@ -160,7 +160,12 @@ public class ToolController : MonoBehaviour
         // Check specific sockets first
         if (profile.requireSpecificSockets && profile.specificCompatibleSockets != null)
         {
-            return profile.specificCompatibleSockets.Contains(socket);
+            foreach (var socketRef in profile.specificCompatibleSockets)
+            {
+                if (socketRef.GameObject == socket)
+                    return true;
+            }
+            return false;
         }
         
         // Check compatible tags
@@ -207,11 +212,8 @@ public class ToolController : MonoBehaviour
     {
         Debug.Log($"[ToolController] {gameObject.name} released in state: {currentState}");
         
-        // Check for snap to compatible socket
-        if (currentState == ToolState.Unlocked)
-        {
-            CheckForSnapToSocket();
-        }
+        // Note: Socket snapping is now handled by XRI socket system + SnapValidator
+        // No manual socket detection needed here
     }
     
     /// <summary>
@@ -295,45 +297,32 @@ public class ToolController : MonoBehaviour
     }
     
     /// <summary>
-    /// Check if tool should snap to nearby socket
+    /// Called by SnapValidator when tool is snapped to a compatible socket
     /// </summary>
-    private void CheckForSnapToSocket()
-    {
-        List<GameObject> compatibleSockets = FindCompatibleSockets(0.5f); // 50cm range
-        
-        if (compatibleSockets.Count > 0)
-        {
-            // Find closest socket
-            GameObject closestSocket = compatibleSockets
-                .OrderBy(socket => Vector3.Distance(transform.position, socket.transform.position))
-                .First();
-                
-            // Check if socket can accept this tool
-            XRSocketInteractor socketInteractor = closestSocket.GetComponent<XRSocketInteractor>();
-            if (socketInteractor != null && !socketInteractor.hasSelection)
-            {
-                // Snap to socket
-                SnapToSocket(closestSocket);
-            }
-        }
-    }
-    
-    /// <summary>
-    /// Snap tool to socket
-    /// </summary>
-    private void SnapToSocket(GameObject socket)
+    public void OnSocketSnapped(GameObject socket)
     {
         currentSocket = socket;
         snapPosition = socket.transform.position;
         snapRotation = socket.transform.rotation;
         
-        // Move tool to socket position
-        transform.position = snapPosition;
-        transform.rotation = snapRotation;
-        
         SetState(ToolState.Snapped);
         
-        Debug.Log($"[ToolController] {gameObject.name} snapped to socket: {socket.name}");
+        Debug.Log($"[ToolController] {gameObject.name} snapped to socket: {socket.name} via XRI system");
+    }
+    
+    /// <summary>
+    /// Called by SnapValidator when tool is removed from socket
+    /// </summary>
+    public void OnSocketReleased(GameObject socket)
+    {
+        Debug.Log($"[ToolController] {gameObject.name} released from socket: {socket.name} via XRI system");
+        
+        // Only change state if we're currently snapped to this socket
+        if (currentSocket == socket && currentState == ToolState.Snapped)
+        {
+            SetState(ToolState.Unlocked);
+            currentSocket = null;
+        }
     }
     
     /// <summary>

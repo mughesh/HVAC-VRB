@@ -12,16 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 126d932ff59994145a0c5419aaedeaed, type: 3}
   m_Name: ToolProfile
   m_EditorClassIdentifier: 
-  profileName: New Profile
+  profileName: Default Tool Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   rotationAxis: {x: 0, y: 1, z: 0}
   tightenAngle: 180
   loosenAngle: 90
+  compatibleSocketTags:
+  - snap
+  specificCompatibleSockets:
+  - _gameObject: {fileID: 0}
+    _gameObjectName: ww
+    _scenePath: Assets/Scenes/HVAC-Testing.unity
+    _isValid: 1
+  requireSpecificSockets: 0
+  tightenThreshold: 90
+  loosenThreshold: 45
+  angleTolerance: 5
+  lockedRotationSpeed: 1
+  initialState: 0
   movementType: 0
   trackPosition: 1
   trackRotation: 1
   throwOnDetach: 1
   throwVelocityScale: 1.5
   throwAngularVelocityScale: 1
-  colliderType: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
   addColliderToMeshChild: 1

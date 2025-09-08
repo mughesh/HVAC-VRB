@@ -578,7 +578,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &33017837
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -697,7 +697,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 33017835}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 749730159}
+  m_Script: {fileID: 11500000, guid: ff68410da622af04fbb9120cd0d0619a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &33017842
@@ -709,7 +709,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 33017835}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1372147439}
+  m_Script: {fileID: 11500000, guid: ff68410da622af04fbb9120cd0d0619a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &33017843
@@ -721,7 +721,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 33017835}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 148827343}
+  m_Script: {fileID: 11500000, guid: ff68410da622af04fbb9120cd0d0619a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &34354765
@@ -2293,21 +2293,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0051643434, y: 0.006847405, z: 0.0052555325}
   m_Center: {x: 0.00045297985, y: -0.00092788646, z: 0.0009895344}
---- !u!115 &148827343
-MonoScript:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  serializedVersion: 7
-  m_DefaultReferences: {}
-  m_Icon: {fileID: 0}
-  m_Type: 0
-  m_ExecutionOrder: 0
-  m_ClassName: SnapValidator
-  m_Namespace: 
-  m_AssemblyName: Assembly-CSharp
 --- !u!1 &152194656
 GameObject:
   m_ObjectHideFlags: 0
@@ -12868,7 +12853,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &1027256201
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -12972,7 +12957,7 @@ Transform:
   m_GameObject: {fileID: 1027256199}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.104, y: 1.0892, z: 0.793}
+  m_LocalPosition: {x: 0.3496, y: 1.0892, z: 0.793}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -18818,21 +18803,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1365900740}
   m_Mesh: {fileID: -6602441374692447843, guid: ebf5e7fe7014e1841be6ed98fb88207a, type: 3}
---- !u!115 &1372147439
-MonoScript:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  serializedVersion: 7
-  m_DefaultReferences: {}
-  m_Icon: {fileID: 0}
-  m_Type: 0
-  m_ExecutionOrder: 0
-  m_ClassName: SnapValidator
-  m_Namespace: 
-  m_AssemblyName: Assembly-CSharp
 --- !u!1 &1383834729
 GameObject:
   m_ObjectHideFlags: 0
@@ -23243,7 +23213,7 @@ Transform:
   m_GameObject: {fileID: 1967729117}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.154, y: 1.087, z: 0.8354}
+  m_LocalPosition: {x: 0.2693, y: 1.087, z: 0.8354}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -69152,7 +69122,7 @@ GameObject:
   - component: {fileID: 8477115784999498287}
   - component: {fileID: 8477115784999498286}
   - component: {fileID: 8477115784999498289}
-  - component: {fileID: 8477115784999498288}
+  - component: {fileID: 8477115784999498290}
   m_Layer: 0
   m_Name: ServiceValve_Colliders
   m_TagString: snap
@@ -71792,7 +71762,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 6
+  m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6454302809405519018
 MonoBehaviour:
@@ -73351,7 +73321,7 @@ GameObject:
   - component: {fileID: 6735138772391272060}
   - component: {fileID: 6735138772391272059}
   - component: {fileID: 6735138772391272062}
-  - component: {fileID: 6735138772391272061}
+  - component: {fileID: 6735138772391272063}
   m_Layer: 0
   m_Name: SuctionValve_Colliders
   m_TagString: snap
@@ -73405,20 +73375,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 3
+  m_Radius: 1.91
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6735138772391272061
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6735138772391272057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1113072441}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &6735138772391272062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73465,6 +73423,18 @@ MonoBehaviour:
   m_SocketScaleMode: 0
   m_FixedScale: {x: 1, y: 1, z: 1}
   m_TargetBoundsSize: {x: 1, y: 1, z: 1}
+--- !u!114 &6735138772391272063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6735138772391272057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff68410da622af04fbb9120cd0d0619a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6751185970661373126
 GameObject:
   m_ObjectHideFlags: 0
@@ -80528,7 +80498,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 6
+  m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7784846844584422944
 MonoBehaviour:
@@ -85321,20 +85291,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 3
+  m_Radius: 1.91
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8477115784999498288
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6032650742523777943}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1113072441}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8477115784999498289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85381,6 +85339,18 @@ MonoBehaviour:
   m_SocketScaleMode: 0
   m_FixedScale: {x: 1, y: 1, z: 1}
   m_TargetBoundsSize: {x: 1, y: 1, z: 1}
+--- !u!114 &8477115784999498290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6032650742523777943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff68410da622af04fbb9120cd0d0619a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &8479102989895741414
 Transform:
   m_ObjectHideFlags: 0
