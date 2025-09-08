@@ -13125,8 +13125,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trainingAsset: {fileID: 11400000, guid: 8e2d6f18e57556f42b7c4094986dd935, type: 2}
-  enableDebugLogging: 1
-  showStepCompletions: 1
+  enableDebugLogging: 0
+  showStepCompletions: 0
 --- !u!1 &1037691396
 GameObject:
   m_ObjectHideFlags: 0
@@ -22757,6 +22757,53 @@ Transform:
   - {fileID: 1059093560}
   - {fileID: 1963310110}
   - {fileID: 20655062}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1959122867
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1959122869}
+  - component: {fileID: 1959122868}
+  m_Layer: 0
+  m_Name: DEBUG TOOL
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1959122868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959122867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aea406aa86a78614b898c5c5ad061d41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableDebugLogging: 0
+  enableValidationLogging: 0
+  enableEventLogging: 1
+--- !u!4 &1959122869
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959122867}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.09049066, y: 1.1115955, z: 0.886934}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1963310109
@@ -90379,3 +90426,4 @@ SceneRoots:
   - {fileID: 33017840}
   - {fileID: 1027256204}
   - {fileID: 1967729120}
+  - {fileID: 1959122869}

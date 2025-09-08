@@ -186,7 +186,7 @@ public class ToolController : MonoBehaviour
     /// </summary>
     private void OnGrabbed(SelectEnterEventArgs args)
     {
-        Debug.Log($"[ToolController] {gameObject.name} grabbed in state: {currentState}");
+        VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} grabbed in state: {currentState}");
         
         switch (currentState)
         {
@@ -210,7 +210,7 @@ public class ToolController : MonoBehaviour
     /// </summary>
     private void OnReleased(SelectExitEventArgs args)
     {
-        Debug.Log($"[ToolController] {gameObject.name} released in state: {currentState}");
+        VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} released in state: {currentState}");
         
         // Note: Socket snapping is now handled by XRI socket system + SnapValidator
         // No manual socket detection needed here
@@ -226,7 +226,7 @@ public class ToolController : MonoBehaviour
         ToolState previousState = currentState;
         currentState = newState;
         
-        Debug.Log($"[ToolController] {gameObject.name} state changed: {previousState} → {currentState}");
+        VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} state changed: {previousState} → {currentState}");
         
         // Handle state-specific setup
         switch (currentState)
@@ -307,7 +307,7 @@ public class ToolController : MonoBehaviour
         
         SetState(ToolState.Snapped);
         
-        Debug.Log($"[ToolController] {gameObject.name} snapped to socket: {socket.name} via XRI system");
+        VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} snapped to socket: {socket.name}");
     }
     
     /// <summary>
@@ -315,7 +315,7 @@ public class ToolController : MonoBehaviour
     /// </summary>
     public void OnSocketReleased(GameObject socket)
     {
-        Debug.Log($"[ToolController] {gameObject.name} released from socket: {socket.name} via XRI system");
+        VRTrainingDebug.LogEvent($"[ToolController] {gameObject.name} released from socket: {socket.name}");
         
         // Only change state if we're currently snapped to this socket
         if (currentSocket == socket && currentState == ToolState.Snapped)
