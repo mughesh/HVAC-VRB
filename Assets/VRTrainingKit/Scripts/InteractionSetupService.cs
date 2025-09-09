@@ -15,9 +15,10 @@ public class InteractionSetupService
             public List<GameObject> knobObjects = new List<GameObject>();
             public List<GameObject> snapObjects = new List<GameObject>();
             public List<GameObject> toolObjects = new List<GameObject>();
+            public List<GameObject> valveObjects = new List<GameObject>();
             public List<GameObject> untaggedObjects = new List<GameObject>();
             
-            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count + toolObjects.Count;
+            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count + toolObjects.Count + valveObjects.Count;
         }
         
         /// <summary>
@@ -53,6 +54,11 @@ public class InteractionSetupService
                     analysis.toolObjects.Add(obj);
                     Debug.Log($"[InteractionSetupService] Found tool object: {obj.name} (Tag: {obj.tag})");
                 }
+                else if (obj.CompareTag("valve"))
+                {
+                    analysis.valveObjects.Add(obj);
+                    Debug.Log($"[InteractionSetupService] Found valve object: {obj.name} (Tag: {obj.tag})");
+                }
             }
             
             Debug.Log($"Scene Analysis Complete: {analysis.TotalInteractables} interactables found");
@@ -60,6 +66,7 @@ public class InteractionSetupService
             Debug.Log($"  - Knob Objects: {analysis.knobObjects.Count}");
             Debug.Log($"  - Snap Points: {analysis.snapObjects.Count}");
             Debug.Log($"  - Tool Objects: {analysis.toolObjects.Count}");
+            Debug.Log($"  - Valve Objects: {analysis.valveObjects.Count}");
             
             return analysis;
         }

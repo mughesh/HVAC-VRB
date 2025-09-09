@@ -176,6 +176,14 @@ public class SnapValidator : MonoBehaviour
             toolController.OnSocketSnapped(gameObject);
         }
         
+        // Notify ValveController if the snapped object is a valve
+        ValveController valveController = snappedObject.GetComponent<ValveController>();
+        if (valveController != null)
+        {
+            VRTrainingDebug.LogEvent($"[SnapValidator] Notifying ValveController on {snappedObject.name}");
+            valveController.OnSocketSnapped(gameObject);
+        }
+        
         // Fire event for sequence system
         var sequenceController = FindObjectOfType<SequenceController>();
         sequenceController?.OnObjectSnapped(gameObject, snappedObject);
@@ -198,6 +206,13 @@ public class SnapValidator : MonoBehaviour
         if (toolController != null)
         {
             toolController.OnSocketReleased(gameObject);
+        }
+        
+        // Notify ValveController if the removed object is a valve
+        ValveController valveController = removedObject.GetComponent<ValveController>();
+        if (valveController != null)
+        {
+            valveController.OnSocketReleased(gameObject);
         }
         
         // Fire event for sequence system
