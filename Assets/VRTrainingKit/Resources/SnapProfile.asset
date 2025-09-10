@@ -23,6 +23,7 @@ MonoBehaviour:
   acceptedTags:
   - grab
   - tool
+  - valve
   requireSpecificObjects: 0
   specificAcceptedObjects:
   - {fileID: 0}

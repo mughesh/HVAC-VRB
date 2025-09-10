@@ -51,6 +51,7 @@ public class ValveController : MonoBehaviour
     
     // Socket interaction
     private GameObject currentSocket;
+    private XRSocketInteractor currentSocketInteractor;
     private Vector3 snapPosition;
     private Quaternion snapRotation;
     
@@ -169,10 +170,18 @@ public class ValveController : MonoBehaviour
     {
         if (!isInitialized || profile == null) return;
         
-        // Track rotation when grabbed AND in locked state
-        if (grabInteractable.isSelected && currentState == ValveState.Locked)
+        if (currentState == ValveState.Locked)
         {
-            TrackRotation();
+            if (grabInteractable.isSelected)
+            {
+                // Track rotation when grabbed in locked state
+                TrackRotation();
+            }
+            else
+            {
+                // Apply rotation dampening when not grabbed to stop spinning
+                ApplyRotationDampening();
+            }
         }
     }
     
@@ -369,15 +378,90 @@ public class ValveController : MonoBehaviour
         snapPosition = socket.transform.position;
         snapRotation = socket.transform.rotation;
         
+        // Store socket interactor reference for debugging
+        currentSocketInteractor = socket.GetComponent<XRSocketInteractor>();
+        
         // Reset rotation tracking for new snap
         ResetRotationTracking();
         
-        // Allow socket to properly center the object before applying constraints
-        StartCoroutine(DelayedStateTransition(socket));
+        // Start position monitoring coroutine instead of event listening
+        StartCoroutine(MonitorSocketPositioning(socket));
         
         OnValveSnapped?.Invoke();
         
-        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} snapped to socket: {socket.name} → Centering, then LOCKED-LOOSE");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} detected by socket: {socket.name} → Monitoring position stability");
+    }
+    
+    /// <summary>
+    /// Monitors socket positioning until object is stable, then applies constraints
+    /// </summary>
+    private IEnumerator MonitorSocketPositioning(GameObject socket)
+    {
+        if (profile == null)
+        {
+            VRTrainingDebug.LogWarning($"[ValveController] No profile found for {gameObject.name}, applying constraints immediately");
+            FinalizeLockToSocket();
+            yield break;
+        }
+        
+        float startTime = Time.time;
+        float lastLogTime = startTime;
+        float positionTolerance = profile.positionTolerance;
+        float velocityThreshold = profile.velocityThreshold;
+        float timeout = profile.positioningTimeout;
+        
+        Vector3 socketCenter = snapPosition;
+        
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} monitoring positioning: tolerance={positionTolerance:F4}, velocity={velocityThreshold:F4}, timeout={timeout}s");
+        
+        while (Time.time - startTime < timeout)
+        {
+            // Check if we're still connected to the same socket
+            if (currentSocket != socket)
+            {
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} socket changed during monitoring, aborting");
+                yield break;
+            }
+            
+            // Calculate current distance from socket center
+            float distance = Vector3.Distance(transform.position, socketCenter);
+            
+            // Check velocity (both linear and angular)
+            float linearVelocity = rigidBody != null ? rigidBody.linearVelocity.magnitude : 0f;
+            float angularVelocity = rigidBody != null ? rigidBody.angularVelocity.magnitude : 0f;
+            float totalVelocity = linearVelocity + angularVelocity;
+            
+            // Log progress every 0.2 seconds for debugging
+            if (Time.time - lastLogTime > 0.2f)
+            {
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} positioning: distance={distance:F4}, velocity={totalVelocity:F4}");
+                lastLogTime = Time.time;
+            }
+            
+            // Check if object is positioned and stabilized
+            if (distance <= positionTolerance && totalVelocity <= velocityThreshold)
+            {
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} positioning complete: distance={distance:F4}, velocity={totalVelocity:F4} (took {Time.time - startTime:F2}s)");
+                FinalizeLockToSocket();
+                yield break;
+            }
+            
+            yield return new WaitForFixedUpdate();
+        }
+        
+        // Timeout reached - apply constraints anyway with warning
+        VRTrainingDebug.LogWarning($"[ValveController] {gameObject.name} positioning timeout ({timeout}s) - applying constraints anyway");
+        FinalizeLockToSocket();
+    }
+    
+    /// <summary>
+    /// Apply final locked state and constraints after socket positioning is complete
+    /// </summary>
+    private void FinalizeLockToSocket()
+    {
+        // Now transition to LOCKED-LOOSE state
+        SetState(ValveState.Locked, ValveSubstate.Loose);
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} → LOCKED-LOOSE after confirmed socket positioning");
     }
     
     /// <summary>
@@ -387,36 +471,19 @@ public class ValveController : MonoBehaviour
     {
         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} released from socket: {socket.name}");
         
-        // Only change state if we're currently in this socket and unlocked
-        if (currentSocket == socket && currentState == ValveState.Unlocked)
-        {
-            currentSocket = null;
-            OnValveRemoved?.Invoke();
-        }
-    }
-    
-    /// <summary>
-    /// Delays state transition to allow socket to properly center the object
-    /// </summary>
-    private IEnumerator DelayedStateTransition(GameObject socket)
-    {
-        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} waiting for socket centering...");
-        
-        // Wait a few frames for the socket to properly position the object
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
-        
-        // Verify we're still snapped to the same socket
+        // Clean up socket reference and stop any monitoring
         if (currentSocket == socket)
         {
-            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying constraints after centering");
+            // Stop any running positioning coroutines
+            StopAllCoroutines();
             
-            // Now transition to LOCKED-LOOSE state
-            SetState(ValveState.Locked, ValveSubstate.Loose);
-        }
-        else
-        {
-            VRTrainingDebug.LogWarning($"[ValveController] {gameObject.name} socket changed during centering delay");
+            // Only change state if we're currently unlocked (removable)
+            if (currentState == ValveState.Unlocked)
+            {
+                currentSocket = null;
+                currentSocketInteractor = null;
+                OnValveRemoved?.Invoke();
+            }
         }
     }
     
@@ -451,6 +518,31 @@ public class ValveController : MonoBehaviour
         // Fire events
         OnRotationChanged?.Invoke(currentRotationAngle);
         UpdateProgressEvents();
+    }
+    
+    /// <summary>
+    /// Apply dampening to rotation when valve is not grabbed to prevent endless spinning
+    /// </summary>
+    private void ApplyRotationDampening()
+    {
+        if (rigidBody != null && profile != null && profile.rotationDampening > 0)
+        {
+            // Get current angular velocity
+            Vector3 angularVelocity = rigidBody.angularVelocity;
+            
+            // Calculate dampening force based on profile settings
+            float dampingFactor = 1f - (profile.rotationDampening * profile.dampeningSpeed * Time.deltaTime);
+            dampingFactor = Mathf.Clamp01(dampingFactor);
+            
+            // Apply dampening by reducing angular velocity
+            rigidBody.angularVelocity = angularVelocity * dampingFactor;
+            
+            // If angular velocity is very low, stop it completely to avoid micro-movements
+            if (rigidBody.angularVelocity.magnitude < 0.1f)
+            {
+                rigidBody.angularVelocity = Vector3.zero;
+            }
+        }
     }
     
     /// <summary>

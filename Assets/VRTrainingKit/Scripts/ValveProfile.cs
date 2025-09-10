@@ -46,6 +46,27 @@ public class ValveProfile : InteractionProfile
     [Header("Physics Settings")]
     public float throwVelocityScale = 1.5f;
     public float throwAngularVelocityScale = 1.0f;
+    
+    [Tooltip("Angular drag applied when valve is released to stop spinning")]
+    [Range(0f, 10f)]
+    public float rotationDampening = 5f;
+    
+    [Tooltip("How quickly to apply dampening (higher = more responsive)")]
+    [Range(1f, 20f)]
+    public float dampeningSpeed = 10f;
+
+    [Header("Socket Positioning")]
+    [Tooltip("Maximum distance from socket center to consider positioning complete")]
+    [Range(0.001f, 0.1f)]
+    public float positionTolerance = 0.01f;
+    
+    [Tooltip("Maximum velocity to consider object stabilized in socket")]
+    [Range(0.001f, 0.5f)]
+    public float velocityThreshold = 0.05f;
+    
+    [Tooltip("Maximum time to wait for socket positioning before timeout")]
+    [Range(1f, 10f)]
+    public float positioningTimeout = 3f;
 
     [Header("Attach Settings")]
     public bool useDynamicAttach = true;
