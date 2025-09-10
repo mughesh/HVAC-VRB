@@ -372,12 +372,12 @@ public class ValveController : MonoBehaviour
         // Reset rotation tracking for new snap
         ResetRotationTracking();
         
-        // Transition to LOCKED-LOOSE state
-        SetState(ValveState.Locked, ValveSubstate.Loose);
+        // Allow socket to properly center the object before applying constraints
+        StartCoroutine(DelayedStateTransition(socket));
         
         OnValveSnapped?.Invoke();
         
-        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} snapped to socket: {socket.name} → LOCKED-LOOSE");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} snapped to socket: {socket.name} → Centering, then LOCKED-LOOSE");
     }
     
     /// <summary>
@@ -392,6 +392,31 @@ public class ValveController : MonoBehaviour
         {
             currentSocket = null;
             OnValveRemoved?.Invoke();
+        }
+    }
+    
+    /// <summary>
+    /// Delays state transition to allow socket to properly center the object
+    /// </summary>
+    private IEnumerator DelayedStateTransition(GameObject socket)
+    {
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} waiting for socket centering...");
+        
+        // Wait a few frames for the socket to properly position the object
+        yield return new WaitForFixedUpdate();
+        yield return new WaitForFixedUpdate();
+        
+        // Verify we're still snapped to the same socket
+        if (currentSocket == socket)
+        {
+            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying constraints after centering");
+            
+            // Now transition to LOCKED-LOOSE state
+            SetState(ValveState.Locked, ValveSubstate.Loose);
+        }
+        else
+        {
+            VRTrainingDebug.LogWarning($"[ValveController] {gameObject.name} socket changed during centering delay");
         }
     }
     
@@ -571,6 +596,30 @@ public class ValveController : MonoBehaviour
         {
             Debug.Log($"[ValveController] {gameObject.name} OnValidate() - Profile: {profile.profileName}, State: {currentState}-{currentSubstate}");
         }
+    }
+    
+    /// <summary>
+    /// Manual test methods for debugging socket interaction (Editor only)
+    /// </summary>
+    [ContextMenu("Test: Force Enable Socket")]
+    private void TestForceEnableSocket()
+    {
+        EnableSocketInteractor();
+        Debug.Log($"[ValveController] TEST: Manually enabled socket for {gameObject.name}");
+    }
+    
+    [ContextMenu("Test: Force Disable Socket")]
+    private void TestForceDisableSocket()
+    {
+        DisableSocketInteractor();
+        Debug.Log($"[ValveController] TEST: Manually disabled socket for {gameObject.name}");
+    }
+    
+    [ContextMenu("Test: Transition to Unlocked")]
+    private void TestTransitionToUnlocked()
+    {
+        TransitionToUnlocked();
+        Debug.Log($"[ValveController] TEST: Manually transitioned to unlocked for {gameObject.name}");
     }
     #endif
 }

@@ -20,7 +20,11 @@ MonoBehaviour:
   angleTolerance: 5
   compatibleSocketTags:
   - snap
-  specificCompatibleSockets: []
+  specificCompatibleSockets:
+  - _gameObject: {fileID: 0}
+    _gameObjectName: 
+    _scenePath: 
+    _isValid: 0
   requireSpecificSockets: 0
   movementType: 0
   trackPosition: 1
