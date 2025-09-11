@@ -622,12 +622,21 @@ public class ValveController : MonoBehaviour
                     VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} TIGHTENED! {tighteningProgress:F1}° reached (threshold: {profile.tightenThreshold}°)");
                     TransitionToTight();
                 }
-                else
+                else if (tighteningProgress > 0) // Only log positive tightening progress
                 {
                     // Log rotation progress periodically
                     if (Mathf.FloorToInt(tighteningProgress / 10f) != Mathf.FloorToInt(lastLoggedRotation / 10f))
                     {
                         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} tightening: {tighteningProgress:F1}° (threshold: {profile.tightenThreshold}°)");
+                        lastLoggedRotation = tighteningProgress;
+                    }
+                }
+                else if (tighteningProgress < -5f) // Log if user is rotating backwards significantly
+                {
+                    // Only log occasionally to avoid spam
+                    if (Mathf.FloorToInt(Mathf.Abs(tighteningProgress) / 20f) != Mathf.FloorToInt(Mathf.Abs(lastLoggedRotation) / 20f))
+                    {
+                        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotating backwards: {tighteningProgress:F1}° (need positive rotation to tighten)");
                         lastLoggedRotation = tighteningProgress;
                     }
                 }
@@ -641,12 +650,21 @@ public class ValveController : MonoBehaviour
                     VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOOSENED! {looseningProgress:F1}° loosening completed");
                     TransitionToLooseAfterTight();
                 }
-                else
+                else if (looseningProgress > 0) // Only log positive loosening progress
                 {
                     // Log loosening progress periodically
                     if (Mathf.FloorToInt(looseningProgress / 10f) != Mathf.FloorToInt(lastLoggedRotation / 10f))
                     {
                         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} loosening: {looseningProgress:F1}° (threshold: {profile.loosenThreshold}°)");
+                        lastLoggedRotation = looseningProgress;
+                    }
+                }
+                else if (looseningProgress < -5f) // Log if user is tightening further (wrong direction)
+                {
+                    // Only log occasionally to avoid spam
+                    if (Mathf.FloorToInt(Mathf.Abs(looseningProgress) / 20f) != Mathf.FloorToInt(Mathf.Abs(lastLoggedRotation) / 20f))
+                    {
+                        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} tightening further: {totalRotation:F1}° (need negative rotation to loosen)");
                         lastLoggedRotation = looseningProgress;
                     }
                 }
@@ -676,12 +694,15 @@ public class ValveController : MonoBehaviour
         
         SetState(ValveState.Locked, ValveSubstate.Loose);
         
+        // IMPORTANT: Reset rotation tracking to prevent confusion when back in LOOSE state
+        ResetRotationTracking();
+        
         // Set flag to wait for grab release
         isWaitingForGrabRelease = true;
         
         OnValveLoosened?.Invoke();
         
-        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} loosened - ready for socket re-enable on release");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} loosened - ready for socket re-enable on release, rotation tracking reset");
     }
     
     /// <summary>
