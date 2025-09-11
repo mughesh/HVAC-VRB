@@ -1278,6 +1278,74 @@ public class VRInteractionSetupWindow : EditorWindow
             step.angleTolerance = EditorGUILayout.FloatField("Angle Tolerance", step.angleTolerance);
         }
         
+        // Valve-specific settings
+        if (step.type == InteractionStep.StepType.TightenValve ||
+            step.type == InteractionStep.StepType.LoosenValve ||
+            step.type == InteractionStep.StepType.InstallValve ||
+            step.type == InteractionStep.StepType.RemoveValve)
+        {
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("Valve Settings", EditorStyles.boldLabel);
+            
+            // Target Socket field
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Target Socket", GUILayout.Width(100));
+            step.targetSocket.GameObject = (GameObject)EditorGUILayout.ObjectField(
+                step.targetSocket.GameObject, typeof(GameObject), true);
+            EditorGUILayout.EndHorizontal();
+            
+            // Rotation axis selection
+            EditorGUILayout.Space(3);
+            EditorGUILayout.LabelField("Rotation Axis");
+            EditorGUILayout.BeginHorizontal();
+            
+            bool isXAxis = step.rotationAxis == Vector3.right;
+            bool isYAxis = step.rotationAxis == Vector3.up;
+            bool isZAxis = step.rotationAxis == Vector3.forward;
+            
+            if (GUILayout.Toggle(isXAxis, "X-Axis") && !isXAxis) step.rotationAxis = Vector3.right;
+            if (GUILayout.Toggle(isYAxis, "Y-Axis") && !isYAxis) step.rotationAxis = Vector3.up;
+            if (GUILayout.Toggle(isZAxis, "Z-Axis") && !isZAxis) step.rotationAxis = Vector3.forward;
+            
+            EditorGUILayout.EndHorizontal();
+            
+            // Threshold settings based on step type
+            if (step.type == InteractionStep.StepType.TightenValve || 
+                step.type == InteractionStep.StepType.InstallValve)
+            {
+                EditorGUILayout.Space(3);
+                step.tightenThreshold = EditorGUILayout.Slider("Tighten Degrees", step.tightenThreshold, 10f, 360f);
+            }
+            
+            if (step.type == InteractionStep.StepType.LoosenValve ||
+                step.type == InteractionStep.StepType.RemoveValve)
+            {
+                EditorGUILayout.Space(3);  
+                step.loosenThreshold = EditorGUILayout.Slider("Loosen Degrees", step.loosenThreshold, 10f, 360f);
+            }
+            
+            if (step.type == InteractionStep.StepType.InstallValve ||
+                step.type == InteractionStep.StepType.RemoveValve)
+            {
+                // Complete operations show both thresholds
+                EditorGUILayout.Space(3);
+                step.tightenThreshold = EditorGUILayout.Slider("Tighten Degrees", step.tightenThreshold, 10f, 360f);
+                step.loosenThreshold = EditorGUILayout.Slider("Loosen Degrees", step.loosenThreshold, 10f, 360f);
+            }
+            
+            // Common settings
+            EditorGUILayout.Space(3);
+            step.valveAngleTolerance = EditorGUILayout.Slider("Angle Tolerance", step.valveAngleTolerance, 1f, 15f);
+            
+            // Advanced settings
+            EditorGUILayout.Space(3);
+            step.rotationDampening = EditorGUILayout.Slider("Rotation Dampening", step.rotationDampening, 0f, 10f);
+            if (step.rotationDampening == 0f)
+            {
+                EditorGUILayout.HelpBox("Set to 0 to use profile default", MessageType.Info);
+            }
+        }
+        
         // Execution settings
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Execution Settings", EditorStyles.boldLabel);
@@ -1334,6 +1402,15 @@ public class VRInteractionSetupWindow : EditorWindow
         menu.AddItem(new GUIContent("Grab Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Grab));
         menu.AddItem(new GUIContent("Grab and Snap Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.GrabAndSnap));
         menu.AddItem(new GUIContent("Turn Knob Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TurnKnob));
+        
+        // Valve operation steps
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("Valve Operations/Tighten Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenValve));
+        menu.AddItem(new GUIContent("Valve Operations/Loosen Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenValve));
+        menu.AddItem(new GUIContent("Valve Operations/Install Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallValve));
+        menu.AddItem(new GUIContent("Valve Operations/Remove Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveValve));
+        
+        menu.AddSeparator("");
         menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
         menu.AddItem(new GUIContent("Show Instruction Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.ShowInstruction));
         menu.ShowAsContext();
