@@ -22,6 +22,8 @@ MonoBehaviour:
   ejectOnDisconnect: 1
   acceptedTags:
   - grab
+  - tool
+  - valve
   requireSpecificObjects: 0
   specificAcceptedObjects:
   - {fileID: 0}

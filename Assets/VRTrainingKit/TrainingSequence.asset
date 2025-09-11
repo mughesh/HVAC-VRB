@@ -24,8 +24,16 @@ MonoBehaviour:
         steps:
         - stepName: 
           type: 1
-          targetObject: {fileID: 0}
-          destination: {fileID: 0}
+          targetObject:
+            _gameObject: {fileID: 0}
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          destination:
+            _gameObject: {fileID: 0}
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
           targetAngle: 0
           angleTolerance: 0
           allowParallel: 0
@@ -37,6 +45,3 @@ MonoBehaviour:
       isExpanded: 0
     isExpanded: 1
   assetDescription: Training sequence asset created with VR Training Kit
-  version: 1.0
-  createdDate: 2025-08-26 13:12:32
-  lastModified: 

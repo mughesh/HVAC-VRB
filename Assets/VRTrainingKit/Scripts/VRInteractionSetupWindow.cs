@@ -31,6 +31,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private KnobProfile selectedKnobProfile;
     private SnapProfile selectedSnapProfile;
     private ToolProfile selectedToolProfile;
+    private ValveProfile selectedValveProfile;
     private Vector2 configScrollPos;
     
     // Sequence tab - Legacy state-based system
@@ -169,6 +170,7 @@ public class VRInteractionSetupWindow : EditorWindow
         selectedKnobProfile = Resources.Load<KnobProfile>("DefaultKnobProfile");
         selectedSnapProfile = Resources.Load<SnapProfile>("DefaultSnapProfile");
         selectedToolProfile = Resources.Load<ToolProfile>("DefaultToolProfile");
+        selectedValveProfile = Resources.Load<ValveProfile>("DefaultValveProfile");
         
         // If not found in Resources, search in Assets
         if (selectedGrabProfile == null)
@@ -208,6 +210,16 @@ public class VRInteractionSetupWindow : EditorWindow
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[0]);
                 selectedToolProfile = AssetDatabase.LoadAssetAtPath<ToolProfile>(path);
+            }
+        }
+        
+        if (selectedValveProfile == null)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:ValveProfile");
+            if (guids.Length > 0)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                selectedValveProfile = AssetDatabase.LoadAssetAtPath<ValveProfile>(path);
             }
         }
     }
@@ -278,6 +290,10 @@ public class VRInteractionSetupWindow : EditorWindow
             
             // Tool objects
             DrawObjectGroup("Tool Objects", sceneAnalysis.toolObjects, "tool", selectedToolProfile);
+            EditorGUILayout.Space(10);
+            
+            // Valve objects
+            DrawObjectGroup("Valve Objects", sceneAnalysis.valveObjects, "valve", selectedValveProfile);
             
             EditorGUILayout.EndScrollView();
             
@@ -360,7 +376,7 @@ public class VRInteractionSetupWindow : EditorWindow
                 XRBaseInteractable interactable = null;
                 XRSocketInteractor socketInteractor = null;
                 
-                if (tag == "grab" || tag == "knob" || tag == "tool")
+                if (tag == "grab" || tag == "knob" || tag == "tool" || tag == "valve")
                 {
                     interactable = obj.GetComponent<XRGrabInteractable>();
                     isConfigured = interactable != null;
@@ -648,6 +664,55 @@ public class VRInteractionSetupWindow : EditorWindow
             if (GUILayout.Button("Edit Profile"))
             {
                 Selection.activeObject = selectedToolProfile;
+            }
+        }
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space(10);
+        
+        // Valve Profile
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("Valve Profile", subHeaderStyle);
+        selectedValveProfile = (ValveProfile)EditorGUILayout.ObjectField(
+            "Profile Asset", selectedValveProfile, typeof(ValveProfile), false);
+        
+        if (selectedValveProfile == null)
+        {
+            // Show list of available profiles
+            string[] valveProfileGuids = AssetDatabase.FindAssets("t:ValveProfile");
+            if (valveProfileGuids.Length > 0)
+            {
+                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
+                foreach (string guid in valveProfileGuids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    ValveProfile profile = AssetDatabase.LoadAssetAtPath<ValveProfile>(path);
+                    if (profile != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("  • " + profile.name, EditorStyles.miniLabel);
+                        if (GUILayout.Button("Select", GUILayout.Width(50)))
+                        {
+                            selectedValveProfile = profile;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("No Valve Profiles found. Create one below.", MessageType.Info);
+            }
+            
+            if (GUILayout.Button("Create New Valve Profile"))
+            {
+                CreateNewProfile<ValveProfile>("ValveProfile");
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Edit Profile"))
+            {
+                Selection.activeObject = selectedValveProfile;
             }
         }
         EditorGUILayout.EndVertical();
@@ -1543,6 +1608,12 @@ public class VRInteractionSetupWindow : EditorWindow
             appliedCount += sceneAnalysis.toolObjects.Count;
         }
         
+        if (selectedValveProfile != null)
+        {
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.valveObjects, selectedValveProfile);
+            appliedCount += sceneAnalysis.valveObjects.Count;
+        }
+        
         EditorUtility.DisplayDialog("Setup Complete", 
             $"Successfully configured {appliedCount} objects", "OK");
         
@@ -1636,6 +1707,42 @@ public class VRInteractionSetupWindow : EditorWindow
             
             AssetDatabase.CreateAsset(snapProfile, $"{folderPath}/DefaultSnapProfile.asset");
             selectedSnapProfile = snapProfile;
+        }
+        
+        // Create Tool Profile
+        if (selectedToolProfile == null)
+        {
+            ToolProfile toolProfile = ScriptableObject.CreateInstance<ToolProfile>();
+            toolProfile.profileName = "Default Tool";
+            toolProfile.rotationAxis = Vector3.up;
+            toolProfile.tightenAngle = 90f;
+            toolProfile.loosenAngle = 90f;
+            toolProfile.tightenThreshold = 90f;
+            toolProfile.loosenThreshold = 45f;
+            toolProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+            toolProfile.trackPosition = true;
+            toolProfile.trackRotation = true;
+            
+            AssetDatabase.CreateAsset(toolProfile, $"{folderPath}/DefaultToolProfile.asset");
+            selectedToolProfile = toolProfile;
+        }
+        
+        // Create Valve Profile
+        if (selectedValveProfile == null)
+        {
+            ValveProfile valveProfile = ScriptableObject.CreateInstance<ValveProfile>();
+            valveProfile.profileName = "Default Valve";
+            valveProfile.rotationAxis = Vector3.up;
+            valveProfile.tightenThreshold = 90f;
+            valveProfile.loosenThreshold = 90f;
+            valveProfile.angleTolerance = 5f;
+            valveProfile.compatibleSocketTags = new string[] { "valve_socket" };
+            valveProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+            valveProfile.trackPosition = true;
+            valveProfile.trackRotation = true;
+            
+            AssetDatabase.CreateAsset(valveProfile, $"{folderPath}/DefaultValveProfile.asset");
+            selectedValveProfile = valveProfile;
         }
         
         AssetDatabase.SaveAssets();

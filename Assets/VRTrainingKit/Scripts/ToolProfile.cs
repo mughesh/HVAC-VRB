@@ -2,6 +2,18 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
+// NO NAMESPACE - Follows existing project pattern
+
+/// <summary>
+/// Tool operation states for complex interactions
+/// </summary>
+public enum ToolState
+{
+    Unlocked,    // Tool can be grabbed and moved freely
+    Snapped,     // Tool is snapped to socket but not locked
+    Locked       // Tool is locked to socket position, only rotation allowed
+}
+
 /// <summary>
 /// Profile for tool interactions (grab + snap + rotate)
 /// </summary>
@@ -12,6 +24,33 @@ public class ToolProfile : InteractionProfile
     public Vector3 rotationAxis = Vector3.up;
     public float tightenAngle = 180f;
     public float loosenAngle = 90f;
+    
+    [Header("Socket Compatibility")]
+    [Tooltip("Tags of sockets this tool can work with")]
+    public string[] compatibleSocketTags = new string[] { "snap" };
+    
+    [Tooltip("Specific socket objects this tool works with (if empty, uses tags)")]
+    public GameObjectReference[] specificCompatibleSockets;
+    
+    [Tooltip("Use specific socket objects instead of tag-based matching")]
+    public bool requireSpecificSockets = false;
+    
+    [Header("Tool Operation Settings")]
+    [Tooltip("Rotation threshold (degrees) to consider tool tightened")]
+    public float tightenThreshold = 90f;
+    
+    [Tooltip("Rotation threshold (degrees) to consider tool loosened")]
+    public float loosenThreshold = 45f;
+    
+    [Tooltip("Tolerance for angle completion (degrees)")]
+    public float angleTolerance = 5f;
+    
+    [Tooltip("Speed multiplier for rotation when tool is locked in socket")]
+    public float lockedRotationSpeed = 1.0f;
+    
+    [Header("State Management")]
+    [Tooltip("Initial state of the tool (Unlocked for forward flow, Locked for reverse flow)")]
+    public ToolState initialState = ToolState.Unlocked;
     
     [Header("Grab Settings")]
     public XRBaseInteractable.MovementType movementType = XRBaseInteractable.MovementType.VelocityTracking;
@@ -77,8 +116,19 @@ public class ToolProfile : InteractionProfile
             Debug.Log($"[ToolProfile] Added {colliderType} collider to {colliderTarget.name}");
         }
         
+        // Add ToolController for complex tool behavior
+        ToolController toolController = target.GetComponent<ToolController>();
+        if (toolController == null)
+        {
+            toolController = target.AddComponent<ToolController>();
+            Debug.Log($"[ToolProfile] Added ToolController to {target.name}");
+        }
+        
+        // Configure the tool controller
+        toolController.Configure(this);
+        
         Debug.Log($"[ToolProfile] Successfully configured tool: {target.name}");
-        Debug.Log($"[ToolProfile] Tool {target.name} is now grabbable and ready for socket snapping");
+        Debug.Log($"[ToolProfile] Tool {target.name} is now ready for complex grab→snap→rotate interactions");
     }
     
     private GameObject FindMeshChild(GameObject parent)

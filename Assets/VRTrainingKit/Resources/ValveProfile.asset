@@ -9,27 +9,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 126d932ff59994145a0c5419aaedeaed, type: 3}
-  m_Name: ToolProfile
+  m_Script: {fileID: 11500000, guid: d831ee4aded68ef49944d6ea4b4a0b7b, type: 3}
+  m_Name: ValveProfile
   m_EditorClassIdentifier: 
-  profileName: Default Tool Profile
+  profileName: New Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  rotationAxis: {x: 0, y: 0, z: 1}
-  tightenAngle: 180
-  loosenAngle: 90
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 90
+  loosenThreshold: 90
+  angleTolerance: 5
   compatibleSocketTags:
   - snap
   specificCompatibleSockets:
   - _gameObject: {fileID: 0}
-    _gameObjectName: ww
-    _scenePath: Assets/Scenes/HVAC-Testing.unity
-    _isValid: 1
+    _gameObjectName: 
+    _scenePath: 
+    _isValid: 0
   requireSpecificSockets: 0
-  tightenThreshold: 90
-  loosenThreshold: 90
-  angleTolerance: 5
-  lockedRotationSpeed: 1
-  initialState: 0
   movementType: 0
   trackPosition: 1
   trackRotation: 1
@@ -38,5 +34,10 @@ MonoBehaviour:
   throwAngularVelocityScale: 1
   useDynamicAttach: 1
   attachEaseInTime: 0.15
-  colliderType: 0
+  colliderType: 3
   addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
