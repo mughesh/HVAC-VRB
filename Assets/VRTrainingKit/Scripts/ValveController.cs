@@ -5,6 +5,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using System;
 using System.Collections;
+//using System.Diagnostics;
 
 // NO NAMESPACE - Follows existing project pattern
 
@@ -62,6 +63,7 @@ public class ValveController : MonoBehaviour
     
     // State management
     private bool isWaitingForGrabRelease = false;
+    private bool readyForSocketReEnable = false;
     
     // Events - Valve-specific
     public event Action<ValveState> OnStateChanged;
@@ -221,12 +223,20 @@ public class ValveController : MonoBehaviour
     {
         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} released in state: {currentState}-{currentSubstate}");
         
-        // Check if we're waiting for release to unlock (after loosening)
-        if (isWaitingForGrabRelease && currentState == ValveState.Locked && currentSubstate == ValveSubstate.Loose)
+        // Check if we need to enable socket and transition after loosening
+        if (isWaitingForGrabRelease && currentState == ValveState.Locked && currentSubstate == ValveSubstate.Loose && readyForSocketReEnable)
         {
-            VRTrainingDebug.LogEvent($"[ValveController] Grab released after loosening - transitioning to UNLOCKED");
+            VRTrainingDebug.LogEvent($"[ValveController] Grab released after loosening - enabling socket for snap-back");
+            
+            // Enable socket just as user releases - object will naturally fall/snap into socket
+            EnableSocketInteractor();
+            
+            // Start coroutine to wait for snap-back and then transition to unlocked
+            StartCoroutine(TransitionToUnlockedAfterSnap());
+            
+            // Clear flags
             isWaitingForGrabRelease = false;
-            TransitionToUnlocked();
+            readyForSocketReEnable = false;
         }
     }
     
@@ -243,16 +253,21 @@ public class ValveController : MonoBehaviour
         currentState = newState;
         currentSubstate = newSubstate;
         
-        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} state changed: {previousState}-{previousSubstate} → {currentState}-{currentSubstate}");
+        // Add call context for debugging
+        var stackTrace = new System.Diagnostics.StackTrace();
+        var callingMethod = stackTrace.GetFrame(1).GetMethod().Name;
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} state changed: {previousState}-{previousSubstate} → {currentState}-{currentSubstate} [Called by: {callingMethod}]");
         
         // Handle state-specific setup
         switch (currentState)
         {
             case ValveState.Unlocked:
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying UNLOCKED state setup");
                 UnlockValve();
                 break;
                 
             case ValveState.Locked:
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying LOCKED state setup (substate: {currentSubstate})");
                 ApplyLockedConstraints();
                 break;
         }
@@ -266,7 +281,7 @@ public class ValveController : MonoBehaviour
     }
     
     /// <summary>
-    /// Apply constraints for locked state (both LOOSE and TIGHT substates)
+    /// Apply constraints for locked state - handles LOOSE and TIGHT substates differently
     /// </summary>
     private void ApplyLockedConstraints()
     {
@@ -292,11 +307,47 @@ public class ValveController : MonoBehaviour
                 
                 rigidBody.constraints = constraints;
                 
-                // Disable socket interactor so valve cannot be removed
-                DisableSocketInteractor();
+                // Handle socket interactor based on substate
+                HandleSocketInteractorForSubstate();
                 
-                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - position fixed, rotation on {profile.rotationAxis}, socket disabled");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - position fixed, rotation on {profile.rotationAxis}");
             }
+        }
+    }
+    
+    /// <summary>
+    /// Handle socket interactor enable/disable based on current substate
+    /// </summary>
+    private void HandleSocketInteractorForSubstate()
+    {
+        switch (currentSubstate)
+        {
+            case ValveSubstate.Loose:
+                // For LOOSE substate, check if we should keep socket enabled
+                if (readyForSocketReEnable)
+                {
+                    // Socket should remain enabled - valve was just loosened and ready for removal
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED-LOOSE - keeping socket ENABLED for removal");
+                }
+                else
+                {
+                    // First time entering LOOSE (from snap) - disable socket
+                    DisableSocketInteractor();
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED-LOOSE - socket disabled (initial snap)");
+                }
+                break;
+                
+            case ValveSubstate.Tight:
+                // TIGHT substate always disables socket
+                DisableSocketInteractor();
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED-TIGHT - socket disabled");
+                break;
+                
+            default:
+                // Default case - disable socket
+                DisableSocketInteractor();
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - socket disabled (default)");
+                break;
         }
     }
     
@@ -336,7 +387,10 @@ public class ValveController : MonoBehaviour
             if (socketInteractor != null)
             {
                 socketInteractor.socketActive = false;
-                VRTrainingDebug.LogEvent($"[ValveController] Disabled socket interactor on {currentSocket.name}");
+                // Add call context for debugging
+                var stackTrace = new System.Diagnostics.StackTrace();
+                var callingMethod = stackTrace.GetFrame(1).GetMethod().Name;
+                VRTrainingDebug.LogEvent($"[ValveController] Disabled socket interactor on {currentSocket.name} [Called by: {callingMethod}]");
             }
         }
     }
@@ -352,7 +406,10 @@ public class ValveController : MonoBehaviour
             if (socketInteractor != null)
             {
                 socketInteractor.socketActive = true;
-                VRTrainingDebug.LogEvent($"[ValveController] Re-enabled socket interactor on {currentSocket.name}");
+                // Add call context for debugging
+                var stackTrace = new System.Diagnostics.StackTrace();
+                var callingMethod = stackTrace.GetFrame(1).GetMethod().Name;
+                VRTrainingDebug.LogEvent($"[ValveController] Re-enabled socket interactor on {currentSocket.name} [Called by: {callingMethod}]");
             }
         }
     }
@@ -459,6 +516,9 @@ public class ValveController : MonoBehaviour
     /// </summary>
     private void FinalizeLockToSocket()
     {
+        // Reset flag for new interaction cycle
+        readyForSocketReEnable = false;
+        
         // Now transition to LOCKED-LOOSE state
         SetState(ValveState.Locked, ValveSubstate.Loose);
         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} → LOCKED-LOOSE after confirmed socket positioning");
@@ -607,12 +667,12 @@ public class ValveController : MonoBehaviour
     
     /// <summary>
     /// Transition from TIGHT back to LOOSE (after loosening)
-    /// CRITICAL: Re-enable socket while user still holds grab
+    /// Set flag for release-triggered socket re-enable to prevent visual jarring
     /// </summary>
     private void TransitionToLooseAfterTight()
     {
-        // CRITICAL: Re-enable socket interactor BEFORE state change
-        EnableSocketInteractor();
+        // Set flag to enable socket when user releases grab (prevents visual jarring during rotation)
+        readyForSocketReEnable = true;
         
         SetState(ValveState.Locked, ValveSubstate.Loose);
         
@@ -621,7 +681,24 @@ public class ValveController : MonoBehaviour
         
         OnValveLoosened?.Invoke();
         
-        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} loosened - socket re-enabled, waiting for grab release");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} loosened - ready for socket re-enable on release");
+    }
+    
+    /// <summary>
+    /// Wait for valve to snap back to socket, then transition to unlocked
+    /// </summary>
+    private IEnumerator TransitionToUnlockedAfterSnap()
+    {
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} waiting for snap-back to socket...");
+        
+        // Wait a moment for physics to settle and object to snap back
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForFixedUpdate();
+        
+        // Transition to unlocked state - object should now be in socket but removable
+        TransitionToUnlocked();
+        
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} snap-back complete - now UNLOCKED in socket");
     }
     
     /// <summary>
