@@ -291,7 +291,7 @@ MonoBehaviour:
       - groupName: Valve Operations
         description: Operate system valves for leak testing
         steps:
-        - stepName: Wait for connections
+        - stepName: allen key grab and snap
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
@@ -320,7 +320,7 @@ MonoBehaviour:
           waitForSteps: 00000000010000000200000003000000
           hint: All hose connections must be complete before valve operations
           isCompleted: 0
-        - stepName: Turn nitrogen valve
+        - stepName: Allen key tight
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
@@ -349,7 +349,7 @@ MonoBehaviour:
           waitForSteps: 
           hint: Turn the nitrogen valve 45 degrees clockwise
           isCompleted: 0
-        - stepName: Turn manifold valve
+        - stepName: Allen key loose
           type: 6
           targetObject:
             _gameObject: {fileID: 0}
@@ -377,6 +377,35 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Turn the manifold valve 90 degrees clockwise
+          isCompleted: 0
+        - stepName: Allen key return
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _gameObjectName: AllenKey
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _gameObjectName: AllenKey_socket_table
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 90
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
           isCompleted: 0
         isExpanded: 1
       isExpanded: 1

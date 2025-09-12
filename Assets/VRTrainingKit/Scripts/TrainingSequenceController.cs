@@ -323,6 +323,8 @@ public class TrainingSequenceController : MonoBehaviour
         System.Action tightenDelegate = () => OnValveTightened(step);
         valveTightenedEventDelegates[valveController] = tightenDelegate;
         valveController.OnValveTightened += tightenDelegate;
+        
+        LogDebug($"🔗 SUBSCRIBED to valve tighten events: {valveController.name} for step: {step.stepName} (Type: {step.type})");
     }
 
     /// <summary>
@@ -333,6 +335,8 @@ public class TrainingSequenceController : MonoBehaviour
         System.Action loosenDelegate = () => OnValveLoosened(step);
         valveLoosenedEventDelegates[valveController] = loosenDelegate;
         valveController.OnValveLoosened += loosenDelegate;
+        
+        LogDebug($"🔗 SUBSCRIBED to valve loosen events: {valveController.name} for step: {step.stepName} (Type: {step.type})");
     }
 
     /// <summary>
@@ -340,7 +344,8 @@ public class TrainingSequenceController : MonoBehaviour
     /// </summary>
     void OnValveTightened(InteractionStep step)
     {
-        LogDebug($"Valve tightened for step: {step.stepName}");
+        LogDebug($"🔧 VALVE TIGHTEN EVENT FIRED for step: {step.stepName} (Type: {step.type})");
+        LogDebug($"✅ Completing tighten step: {step.stepName}");
         CompleteStep(step, "Valve tightened successfully");
     }
 
@@ -349,12 +354,17 @@ public class TrainingSequenceController : MonoBehaviour
     /// </summary>
     void OnValveLoosened(InteractionStep step)
     {
-        LogDebug($"Valve loosened for step: {step.stepName}");
+        LogDebug($"🔧 VALVE LOOSEN EVENT FIRED for step: {step.stepName} (Type: {step.type})");
         
         if (step.type == InteractionStep.StepType.LoosenValve || 
             step.type == InteractionStep.StepType.RemoveValve)
         {
+            LogDebug($"✅ Completing loosen step: {step.stepName}");
             CompleteStep(step, "Valve loosened successfully");
+        }
+        else
+        {
+            LogDebug($"⚠️ Valve loosen event fired but step type is {step.type}, not completing");
         }
     }
     
@@ -404,7 +414,11 @@ public class TrainingSequenceController : MonoBehaviour
             // Apply the modified profile
             valveController.Configure(runtimeProfile);
             
-            LogDebug($"Applied parameter overrides to {valveController.gameObject.name}");
+            LogDebug($"🔧 Applied parameter overrides to {valveController.gameObject.name}:");
+            LogDebug($"   - Rotation Axis: {runtimeProfile.rotationAxis}");
+            LogDebug($"   - Tighten Threshold: {runtimeProfile.tightenThreshold}°");
+            LogDebug($"   - Loosen Threshold: {runtimeProfile.loosenThreshold}°");
+            LogDebug($"   - Angle Tolerance: {runtimeProfile.angleTolerance}°");
         }
     }
     
