@@ -13102,7 +13102,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1035769873}
-  - component: {fileID: 1035769872}
   - component: {fileID: 1035769874}
   m_Layer: 0
   m_Name: Sequence Controller
@@ -13111,24 +13110,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1035769872
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1035769871}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c5f28da5a210c143a17e745264ea851, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  testProgram:
-    programName: New Training Program
-    description: 
-    modules: []
-    isExpanded: 1
-  testAsset: {fileID: 11400000, guid: 70462098099c90044b2f8de75c26a0cf, type: 2}
 --- !u!4 &1035769873
 Transform:
   m_ObjectHideFlags: 0
@@ -13156,9 +13137,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4f742b86062b944c8c40b8e5a7464e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trainingAsset: {fileID: 11400000, guid: 8e2d6f18e57556f42b7c4094986dd935, type: 2}
+  trainingAsset: {fileID: 11400000, guid: 70462098099c90044b2f8de75c26a0cf, type: 2}
   enableDebugLogging: 0
-  showStepCompletions: 0
+  showStepCompletions: 1
 --- !u!1 &1037691396
 GameObject:
   m_ObjectHideFlags: 0
@@ -21405,7 +21386,7 @@ Transform:
   m_GameObject: {fileID: 1745716716}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.239, y: 1.22, z: 0.8}
+  m_LocalPosition: {x: -0.092, y: 1.22, z: 0.8}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -22782,7 +22763,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableDebugLogging: 0
   enableValidationLogging: 0
-  enableEventLogging: 1
+  enableEventLogging: 0
 --- !u!4 &1959122869
 Transform:
   m_ObjectHideFlags: 0
@@ -71748,7 +71729,7 @@ GameObject:
   - component: {fileID: 6454302809405519017}
   - component: {fileID: 6454302809405519016}
   - component: {fileID: 6454302809405519019}
-  - component: {fileID: 6454302809405519018}
+  - component: {fileID: 6454302809405519020}
   m_Layer: 0
   m_Name: SuctionValve_Dropped_Pos
   m_TagString: snap
@@ -71802,20 +71783,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 6
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6454302809405519018
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6454302809405519014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1113072441}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &6454302809405519019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71862,6 +71831,18 @@ MonoBehaviour:
   m_SocketScaleMode: 0
   m_FixedScale: {x: 1, y: 1, z: 1}
   m_TargetBoundsSize: {x: 1, y: 1, z: 1}
+--- !u!114 &6454302809405519020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6454302809405519014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff68410da622af04fbb9120cd0d0619a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6469734499485648036
 GameObject:
   m_ObjectHideFlags: 0
@@ -80538,7 +80519,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.1
+  m_Radius: 6
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7784846844584422944
 MonoBehaviour:

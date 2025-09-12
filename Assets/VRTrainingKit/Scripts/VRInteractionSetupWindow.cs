@@ -1287,6 +1287,13 @@ public class VRInteractionSetupWindow : EditorWindow
             EditorGUILayout.Space(5);
             EditorGUILayout.LabelField("Valve Settings", EditorStyles.boldLabel);
             
+            // Target Object field (valve)
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Target Object", GUILayout.Width(100));
+            step.targetObject.GameObject = (GameObject)EditorGUILayout.ObjectField(
+                step.targetObject.GameObject, typeof(GameObject), true);
+            EditorGUILayout.EndHorizontal();
+            
             // Target Socket field
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Target Socket", GUILayout.Width(100));

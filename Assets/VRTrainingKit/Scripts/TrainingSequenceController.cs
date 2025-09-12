@@ -32,9 +32,12 @@ public class TrainingSequenceController : MonoBehaviour
     private Dictionary<GameObject, XRGrabInteractable> grabInteractables = new Dictionary<GameObject, XRGrabInteractable>();
     private Dictionary<GameObject, XRSocketInteractor> socketInteractors = new Dictionary<GameObject, XRSocketInteractor>();
     private Dictionary<GameObject, KnobController> knobControllers = new Dictionary<GameObject, KnobController>();
+    private Dictionary<GameObject, ValveController> valveControllers = new Dictionary<GameObject, ValveController>();
     
     // Store delegate references for proper cleanup
     private Dictionary<KnobController, System.Action<float>> knobEventDelegates = new Dictionary<KnobController, System.Action<float>>();
+    private Dictionary<ValveController, System.Action> valveTightenedEventDelegates = new Dictionary<ValveController, System.Action>();
+    private Dictionary<ValveController, System.Action> valveLoosenedEventDelegates = new Dictionary<ValveController, System.Action>();
     
     // Progress tracking
     private int currentModuleIndex = 0;
@@ -119,7 +122,15 @@ public class TrainingSequenceController : MonoBehaviour
             LogDebug($"Cached knob controller: {knobController.name}");
         }
         
-        LogInfo($"Cached {this.grabInteractables.Count} grab interactables, {this.socketInteractors.Count} socket interactors, {this.knobControllers.Count} knob controllers");
+        // Find all valve controllers
+        var valveControllers = FindObjectsOfType<ValveController>();
+        foreach (var valveController in valveControllers)
+        {
+            this.valveControllers[valveController.gameObject] = valveController;
+            LogDebug($"Cached valve controller: {valveController.name}");
+        }
+        
+        LogInfo($"Cached {this.grabInteractables.Count} grab interactables, {this.socketInteractors.Count} socket interactors, {this.knobControllers.Count} knob controllers, {this.valveControllers.Count} valve controllers");
         
         // Validate knob configurations
         ValidateKnobConfigurations();
@@ -191,6 +202,13 @@ public class TrainingSequenceController : MonoBehaviour
                     SubscribeToKnobEvents(step);
                     break;
                     
+                case InteractionStep.StepType.TightenValve:
+                case InteractionStep.StepType.LoosenValve:
+                case InteractionStep.StepType.InstallValve:
+                case InteractionStep.StepType.RemoveValve:
+                    SubscribeToValveEvents(step);
+                    break;
+                    
                 case InteractionStep.StepType.WaitForCondition:
                     // Wait conditions are checked in CheckStepCompletions
                     break;
@@ -260,6 +278,151 @@ public class TrainingSequenceController : MonoBehaviour
         {
             LogWarning($"Could not find knob controller for step: {step.stepName} (target: {step.targetObject.GameObjectName})");
         }
+    }
+    
+    /// <summary>
+    /// Subscribe to valve events for a step
+    /// </summary>
+    void SubscribeToValveEvents(InteractionStep step)
+    {
+        var targetObject = step.targetObject.GameObject;
+        if (targetObject != null && valveControllers.ContainsKey(targetObject))
+        {
+            var valveController = valveControllers[targetObject];
+            
+            // Apply step-specific parameters if overrides are set
+            ApplyValveStepParameters(valveController, step);
+            
+            // Subscribe to appropriate events based on step type
+            switch (step.type)
+            {
+                case InteractionStep.StepType.TightenValve:
+                case InteractionStep.StepType.InstallValve:
+                    SubscribeToValveTightenEvents(step, valveController);
+                    break;
+                    
+                case InteractionStep.StepType.LoosenValve:
+                case InteractionStep.StepType.RemoveValve:
+                    SubscribeToValveLoosenEvents(step, valveController);
+                    break;
+            }
+            
+            LogDebug($"Subscribed to valve events for: {targetObject.name} (Step: {step.type})");
+        }
+        else
+        {
+            LogWarning($"Could not find valve controller for step: {step.stepName} (target: {step.targetObject.GameObjectName})");
+        }
+    }
+    
+    /// <summary>
+    /// Subscribe to valve tighten events
+    /// </summary>
+    void SubscribeToValveTightenEvents(InteractionStep step, ValveController valveController)
+    {
+        System.Action tightenDelegate = () => OnValveTightened(step);
+        valveTightenedEventDelegates[valveController] = tightenDelegate;
+        valveController.OnValveTightened += tightenDelegate;
+    }
+
+    /// <summary>
+    /// Subscribe to valve loosen events
+    /// </summary>
+    void SubscribeToValveLoosenEvents(InteractionStep step, ValveController valveController)
+    {
+        System.Action loosenDelegate = () => OnValveLoosened(step);
+        valveLoosenedEventDelegates[valveController] = loosenDelegate;
+        valveController.OnValveLoosened += loosenDelegate;
+    }
+
+    /// <summary>
+    /// Handle valve tightened event
+    /// </summary>
+    void OnValveTightened(InteractionStep step)
+    {
+        LogDebug($"Valve tightened for step: {step.stepName}");
+        CompleteStep(step, "Valve tightened successfully");
+    }
+
+    /// <summary>
+    /// Handle valve loosened event
+    /// </summary>
+    void OnValveLoosened(InteractionStep step)
+    {
+        LogDebug($"Valve loosened for step: {step.stepName}");
+        
+        if (step.type == InteractionStep.StepType.LoosenValve || 
+            step.type == InteractionStep.StepType.RemoveValve)
+        {
+            CompleteStep(step, "Valve loosened successfully");
+        }
+    }
+    
+    /// <summary>
+    /// Apply sequence-level parameter overrides to valve controller
+    /// </summary>
+    void ApplyValveStepParameters(ValveController valveController, InteractionStep step)
+    {
+        // For now, we'll implement a basic version that creates runtime profile copies
+        // This will be enhanced in Phase 4 with the full parameter override system
+        
+        // Get the current valve profile (we'll need to add this helper method)
+        var profile = GetValveProfile(valveController);
+        if (profile == null)
+        {
+            LogWarning($"No valve profile found for {valveController.gameObject.name}");
+            return;
+        }
+        
+        // Check if we need to apply any overrides
+        bool needsOverride = false;
+        
+        if (step.rotationAxis != Vector3.up) needsOverride = true;
+        if (step.tightenThreshold != 90f) needsOverride = true;
+        if (step.loosenThreshold != 90f) needsOverride = true;
+        if (step.valveAngleTolerance != 5f) needsOverride = true;
+        if (step.rotationDampening > 0f) needsOverride = true;
+        
+        if (needsOverride)
+        {
+            // Create a runtime copy of the profile (simplified version for now)
+            var runtimeProfile = ScriptableObject.CreateInstance<ValveProfile>();
+            
+            // Copy base settings from original profile
+            runtimeProfile.profileName = $"{profile.profileName}_Runtime";
+            runtimeProfile.rotationAxis = step.rotationAxis != Vector3.up ? step.rotationAxis : profile.rotationAxis;
+            runtimeProfile.tightenThreshold = step.tightenThreshold != 90f ? step.tightenThreshold : profile.tightenThreshold;
+            runtimeProfile.loosenThreshold = step.loosenThreshold != 90f ? step.loosenThreshold : profile.loosenThreshold;
+            runtimeProfile.angleTolerance = step.valveAngleTolerance != 5f ? step.valveAngleTolerance : profile.angleTolerance;
+            runtimeProfile.rotationDampening = step.rotationDampening > 0f ? step.rotationDampening : profile.rotationDampening;
+            
+            // Copy other essential settings
+            runtimeProfile.compatibleSocketTags = profile.compatibleSocketTags;
+            runtimeProfile.requireSpecificSockets = profile.requireSpecificSockets;
+            runtimeProfile.specificCompatibleSockets = profile.specificCompatibleSockets;
+            
+            // Apply the modified profile
+            valveController.Configure(runtimeProfile);
+            
+            LogDebug($"Applied parameter overrides to {valveController.gameObject.name}");
+        }
+    }
+    
+    /// <summary>
+    /// Get the valve profile from a valve controller (helper method)
+    /// </summary>
+    ValveProfile GetValveProfile(ValveController valveController)
+    {
+        // Use reflection to access the private profile field
+        var profileField = typeof(ValveController).GetField("profile", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        if (profileField != null)
+        {
+            return (ValveProfile)profileField.GetValue(valveController);
+        }
+        
+        return null;
     }
     
     /// <summary>
@@ -537,6 +700,33 @@ public class TrainingSequenceController : MonoBehaviour
             }
         }
         knobEventDelegates.Clear();
+        
+        // Cleanup valve controllers
+        foreach (var kvp in valveTightenedEventDelegates)
+        {
+            var valveController = kvp.Key;
+            var tightenDelegate = kvp.Value;
+            
+            if (valveController != null)
+            {
+                valveController.OnValveTightened -= tightenDelegate;
+                LogDebug($"Unsubscribed from valve tighten events: {valveController.name}");
+            }
+        }
+        valveTightenedEventDelegates.Clear();
+        
+        foreach (var kvp in valveLoosenedEventDelegates)
+        {
+            var valveController = kvp.Key;
+            var loosenDelegate = kvp.Value;
+            
+            if (valveController != null)
+            {
+                valveController.OnValveLoosened -= loosenDelegate;
+                LogDebug($"Unsubscribed from valve loosen events: {valveController.name}");
+            }
+        }
+        valveLoosenedEventDelegates.Clear();
         
         LogDebug("Event subscription cleanup complete");
     }
