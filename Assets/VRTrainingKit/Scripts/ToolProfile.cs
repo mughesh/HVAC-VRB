@@ -37,7 +37,7 @@ public class ToolProfile : InteractionProfile
     
     [Header("Tool Operation Settings")]
     [Tooltip("Rotation threshold (degrees) to consider tool tightened")]
-    public float tightenThreshold = 90f;
+    public float tightenThreshold = 50f;
     
     [Tooltip("Rotation threshold (degrees) to consider tool loosened")]
     public float loosenThreshold = 45f;

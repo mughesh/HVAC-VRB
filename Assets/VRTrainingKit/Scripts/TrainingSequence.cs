@@ -261,7 +261,7 @@ public class InteractionStep
 
     [Tooltip("For TightenValve/InstallValve: Degrees of rotation required to tighten")]
     [Range(10f, 360f)]
-    public float tightenThreshold = 90f;
+    public float tightenThreshold = 50f;
 
     [Tooltip("For LoosenValve/RemoveValve: Degrees of reverse rotation required to loosen")]  
     [Range(10f, 360f)]

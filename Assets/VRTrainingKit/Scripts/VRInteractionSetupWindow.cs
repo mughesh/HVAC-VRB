@@ -1816,15 +1816,25 @@ public class VRInteractionSetupWindow : EditorWindow
         {
             ValveProfile valveProfile = ScriptableObject.CreateInstance<ValveProfile>();
             valveProfile.profileName = "Default Valve";
-            valveProfile.rotationAxis = Vector3.up;
-            valveProfile.tightenThreshold = 90f;
-            valveProfile.loosenThreshold = 90f;
-            valveProfile.angleTolerance = 5f;
+
+            // Configurable defaults - these can be changed per step in sequence builder
+            valveProfile.rotationAxis = Vector3.up;        // Y-axis rotation (most common)
+            valveProfile.tightenThreshold = 180f;          // More realistic full turn
+            valveProfile.loosenThreshold = 180f;           // Symmetric loosening
+            valveProfile.angleTolerance = 10f;             // More forgiving tolerance
+
+            // Socket compatibility
             valveProfile.compatibleSocketTags = new string[] { "valve_socket" };
+
+            // XR Interaction settings
             valveProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
             valveProfile.trackPosition = true;
             valveProfile.trackRotation = true;
-            
+
+            // Physics settings for better valve feel
+            valveProfile.rotationDampening = 3f;           // Moderate dampening
+            valveProfile.dampeningSpeed = 8f;              // Responsive dampening
+
             AssetDatabase.CreateAsset(valveProfile, $"{folderPath}/DefaultValveProfile.asset");
             selectedValveProfile = valveProfile;
         }

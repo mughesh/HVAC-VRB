@@ -22735,9 +22735,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aea406aa86a78614b898c5c5ad061d41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableDebugLogging: 0
-  enableValidationLogging: 0
-  enableEventLogging: 0
+  enableDebugLogging: 1
+  enableValidationLogging: 1
+  enableEventLogging: 1
 --- !u!4 &1959122869
 Transform:
   m_ObjectHideFlags: 0

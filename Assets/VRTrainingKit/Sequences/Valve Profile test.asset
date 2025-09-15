@@ -50,7 +50,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: 
-          isCompleted: 0
+          isCompleted: 1
         - stepName: Tighten valve
           type: 5
           targetObject:
@@ -66,9 +66,9 @@ MonoBehaviour:
           targetAngle: 0
           angleTolerance: 5
           rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 90
-          loosenThreshold: 90
-          valveAngleTolerance: 5
+          tightenThreshold: 95
+          loosenThreshold: 60
+          valveAngleTolerance: 4.07
           targetSocket:
             _gameObject: {fileID: 0}
             _gameObjectName: Socket
@@ -80,8 +80,8 @@ MonoBehaviour:
           waitForSteps: 
           hint: Step instruction goes here
           isCompleted: 1
-        - stepName: Loosen valve
-          type: 5
+        - stepName: Loosen
+          type: 6
           targetObject:
             _gameObject: {fileID: 0}
             _gameObjectName: AllenKey
@@ -95,8 +95,8 @@ MonoBehaviour:
           targetAngle: 0
           angleTolerance: 5
           rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 90
-          loosenThreshold: 90
+          tightenThreshold: 85
+          loosenThreshold: 83
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
