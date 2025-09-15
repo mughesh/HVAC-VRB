@@ -387,11 +387,11 @@ public class TrainingSequenceController : MonoBehaviour
         // Check if we need to apply any overrides
         bool needsOverride = false;
         
-        if (step.rotationAxis != Vector3.up) needsOverride = true;
-        if (step.tightenThreshold != 90f) needsOverride = true;
-        if (step.loosenThreshold != 90f) needsOverride = true;
-        if (step.valveAngleTolerance != 5f) needsOverride = true;
-        if (step.rotationDampening > 0f) needsOverride = true;
+        if (step.rotationAxis != profile.rotationAxis) needsOverride = true;
+        if (step.tightenThreshold != profile.tightenThreshold) needsOverride = true;
+        if (step.loosenThreshold != profile.loosenThreshold) needsOverride = true;
+        if (step.valveAngleTolerance != profile.angleTolerance) needsOverride = true;
+        if (step.rotationDampening != profile.rotationDampening) needsOverride = true;
         
         if (needsOverride)
         {
@@ -400,11 +400,11 @@ public class TrainingSequenceController : MonoBehaviour
             
             // Copy base settings from original profile
             runtimeProfile.profileName = $"{profile.profileName}_Runtime";
-            runtimeProfile.rotationAxis = step.rotationAxis != Vector3.up ? step.rotationAxis : profile.rotationAxis;
-            runtimeProfile.tightenThreshold = step.tightenThreshold != 90f ? step.tightenThreshold : profile.tightenThreshold;
-            runtimeProfile.loosenThreshold = step.loosenThreshold != 90f ? step.loosenThreshold : profile.loosenThreshold;
-            runtimeProfile.angleTolerance = step.valveAngleTolerance != 5f ? step.valveAngleTolerance : profile.angleTolerance;
-            runtimeProfile.rotationDampening = step.rotationDampening > 0f ? step.rotationDampening : profile.rotationDampening;
+            runtimeProfile.rotationAxis = step.rotationAxis != profile.rotationAxis ? step.rotationAxis : profile.rotationAxis;
+            runtimeProfile.tightenThreshold = step.tightenThreshold != profile.tightenThreshold ? step.tightenThreshold : profile.tightenThreshold;
+            runtimeProfile.loosenThreshold = step.loosenThreshold != profile.loosenThreshold ? step.loosenThreshold : profile.loosenThreshold;
+            runtimeProfile.angleTolerance = step.valveAngleTolerance != profile.angleTolerance ? step.valveAngleTolerance : profile.angleTolerance;
+            runtimeProfile.rotationDampening = step.rotationDampening != profile.rotationDampening ? step.rotationDampening : profile.rotationDampening;
             
             // Copy other essential settings
             runtimeProfile.compatibleSocketTags = profile.compatibleSocketTags;

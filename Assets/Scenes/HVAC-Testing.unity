@@ -22735,9 +22735,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aea406aa86a78614b898c5c5ad061d41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableDebugLogging: 1
+  enableDebugLogging: 0
   enableValidationLogging: 0
-  enableEventLogging: 1
+  enableEventLogging: 0
 --- !u!4 &1959122869
 Transform:
   m_ObjectHideFlags: 0
@@ -23125,7 +23125,7 @@ GameObject:
   - component: {fileID: 1967729122}
   - component: {fileID: 1967729121}
   m_Layer: 0
-  m_Name: ww
+  m_Name: Socket
   m_TagString: snap
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

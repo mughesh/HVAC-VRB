@@ -108,7 +108,7 @@ public class ValveController : MonoBehaviour
         // Initialize with unlocked state
         currentState = ValveState.Unlocked;
         currentSubstate = ValveSubstate.None;
-        lastRotation = transform.eulerAngles;
+        lastRotation = transform.localEulerAngles;
         
         Debug.Log($"[ValveController] {gameObject.name} Awake() - Initial state: {currentState}");
     }
@@ -155,7 +155,7 @@ public class ValveController : MonoBehaviour
         // Reset rotation tracking
         currentRotationAngle = 0f;
         totalRotation = 0f;
-        lastRotation = transform.eulerAngles;
+        lastRotation = transform.localEulerAngles;
         
         isInitialized = true;
         
@@ -300,17 +300,20 @@ public class ValveController : MonoBehaviour
                 // Set constraints to freeze position but allow rotation on specified axis
                 RigidbodyConstraints constraints = RigidbodyConstraints.FreezePosition;
                 
-                // Allow rotation only on the specified axis
-                if (profile.rotationAxis.x == 0) constraints |= RigidbodyConstraints.FreezeRotationX;
-                if (profile.rotationAxis.y == 0) constraints |= RigidbodyConstraints.FreezeRotationY;
-                if (profile.rotationAxis.z == 0) constraints |= RigidbodyConstraints.FreezeRotationZ;
+                // Convert local axis to world axis for constraint system
+                Vector3 worldRotationAxis = GetWorldRotationAxis(profile.rotationAxis);
+                
+                // Allow rotation only on the specified world axis
+                if (Mathf.Abs(worldRotationAxis.x) < 0.1f) constraints |= RigidbodyConstraints.FreezeRotationX;
+                if (Mathf.Abs(worldRotationAxis.y) < 0.1f) constraints |= RigidbodyConstraints.FreezeRotationY;
+                if (Mathf.Abs(worldRotationAxis.z) < 0.1f) constraints |= RigidbodyConstraints.FreezeRotationZ;
                 
                 rigidBody.constraints = constraints;
                 
                 // Handle socket interactor based on substate
                 HandleSocketInteractorForSubstate();
                 
-                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - position fixed, rotation on {profile.rotationAxis}");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - position fixed, rotation on local {profile.rotationAxis} (world {worldRotationAxis.ToString("F2")})");
             }
         }
     }
@@ -421,9 +424,17 @@ public class ValveController : MonoBehaviour
     {
         totalRotation = 0f;
         currentRotationAngle = 0f;
-        lastRotation = transform.eulerAngles;
+        lastRotation = transform.localEulerAngles;
         
         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset");
+    }
+    
+    /// <summary>
+    /// Convert local rotation axis to world rotation axis based on current transform orientation
+    /// </summary>
+    private Vector3 GetWorldRotationAxis(Vector3 localAxis)
+    {
+        return transform.TransformDirection(localAxis).normalized;
     }
     
     /// <summary>
@@ -554,7 +565,8 @@ public class ValveController : MonoBehaviour
     {
         if (profile == null) return;
         
-        Vector3 currentRotationVector = transform.eulerAngles;
+        // Use local space rotation for orientation independence
+        Vector3 currentRotationVector = transform.localEulerAngles;
         Vector3 deltaRotation = currentRotationVector - lastRotation;
         
         // Handle angle wrapping
@@ -565,7 +577,7 @@ public class ValveController : MonoBehaviour
         if (deltaRotation.y < -180) deltaRotation.y += 360;
         if (deltaRotation.z < -180) deltaRotation.z += 360;
         
-        // Calculate rotation based on specified axis
+        // Calculate rotation based on specified local axis
         float axisRotation = Vector3.Dot(deltaRotation, profile.rotationAxis);
         totalRotation += axisRotation;
         currentRotationAngle = totalRotation;
