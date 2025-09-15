@@ -22,16 +22,16 @@ MonoBehaviour:
       - groupName: New Task Group
         description: 
         steps:
-        - stepName: New Step
+        - stepName: grab and snap
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: SuctionValve
+            _gameObjectName: AllenKey
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _gameObjectName: SuctionValve_Dropped_Pos
+            _gameObjectName: Socket
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           targetAngle: 0
@@ -51,8 +51,8 @@ MonoBehaviour:
           waitForSteps: 
           hint: 
           isCompleted: 0
-        - stepName: New Step
-          type: 1
+        - stepName: Tighten valve
+          type: 5
           targetObject:
             _gameObject: {fileID: 0}
             _gameObjectName: AllenKey
@@ -60,7 +60,7 @@ MonoBehaviour:
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _gameObjectName: ww
+            _gameObjectName: Socket
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           targetAngle: 0
@@ -71,16 +71,16 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _gameObjectName: Socket
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
           rotationDampening: 0
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
           isCompleted: 1
-        - stepName: New Step
+        - stepName: Loosen valve
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
@@ -100,7 +100,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _gameObjectName: ww
+            _gameObjectName: Socket
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           rotationDampening: 0
@@ -109,35 +109,6 @@ MonoBehaviour:
           waitForSteps: 
           hint: Step instruction goes here
           isCompleted: 1
-        - stepName: New Step
-          type: 6
-          targetObject:
-            _gameObject: {fileID: 0}
-            _gameObjectName: AllenKey
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 90
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _gameObjectName: ww
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
-            _isValid: 1
-          rotationDampening: 6.28
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          isCompleted: 0
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1
