@@ -118,11 +118,49 @@ public class VRInteractionSetupWindow : EditorWindow
         }
         else if (state == PlayModeStateChange.EnteredEditMode)
         {
-            Debug.Log("[VRInteractionSetupWindow] Entered edit mode - refreshing scene analysis");
+            Debug.Log("[VRInteractionSetupWindow] Entered edit mode - refreshing scene analysis and training assets");
+
+            // Refresh scene analysis
             if (EditorPrefs.GetBool("VRTrainingKit_LastSceneAnalysisValid", false))
             {
                 sceneAnalysis = InteractionSetupService.ScanScene();
             }
+
+            // CRITICAL FIX: Refresh training asset references after play mode
+            RefreshTrainingAssetReferences();
+        }
+    }
+
+    /// <summary>
+    /// Refreshes training asset references after play mode or asset changes
+    /// This fixes the issue where step value changes don't reflect in real-time after play mode
+    /// </summary>
+    private void RefreshTrainingAssetReferences()
+    {
+        if (currentTrainingAsset != null)
+        {
+            // Store current selection
+            string currentAssetName = currentTrainingAsset.name;
+
+            // Reload all available assets
+            LoadAvailableTrainingAssets();
+
+            // Try to restore the previously selected asset
+            if (availableAssets != null)
+            {
+                for (int i = 0; i < availableAssets.Length; i++)
+                {
+                    if (availableAssets[i] != null && availableAssets[i].name == currentAssetName)
+                    {
+                        selectedAssetIndex = i;
+                        LoadTrainingAsset(availableAssets[i]);
+                        Debug.Log($"[VRInteractionSetupWindow] Restored training asset: {currentAssetName}");
+                        return;
+                    }
+                }
+            }
+
+            Debug.LogWarning($"[VRInteractionSetupWindow] Could not restore training asset: {currentAssetName}");
         }
     }
     
