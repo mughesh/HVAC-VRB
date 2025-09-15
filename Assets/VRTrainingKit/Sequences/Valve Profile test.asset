@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea9e9c8ca36d2c1439f823d3fc02f439, type: 3}
+  m_Name: Valve Profile test
+  m_EditorClassIdentifier: 
+  program:
+    programName: New Training Program
+    description: 
+    modules:
+    - moduleName: New Module
+      description: 
+      taskGroups:
+      - groupName: New Task Group
+        description: 
+        steps:
+        - stepName: grab and snap
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _gameObjectName: AllenKey
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _gameObjectName: Socket
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 90
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: 
+          isCompleted: 1
+        - stepName: Tighten valve
+          type: 5
+          targetObject:
+            _gameObject: {fileID: 0}
+            _gameObjectName: AllenKey
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _gameObjectName: Socket
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 80
+          loosenThreshold: 60
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _gameObjectName: Socket
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          rotationDampening: 3
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        - stepName: Loosen
+          type: 6
+          targetObject:
+            _gameObject: {fileID: 0}
+            _gameObjectName: AllenKey
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 85
+          loosenThreshold: 78
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _gameObjectName: Socket
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          rotationDampening: 3
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        isExpanded: 1
+      isExpanded: 1
+    isExpanded: 1
+  assetDescription: Custom training sequence

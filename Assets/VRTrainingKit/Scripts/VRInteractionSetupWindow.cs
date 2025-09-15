@@ -118,11 +118,49 @@ public class VRInteractionSetupWindow : EditorWindow
         }
         else if (state == PlayModeStateChange.EnteredEditMode)
         {
-            Debug.Log("[VRInteractionSetupWindow] Entered edit mode - refreshing scene analysis");
+            Debug.Log("[VRInteractionSetupWindow] Entered edit mode - refreshing scene analysis and training assets");
+
+            // Refresh scene analysis
             if (EditorPrefs.GetBool("VRTrainingKit_LastSceneAnalysisValid", false))
             {
                 sceneAnalysis = InteractionSetupService.ScanScene();
             }
+
+            // CRITICAL FIX: Refresh training asset references after play mode
+            RefreshTrainingAssetReferences();
+        }
+    }
+
+    /// <summary>
+    /// Refreshes training asset references after play mode or asset changes
+    /// This fixes the issue where step value changes don't reflect in real-time after play mode
+    /// </summary>
+    private void RefreshTrainingAssetReferences()
+    {
+        if (currentTrainingAsset != null)
+        {
+            // Store current selection
+            string currentAssetName = currentTrainingAsset.name;
+
+            // Reload all available assets
+            LoadAvailableTrainingAssets();
+
+            // Try to restore the previously selected asset
+            if (availableAssets != null)
+            {
+                for (int i = 0; i < availableAssets.Length; i++)
+                {
+                    if (availableAssets[i] != null && availableAssets[i].name == currentAssetName)
+                    {
+                        selectedAssetIndex = i;
+                        LoadTrainingAsset(availableAssets[i]);
+                        Debug.Log($"[VRInteractionSetupWindow] Restored training asset: {currentAssetName}");
+                        return;
+                    }
+                }
+            }
+
+            Debug.LogWarning($"[VRInteractionSetupWindow] Could not restore training asset: {currentAssetName}");
         }
     }
     
@@ -1278,6 +1316,81 @@ public class VRInteractionSetupWindow : EditorWindow
             step.angleTolerance = EditorGUILayout.FloatField("Angle Tolerance", step.angleTolerance);
         }
         
+        // Valve-specific settings
+        if (step.type == InteractionStep.StepType.TightenValve ||
+            step.type == InteractionStep.StepType.LoosenValve ||
+            step.type == InteractionStep.StepType.InstallValve ||
+            step.type == InteractionStep.StepType.RemoveValve)
+        {
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("Valve Settings", EditorStyles.boldLabel);
+            
+            // Target Object field (valve)
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Target Object", GUILayout.Width(100));
+            step.targetObject.GameObject = (GameObject)EditorGUILayout.ObjectField(
+                step.targetObject.GameObject, typeof(GameObject), true);
+            EditorGUILayout.EndHorizontal();
+            
+            // Target Socket field
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Target Socket", GUILayout.Width(100));
+            step.targetSocket.GameObject = (GameObject)EditorGUILayout.ObjectField(
+                step.targetSocket.GameObject, typeof(GameObject), true);
+            EditorGUILayout.EndHorizontal();
+            
+            // Rotation axis selection
+            EditorGUILayout.Space(3);
+            EditorGUILayout.LabelField("Rotation Axis");
+            EditorGUILayout.BeginHorizontal();
+            
+            bool isXAxis = step.rotationAxis == Vector3.right;
+            bool isYAxis = step.rotationAxis == Vector3.up;
+            bool isZAxis = step.rotationAxis == Vector3.forward;
+            
+            if (GUILayout.Toggle(isXAxis, "X-Axis") && !isXAxis) step.rotationAxis = Vector3.right;
+            if (GUILayout.Toggle(isYAxis, "Y-Axis") && !isYAxis) step.rotationAxis = Vector3.up;
+            if (GUILayout.Toggle(isZAxis, "Z-Axis") && !isZAxis) step.rotationAxis = Vector3.forward;
+            
+            EditorGUILayout.EndHorizontal();
+            
+            // Threshold settings based on step type
+            if (step.type == InteractionStep.StepType.TightenValve || 
+                step.type == InteractionStep.StepType.InstallValve)
+            {
+                EditorGUILayout.Space(3);
+                step.tightenThreshold = EditorGUILayout.Slider("Tighten Degrees", step.tightenThreshold, 10f, 360f);
+            }
+            
+            if (step.type == InteractionStep.StepType.LoosenValve ||
+                step.type == InteractionStep.StepType.RemoveValve)
+            {
+                EditorGUILayout.Space(3);  
+                step.loosenThreshold = EditorGUILayout.Slider("Loosen Degrees", step.loosenThreshold, 10f, 360f);
+            }
+            
+            if (step.type == InteractionStep.StepType.InstallValve ||
+                step.type == InteractionStep.StepType.RemoveValve)
+            {
+                // Complete operations show both thresholds
+                EditorGUILayout.Space(3);
+                step.tightenThreshold = EditorGUILayout.Slider("Tighten Degrees", step.tightenThreshold, 10f, 360f);
+                step.loosenThreshold = EditorGUILayout.Slider("Loosen Degrees", step.loosenThreshold, 10f, 360f);
+            }
+            
+            // Common settings
+            EditorGUILayout.Space(3);
+            step.valveAngleTolerance = EditorGUILayout.Slider("Angle Tolerance", step.valveAngleTolerance, 1f, 15f);
+            
+            // Advanced settings
+            EditorGUILayout.Space(3);
+            step.rotationDampening = EditorGUILayout.Slider("Rotation Dampening", step.rotationDampening, 0f, 10f);
+            if (step.rotationDampening == 0f)
+            {
+                EditorGUILayout.HelpBox("Set to 0 to use profile default", MessageType.Info);
+            }
+        }
+        
         // Execution settings
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Execution Settings", EditorStyles.boldLabel);
@@ -1334,6 +1447,15 @@ public class VRInteractionSetupWindow : EditorWindow
         menu.AddItem(new GUIContent("Grab Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Grab));
         menu.AddItem(new GUIContent("Grab and Snap Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.GrabAndSnap));
         menu.AddItem(new GUIContent("Turn Knob Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TurnKnob));
+        
+        // Valve operation steps
+        menu.AddSeparator("");
+        menu.AddItem(new GUIContent("Valve Operations/Tighten Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenValve));
+        menu.AddItem(new GUIContent("Valve Operations/Loosen Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenValve));
+        menu.AddItem(new GUIContent("Valve Operations/Install Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallValve));
+        menu.AddItem(new GUIContent("Valve Operations/Remove Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveValve));
+        
+        menu.AddSeparator("");
         menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
         menu.AddItem(new GUIContent("Show Instruction Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.ShowInstruction));
         menu.ShowAsContext();
@@ -1732,15 +1854,25 @@ public class VRInteractionSetupWindow : EditorWindow
         {
             ValveProfile valveProfile = ScriptableObject.CreateInstance<ValveProfile>();
             valveProfile.profileName = "Default Valve";
-            valveProfile.rotationAxis = Vector3.up;
-            valveProfile.tightenThreshold = 90f;
-            valveProfile.loosenThreshold = 90f;
-            valveProfile.angleTolerance = 5f;
+
+            // Configurable defaults - these can be changed per step in sequence builder
+            valveProfile.rotationAxis = Vector3.up;        // Y-axis rotation (most common)
+            valveProfile.tightenThreshold = 180f;          // More realistic full turn
+            valveProfile.loosenThreshold = 180f;           // Symmetric loosening
+            valveProfile.angleTolerance = 10f;             // More forgiving tolerance
+
+            // Socket compatibility
             valveProfile.compatibleSocketTags = new string[] { "valve_socket" };
+
+            // XR Interaction settings
             valveProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
             valveProfile.trackPosition = true;
             valveProfile.trackRotation = true;
-            
+
+            // Physics settings for better valve feel
+            valveProfile.rotationDampening = 3f;           // Moderate dampening
+            valveProfile.dampeningSpeed = 8f;              // Responsive dampening
+
             AssetDatabase.CreateAsset(valveProfile, $"{folderPath}/DefaultValveProfile.asset");
             selectedValveProfile = valveProfile;
         }

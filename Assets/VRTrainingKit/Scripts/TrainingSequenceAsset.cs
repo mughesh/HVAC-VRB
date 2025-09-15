@@ -25,9 +25,14 @@ public class TrainingSequenceAsset : ScriptableObject
     public TrainingProgram Program
     {
         get { return program; }
-        set 
-        { 
+        set
+        {
             program = value;
+
+            // Mark asset as dirty when program is changed
+            #if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(this);
+            #endif
         }
     }
     

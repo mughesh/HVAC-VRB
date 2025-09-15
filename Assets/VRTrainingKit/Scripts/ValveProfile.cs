@@ -17,7 +17,7 @@ public class ValveProfile : InteractionProfile
     
     [Tooltip("Degrees of rotation required to tighten valve")]
     [Range(10f, 360f)]
-    public float tightenThreshold = 90f;
+    public float tightenThreshold = 50f;
     
     [Tooltip("Degrees of reverse rotation required to loosen valve")]
     [Range(10f, 360f)]
