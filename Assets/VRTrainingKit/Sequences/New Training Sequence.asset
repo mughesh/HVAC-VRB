@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea9e9c8ca36d2c1439f823d3fc02f439, type: 3}
-  m_Name: Valve Profile test
+  m_Name: New Training Sequence
   m_EditorClassIdentifier: 
   program:
     programName: New Training Program
@@ -22,11 +22,11 @@ MonoBehaviour:
       - groupName: New Task Group
         description: 
         steps:
-        - stepName: grab and snap
+        - stepName: New Step
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: AllenKey
+            _gameObjectName: Yellow_Hose_Male
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           destination:
@@ -37,7 +37,7 @@ MonoBehaviour:
           targetAngle: 0
           angleTolerance: 5
           rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 90
+          tightenThreshold: 50
           loosenThreshold: 90
           valveAngleTolerance: 5
           targetSocket:
@@ -49,42 +49,13 @@ MonoBehaviour:
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
-          hint: 
+          hint: Step instruction goes here
           isCompleted: 1
-        - stepName: Tighten valve
+        - stepName: tight
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: AllenKey
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
-            _gameObjectName: Socket
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
-            _isValid: 1
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 80
-          loosenThreshold: 60
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _gameObjectName: Socket
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
-            _isValid: 1
-          rotationDampening: 3
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          isCompleted: 0
-        - stepName: Loosen
-          type: 6
-          targetObject:
-            _gameObject: {fileID: 0}
-            _gameObjectName: AllenKey
+            _gameObjectName: Yellow_Hose_Male
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           destination:
@@ -95,15 +66,44 @@ MonoBehaviour:
           targetAngle: 0
           angleTolerance: 5
           rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 85
-          loosenThreshold: 78
+          tightenThreshold: 117
+          loosenThreshold: 90
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _gameObjectName: Socket
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
-          rotationDampening: 3
+          rotationDampening: 5
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 1
+        - stepName: loose
+          type: 6
+          targetObject:
+            _gameObject: {fileID: 0}
+            _gameObjectName: Yellow_Hose_Male
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 104
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _gameObjectName: Socket
+            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _isValid: 1
+          rotationDampening: 5
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
