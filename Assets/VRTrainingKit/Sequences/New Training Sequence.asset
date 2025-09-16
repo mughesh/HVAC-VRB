@@ -26,7 +26,7 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: Yellow_Hose_Male
+            _gameObjectName: Cube
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           destination:
@@ -55,7 +55,7 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: Yellow_Hose_Male
+            _gameObjectName: Cube
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           destination:
@@ -84,7 +84,7 @@ MonoBehaviour:
           type: 6
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: Yellow_Hose_Male
+            _gameObjectName: Cube
             _scenePath: Assets/Scenes/HVAC-Testing.unity
             _isValid: 1
           destination:
@@ -108,7 +108,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
+          isCompleted: 1
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1

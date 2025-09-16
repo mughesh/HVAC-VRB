@@ -297,23 +297,35 @@ public class ValveController : MonoBehaviour
                 // Make rigidbody kinematic to prevent physics movement
                 rigidBody.isKinematic = true;
                 
-                // Set constraints to freeze position but allow rotation on specified axis
+                // Set constraints to freeze position and all rotation axes except the specified one
                 RigidbodyConstraints constraints = RigidbodyConstraints.FreezePosition;
-                
-                // Convert local axis to world axis for constraint system
-                Vector3 worldRotationAxis = GetWorldRotationAxis(profile.rotationAxis);
-                
-                // Allow rotation only on the specified world axis
-                if (Mathf.Abs(worldRotationAxis.x) < 0.1f) constraints |= RigidbodyConstraints.FreezeRotationX;
-                if (Mathf.Abs(worldRotationAxis.y) < 0.1f) constraints |= RigidbodyConstraints.FreezeRotationY;
-                if (Mathf.Abs(worldRotationAxis.z) < 0.1f) constraints |= RigidbodyConstraints.FreezeRotationZ;
-                
+
+                // Directly map profile axis to constraints - simple and reliable
+                if (profile.rotationAxis == Vector3.right) // X axis
+                {
+                    constraints |= RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+                }
+                else if (profile.rotationAxis == Vector3.up) // Y axis
+                {
+                    constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+                }
+                else if (profile.rotationAxis == Vector3.forward) // Z axis
+                {
+                    constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+                }
+                else
+                {
+                    // Default case - freeze all rotation if axis not recognized
+                    constraints |= RigidbodyConstraints.FreezeRotation;
+                    VRTrainingDebug.LogWarning($"[ValveController] {gameObject.name} unrecognized rotation axis {profile.rotationAxis}, freezing all rotation");
+                }
+
                 rigidBody.constraints = constraints;
                 
                 // Handle socket interactor based on substate
                 HandleSocketInteractorForSubstate();
                 
-                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - position fixed, rotation on local {profile.rotationAxis} (world {worldRotationAxis.ToString("F2")})");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - position fixed, rotation allowed on local {profile.rotationAxis}");
             }
         }
     }
@@ -429,13 +441,6 @@ public class ValveController : MonoBehaviour
         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset");
     }
     
-    /// <summary>
-    /// Convert local rotation axis to world rotation axis based on current transform orientation
-    /// </summary>
-    private Vector3 GetWorldRotationAxis(Vector3 localAxis)
-    {
-        return transform.TransformDirection(localAxis).normalized;
-    }
     
     /// <summary>
     /// Called by SnapValidator when valve is snapped to a compatible socket
