@@ -2409,13 +2409,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 167773038}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1967729120}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!4 &188247268
 Transform:
   m_ObjectHideFlags: 0
@@ -3790,7 +3790,6 @@ Transform:
   - {fileID: 1079198197}
   - {fileID: 1068395478}
   - {fileID: 1190321945}
-  - {fileID: 1151517178}
   - {fileID: 649347358}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5344,6 +5343,7 @@ GameObject:
   - component: {fileID: 649347358}
   - component: {fileID: 649347360}
   - component: {fileID: 649347359}
+  - component: {fileID: 649347361}
   m_Layer: 0
   m_Name: Yellow_Hose_Female
   m_TagString: grab
@@ -5360,7 +5360,7 @@ Transform:
   m_GameObject: {fileID: 649347357}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.1211, y: -0.0482, z: -0.0313}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5516,6 +5516,23 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &649347361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 649347357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b889fdb6370a964a9412c4183d3e653, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: 11da4d18abd98814098134153bdad262, type: 2}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
+  isInitialized: 1
 --- !u!1 &660848192
 GameObject:
   m_ObjectHideFlags: 0
@@ -13111,7 +13128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4f742b86062b944c8c40b8e5a7464e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trainingAsset: {fileID: 11400000, guid: 70462098099c90044b2f8de75c26a0cf, type: 2}
+  trainingAsset: {fileID: 11400000, guid: 1451d96fdfdb96c4593d0d2a85509c88, type: 2}
   enableDebugLogging: 0
   showStepCompletions: 1
 --- !u!1 &1037691396
@@ -14319,7 +14336,7 @@ Transform:
   m_GameObject: {fileID: 1083886686}
   serializedVersion: 2
   m_LocalRotation: {x: -0.49999827, y: -0.4999999, z: 0.50000197, w: 0.4999999}
-  m_LocalPosition: {x: 0.11675497, y: -0.052616477, z: -0.0135599375}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16250,9 +16267,10 @@ GameObject:
   - component: {fileID: 1151517178}
   - component: {fileID: 1151517180}
   - component: {fileID: 1151517181}
+  - component: {fileID: 1151517182}
   m_Layer: 0
   m_Name: Yellow_Hose_Male
-  m_TagString: grab
+  m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -16265,14 +16283,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1151517177}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.0721, y: 0.9816, z: 0.7843}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1083886687}
   - {fileID: 1351012414}
-  m_Father: {fileID: 420342056}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1151517180
 Rigidbody:
@@ -16423,6 +16441,23 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
+--- !u!114 &1151517182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1151517177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b889fdb6370a964a9412c4183d3e653, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: 11da4d18abd98814098134153bdad262, type: 2}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
+  isInitialized: 1
 --- !u!1 &1167578735
 GameObject:
   m_ObjectHideFlags: 0
@@ -18364,7 +18399,7 @@ Transform:
   m_GameObject: {fileID: 1351012413}
   serializedVersion: 2
   m_LocalRotation: {x: -0.49999982, y: -0.49999988, z: 0.5000002, w: 0.50000024}
-  m_LocalPosition: {x: 0.11705497, y: -0.05191648, z: -0.014259934}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22587,7 +22622,7 @@ Transform:
   m_GameObject: {fileID: 1931052513}
   serializedVersion: 2
   m_LocalRotation: {x: 0.0000002286377, y: -0.70710576, z: 0.7071079, w: -0.00000022863739}
-  m_LocalPosition: {x: 0.16985495, y: -0.052616358, z: -0.033059895}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.7000001, y: 1, z: 0.69999987}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -90371,6 +90406,7 @@ SceneRoots:
   - {fileID: 1745716722}
   - {fileID: 1035769873}
   - {fileID: 721413978}
+  - {fileID: 1151517178}
   - {fileID: 1967729120}
   - {fileID: 33017840}
   - {fileID: 1027256204}

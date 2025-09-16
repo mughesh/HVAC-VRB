@@ -384,12 +384,15 @@ public class TrainingSequenceController : MonoBehaviour
             return;
         }
         
-        // Check if we need to apply any overrides
+        // Check if we need to apply any overrides (step-type specific to prevent interference)
         bool needsOverride = false;
-        
+
         if (step.rotationAxis != profile.rotationAxis) needsOverride = true;
-        if (step.tightenThreshold != profile.tightenThreshold) needsOverride = true;
-        if (step.loosenThreshold != profile.loosenThreshold) needsOverride = true;
+
+        // CRITICAL FIX: Only apply relevant threshold based on step type
+        if (IsTightenStep(step.type) && step.tightenThreshold != profile.tightenThreshold) needsOverride = true;
+        if (IsLoosenStep(step.type) && step.loosenThreshold != profile.loosenThreshold) needsOverride = true;
+
         if (step.valveAngleTolerance != profile.angleTolerance) needsOverride = true;
         if (step.rotationDampening != profile.rotationDampening) needsOverride = true;
         
@@ -399,10 +402,27 @@ public class TrainingSequenceController : MonoBehaviour
             var runtimeProfile = ScriptableObject.CreateInstance<ValveProfile>();
             
             // Copy base settings from original profile
-            runtimeProfile.profileName = $"{profile.profileName}_Runtime";
+            runtimeProfile.profileName = $"{profile.profileName}_Runtime_{step.type}";
             runtimeProfile.rotationAxis = step.rotationAxis != profile.rotationAxis ? step.rotationAxis : profile.rotationAxis;
-            runtimeProfile.tightenThreshold = step.tightenThreshold != profile.tightenThreshold ? step.tightenThreshold : profile.tightenThreshold;
-            runtimeProfile.loosenThreshold = step.loosenThreshold != profile.loosenThreshold ? step.loosenThreshold : profile.loosenThreshold;
+
+            // CRITICAL FIX: Apply only relevant threshold values based on step type
+            if (IsTightenStep(step.type))
+            {
+                runtimeProfile.tightenThreshold = step.tightenThreshold != profile.tightenThreshold ? step.tightenThreshold : profile.tightenThreshold;
+                runtimeProfile.loosenThreshold = profile.loosenThreshold; // Keep profile default for unused threshold
+            }
+            else if (IsLoosenStep(step.type))
+            {
+                runtimeProfile.tightenThreshold = profile.tightenThreshold; // Keep profile default for unused threshold
+                runtimeProfile.loosenThreshold = step.loosenThreshold != profile.loosenThreshold ? step.loosenThreshold : profile.loosenThreshold;
+            }
+            else
+            {
+                // Install/Remove steps use both thresholds
+                runtimeProfile.tightenThreshold = step.tightenThreshold != profile.tightenThreshold ? step.tightenThreshold : profile.tightenThreshold;
+                runtimeProfile.loosenThreshold = step.loosenThreshold != profile.loosenThreshold ? step.loosenThreshold : profile.loosenThreshold;
+            }
+
             runtimeProfile.angleTolerance = step.valveAngleTolerance != profile.angleTolerance ? step.valveAngleTolerance : profile.angleTolerance;
             runtimeProfile.rotationDampening = step.rotationDampening != profile.rotationDampening ? step.rotationDampening : profile.rotationDampening;
             
@@ -1072,5 +1092,23 @@ public class TrainingSequenceController : MonoBehaviour
             if (totalSteps == 0) return 0f;
             return (float)completedSteps / totalSteps;
         }
+    }
+
+    /// <summary>
+    /// Helper method to check if a step type requires tighten threshold
+    /// </summary>
+    private bool IsTightenStep(InteractionStep.StepType stepType)
+    {
+        return stepType == InteractionStep.StepType.TightenValve ||
+               stepType == InteractionStep.StepType.InstallValve;
+    }
+
+    /// <summary>
+    /// Helper method to check if a step type requires loosen threshold
+    /// </summary>
+    private bool IsLoosenStep(InteractionStep.StepType stepType)
+    {
+        return stepType == InteractionStep.StepType.LoosenValve ||
+               stepType == InteractionStep.StepType.RemoveValve;
     }
 }
