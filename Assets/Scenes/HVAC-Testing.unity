@@ -13128,7 +13128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4f742b86062b944c8c40b8e5a7464e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trainingAsset: {fileID: 11400000, guid: 1451d96fdfdb96c4593d0d2a85509c88, type: 2}
+  trainingAsset: {fileID: 0}
   enableDebugLogging: 0
   showStepCompletions: 1
 --- !u!1 &1037691396

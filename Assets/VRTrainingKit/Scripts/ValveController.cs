@@ -60,6 +60,7 @@ public class ValveController : MonoBehaviour
     private Vector3 lastRotation;
     private float totalRotation = 0f;
     private float lastLoggedRotation = 0f;
+    private float baselineAxisRotation = 0f; // Baseline rotation for the specific axis after snap
     
     // State management
     private bool isWaitingForGrabRelease = false;
@@ -437,11 +438,38 @@ public class ValveController : MonoBehaviour
         totalRotation = 0f;
         currentRotationAngle = 0f;
         lastRotation = transform.localEulerAngles;
-        
-        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset");
+
+        // Store the current rotation value for the specific axis as baseline
+        if (profile != null)
+        {
+            baselineAxisRotation = GetAxisRotationValue(transform.localEulerAngles, profile.rotationAxis);
+            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset - baseline for {profile.rotationAxis}: {baselineAxisRotation:F2}°");
+        }
+        else
+        {
+            baselineAxisRotation = 0f;
+            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset - no profile, baseline set to 0°");
+        }
     }
-    
-    
+
+    /// <summary>
+    /// Get the rotation value for a specific axis from euler angles
+    /// </summary>
+    private float GetAxisRotationValue(Vector3 eulerAngles, Vector3 axis)
+    {
+        if (axis == Vector3.right) // X axis
+            return eulerAngles.x;
+        else if (axis == Vector3.up) // Y axis
+            return eulerAngles.y;
+        else if (axis == Vector3.forward) // Z axis
+            return eulerAngles.z;
+        else
+        {
+            VRTrainingDebug.LogWarning($"[ValveController] Unrecognized rotation axis {axis}, defaulting to Y axis");
+            return eulerAngles.y;
+        }
+    }
+
     /// <summary>
     /// Called by SnapValidator when valve is snapped to a compatible socket
     /// </summary>
@@ -453,10 +481,7 @@ public class ValveController : MonoBehaviour
         
         // Store socket interactor reference for debugging
         currentSocketInteractor = socket.GetComponent<XRSocketInteractor>();
-        
-        // Reset rotation tracking for new snap
-        ResetRotationTracking();
-        
+
         // Start position monitoring coroutine instead of event listening
         StartCoroutine(MonitorSocketPositioning(socket));
         
@@ -534,7 +559,10 @@ public class ValveController : MonoBehaviour
     {
         // Reset flag for new interaction cycle
         readyForSocketReEnable = false;
-        
+
+        // Reset rotation tracking AFTER object is fully positioned by attach transform
+        ResetRotationTracking();
+
         // Now transition to LOCKED-LOOSE state
         SetState(ValveState.Locked, ValveSubstate.Loose);
         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} → LOCKED-LOOSE after confirmed socket positioning");
@@ -569,29 +597,27 @@ public class ValveController : MonoBehaviour
     private void TrackRotation()
     {
         if (profile == null) return;
-        
-        // Use local space rotation for orientation independence
+
+        // Get current rotation value for the specific axis
         Vector3 currentRotationVector = transform.localEulerAngles;
-        Vector3 deltaRotation = currentRotationVector - lastRotation;
-        
-        // Handle angle wrapping
-        if (deltaRotation.x > 180) deltaRotation.x -= 360;
-        if (deltaRotation.y > 180) deltaRotation.y -= 360;
-        if (deltaRotation.z > 180) deltaRotation.z -= 360;
-        if (deltaRotation.x < -180) deltaRotation.x += 360;
-        if (deltaRotation.y < -180) deltaRotation.y += 360;
-        if (deltaRotation.z < -180) deltaRotation.z += 360;
-        
-        // Calculate rotation based on specified local axis
-        float axisRotation = Vector3.Dot(deltaRotation, profile.rotationAxis);
-        totalRotation += axisRotation;
-        currentRotationAngle = totalRotation;
-        
+        float currentAxisValue = GetAxisRotationValue(currentRotationVector, profile.rotationAxis);
+
+        // Calculate rotation relative to baseline (post-snap position)
+        float rotationFromBaseline = currentAxisValue - baselineAxisRotation;
+
+        // Handle angle wrapping for the specific axis
+        if (rotationFromBaseline > 180) rotationFromBaseline -= 360;
+        if (rotationFromBaseline < -180) rotationFromBaseline += 360;
+
+        // Update total rotation (this represents user motion from snap point)
+        currentRotationAngle = rotationFromBaseline;
+        totalRotation = rotationFromBaseline;
+
         lastRotation = currentRotationVector;
-        
+
         // Check for state transitions based on rotation
         CheckRotationThresholds();
-        
+
         // Fire events
         OnRotationChanged?.Invoke(currentRotationAngle);
         UpdateProgressEvents();
