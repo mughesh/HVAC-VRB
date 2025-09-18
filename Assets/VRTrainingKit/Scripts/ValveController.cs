@@ -60,6 +60,7 @@ public class ValveController : MonoBehaviour
     private Vector3 lastRotation;
     private float totalRotation = 0f;
     private float lastLoggedRotation = 0f;
+    private float baselineAxisRotation = 0f; // Baseline rotation for the specific axis after snap
     
     // State management
     private bool isWaitingForGrabRelease = false;
@@ -297,23 +298,35 @@ public class ValveController : MonoBehaviour
                 // Make rigidbody kinematic to prevent physics movement
                 rigidBody.isKinematic = true;
                 
-                // Set constraints to freeze position but allow rotation on specified axis
+                // Set constraints to freeze position and all rotation axes except the specified one
                 RigidbodyConstraints constraints = RigidbodyConstraints.FreezePosition;
-                
-                // Convert local axis to world axis for constraint system
-                Vector3 worldRotationAxis = GetWorldRotationAxis(profile.rotationAxis);
-                
-                // Allow rotation only on the specified world axis
-                if (Mathf.Abs(worldRotationAxis.x) < 0.1f) constraints |= RigidbodyConstraints.FreezeRotationX;
-                if (Mathf.Abs(worldRotationAxis.y) < 0.1f) constraints |= RigidbodyConstraints.FreezeRotationY;
-                if (Mathf.Abs(worldRotationAxis.z) < 0.1f) constraints |= RigidbodyConstraints.FreezeRotationZ;
-                
+
+                // Directly map profile axis to constraints - simple and reliable
+                if (profile.rotationAxis == Vector3.right) // X axis
+                {
+                    constraints |= RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+                }
+                else if (profile.rotationAxis == Vector3.up) // Y axis
+                {
+                    constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+                }
+                else if (profile.rotationAxis == Vector3.forward) // Z axis
+                {
+                    constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+                }
+                else
+                {
+                    // Default case - freeze all rotation if axis not recognized
+                    constraints |= RigidbodyConstraints.FreezeRotation;
+                    VRTrainingDebug.LogWarning($"[ValveController] {gameObject.name} unrecognized rotation axis {profile.rotationAxis}, freezing all rotation");
+                }
+
                 rigidBody.constraints = constraints;
                 
                 // Handle socket interactor based on substate
                 HandleSocketInteractorForSubstate();
                 
-                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - position fixed, rotation on local {profile.rotationAxis} (world {worldRotationAxis.ToString("F2")})");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - position fixed, rotation allowed on local {profile.rotationAxis}");
             }
         }
     }
@@ -425,18 +438,38 @@ public class ValveController : MonoBehaviour
         totalRotation = 0f;
         currentRotationAngle = 0f;
         lastRotation = transform.localEulerAngles;
-        
-        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset");
+
+        // Store the current rotation value for the specific axis as baseline
+        if (profile != null)
+        {
+            baselineAxisRotation = GetAxisRotationValue(transform.localEulerAngles, profile.rotationAxis);
+            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset - baseline for {profile.rotationAxis}: {baselineAxisRotation:F2}°");
+        }
+        else
+        {
+            baselineAxisRotation = 0f;
+            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset - no profile, baseline set to 0°");
+        }
     }
-    
+
     /// <summary>
-    /// Convert local rotation axis to world rotation axis based on current transform orientation
+    /// Get the rotation value for a specific axis from euler angles
     /// </summary>
-    private Vector3 GetWorldRotationAxis(Vector3 localAxis)
+    private float GetAxisRotationValue(Vector3 eulerAngles, Vector3 axis)
     {
-        return transform.TransformDirection(localAxis).normalized;
+        if (axis == Vector3.right) // X axis
+            return eulerAngles.x;
+        else if (axis == Vector3.up) // Y axis
+            return eulerAngles.y;
+        else if (axis == Vector3.forward) // Z axis
+            return eulerAngles.z;
+        else
+        {
+            VRTrainingDebug.LogWarning($"[ValveController] Unrecognized rotation axis {axis}, defaulting to Y axis");
+            return eulerAngles.y;
+        }
     }
-    
+
     /// <summary>
     /// Called by SnapValidator when valve is snapped to a compatible socket
     /// </summary>
@@ -448,10 +481,7 @@ public class ValveController : MonoBehaviour
         
         // Store socket interactor reference for debugging
         currentSocketInteractor = socket.GetComponent<XRSocketInteractor>();
-        
-        // Reset rotation tracking for new snap
-        ResetRotationTracking();
-        
+
         // Start position monitoring coroutine instead of event listening
         StartCoroutine(MonitorSocketPositioning(socket));
         
@@ -529,7 +559,10 @@ public class ValveController : MonoBehaviour
     {
         // Reset flag for new interaction cycle
         readyForSocketReEnable = false;
-        
+
+        // Reset rotation tracking AFTER object is fully positioned by attach transform
+        ResetRotationTracking();
+
         // Now transition to LOCKED-LOOSE state
         SetState(ValveState.Locked, ValveSubstate.Loose);
         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} → LOCKED-LOOSE after confirmed socket positioning");
@@ -564,29 +597,27 @@ public class ValveController : MonoBehaviour
     private void TrackRotation()
     {
         if (profile == null) return;
-        
-        // Use local space rotation for orientation independence
+
+        // Get current rotation value for the specific axis
         Vector3 currentRotationVector = transform.localEulerAngles;
-        Vector3 deltaRotation = currentRotationVector - lastRotation;
-        
-        // Handle angle wrapping
-        if (deltaRotation.x > 180) deltaRotation.x -= 360;
-        if (deltaRotation.y > 180) deltaRotation.y -= 360;
-        if (deltaRotation.z > 180) deltaRotation.z -= 360;
-        if (deltaRotation.x < -180) deltaRotation.x += 360;
-        if (deltaRotation.y < -180) deltaRotation.y += 360;
-        if (deltaRotation.z < -180) deltaRotation.z += 360;
-        
-        // Calculate rotation based on specified local axis
-        float axisRotation = Vector3.Dot(deltaRotation, profile.rotationAxis);
-        totalRotation += axisRotation;
-        currentRotationAngle = totalRotation;
-        
+        float currentAxisValue = GetAxisRotationValue(currentRotationVector, profile.rotationAxis);
+
+        // Calculate rotation relative to baseline (post-snap position)
+        float rotationFromBaseline = currentAxisValue - baselineAxisRotation;
+
+        // Handle angle wrapping for the specific axis
+        if (rotationFromBaseline > 180) rotationFromBaseline -= 360;
+        if (rotationFromBaseline < -180) rotationFromBaseline += 360;
+
+        // Update total rotation (this represents user motion from snap point)
+        currentRotationAngle = rotationFromBaseline;
+        totalRotation = rotationFromBaseline;
+
         lastRotation = currentRotationVector;
-        
+
         // Check for state transitions based on rotation
         CheckRotationThresholds();
-        
+
         // Fire events
         OnRotationChanged?.Invoke(currentRotationAngle);
         UpdateProgressEvents();

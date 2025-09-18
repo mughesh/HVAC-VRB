@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea9e9c8ca36d2c1439f823d3fc02f439, type: 3}
-  m_Name: New Training Sequence
+  m_Name: Valve sequence
   m_EditorClassIdentifier: 
   program:
     programName: New Training Program
@@ -26,8 +26,8 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: Yellow_Hose_Male
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _gameObjectName: valve
+            _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
@@ -50,13 +50,13 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 1
+          isCompleted: 0
         - stepName: tight
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: Yellow_Hose_Male
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _gameObjectName: valve
+            _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
@@ -65,27 +65,27 @@ MonoBehaviour:
             _isValid: 0
           targetAngle: 0
           angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
+          rotationAxis: {x: 1, y: 0, z: 0}
           tightenThreshold: 117
           loosenThreshold: 90
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _gameObjectName: Socket
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           rotationDampening: 5
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 1
+          isCompleted: 0
         - stepName: loose
           type: 6
           targetObject:
             _gameObject: {fileID: 0}
-            _gameObjectName: Yellow_Hose_Male
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _gameObjectName: valve
+            _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
@@ -94,14 +94,14 @@ MonoBehaviour:
             _isValid: 0
           targetAngle: 0
           angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
+          rotationAxis: {x: 1, y: 0, z: 0}
           tightenThreshold: 50
           loosenThreshold: 104
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _gameObjectName: Socket
-            _scenePath: Assets/Scenes/HVAC-Testing.unity
+            _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           rotationDampening: 5
           allowParallel: 0
