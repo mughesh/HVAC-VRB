@@ -185,7 +185,7 @@ public class SnapValidator : MonoBehaviour
         }
         
         // Fire event for sequence system
-        var sequenceController = FindObjectOfType<SequenceController>();
+        var sequenceController = FindObjectOfType<LegacySequenceController>();
         sequenceController?.OnObjectSnapped(gameObject, snappedObject);
         
         // Handle validation failure AFTER notifications (delayed ejection)
@@ -216,7 +216,7 @@ public class SnapValidator : MonoBehaviour
         }
         
         // Fire event for sequence system
-        var sequenceController = FindObjectOfType<SequenceController>();
+        var sequenceController = FindObjectOfType<LegacySequenceController>();
         sequenceController?.OnObjectUnsnapped(gameObject, removedObject);
     }
     

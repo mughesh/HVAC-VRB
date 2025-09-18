@@ -35,7 +35,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private Vector2 configScrollPos;
     
     // Sequence tab - Legacy state-based system
-    private SequenceController sequenceController;
+    private LegacySequenceController sequenceController;
     private Vector2 sequenceScrollPos;
     private bool showSequenceHelp = false;
     
@@ -1890,21 +1890,21 @@ public class VRInteractionSetupWindow : EditorWindow
         sequenceController.stateGroups.Clear();
         
         // Create Initial Setup state
-        var initialState = new SequenceController.StateGroup();
+        var initialState = new LegacySequenceController.StateGroup();
         initialState.groupName = "Initial Setup";
         initialState.isActive = true;
         initialState.allowedActions = new List<string> { "Hose_Male_Connector", "Hose_Female_Connector" };
         initialState.lockedActions = new List<string> { "Nitrogen_Cylinder_Valve" };
         
         // Create System Ready state
-        var systemReadyState = new SequenceController.StateGroup();
+        var systemReadyState = new LegacySequenceController.StateGroup();
         systemReadyState.groupName = "System Ready";
         systemReadyState.isActive = false;
         systemReadyState.allowedActions = new List<string> { "Nitrogen_Cylinder_Valve", "Gauge_Adjustment_Knob" };
         
         // Add conditions for System Ready (all hoses connected)
-        var allConnectedCondition = new SequenceController.StateGroup.Condition();
-        allConnectedCondition.type = SequenceController.StateGroup.Condition.ConditionType.AllObjectsSnapped;
+        var allConnectedCondition = new LegacySequenceController.StateGroup.Condition();
+        allConnectedCondition.type = LegacySequenceController.StateGroup.Condition.ConditionType.AllObjectsSnapped;
         systemReadyState.activationConditions.Add(allConnectedCondition);
         
         // Add states to controller

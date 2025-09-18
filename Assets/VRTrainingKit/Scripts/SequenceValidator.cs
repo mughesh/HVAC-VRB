@@ -18,13 +18,13 @@ public class SequenceValidator : MonoBehaviour
     public string warningMessage = "This action should not be performed yet!";
     
     private XRBaseInteractable interactable;
-    private SequenceController sequenceController;
+    private LegacySequenceController sequenceController;
     private bool isLocked = false;
     
     private void Awake()
     {
         interactable = GetComponent<XRBaseInteractable>();
-        sequenceController = FindObjectOfType<SequenceController>();
+        sequenceController = FindObjectOfType<LegacySequenceController>();
     }
     
     private void OnEnable()
