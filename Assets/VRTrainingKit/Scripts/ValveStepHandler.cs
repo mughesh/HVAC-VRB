@@ -154,13 +154,15 @@ public class ValveStepHandler : BaseStepHandler
     {
         LogDebug($"🔧 MONITORING: Starting valve step monitoring for {step.stepName}");
 
-        // Phase 1: Wait for valve to reach appropriate state for this step type
-        yield return WaitForValveReadyState(step, valveController);
-
-        // Phase 2: Apply sequence builder parameter overrides (if any)
+        // PHASE 1: Apply sequence builder parameter overrides EARLY (before state transitions)
+        // This prevents Configure() from resetting valve state
+        LogDebug($"🔧 EARLY PARAMS: Applying parameters while valve is still unlocked");
         ApplyValveStepParameters(step, valveController);
 
-        // Phase 3: Subscribe to appropriate valve events for step completion
+        // PHASE 2: Wait for valve to reach appropriate state for this step type
+        yield return WaitForValveReadyState(step, valveController);
+
+        // PHASE 3: Subscribe to appropriate valve events for step completion
         SubscribeToValveEvents(step, valveController);
 
         LogDebug($"🔧 MONITORING: Valve step setup complete for {step.stepName}");
@@ -204,22 +206,33 @@ public class ValveStepHandler : BaseStepHandler
         LogDebug($"🔧 WAITING: Step {step.stepName} waiting for valve state: {requiredState}-{requiredSubstate}");
 
         float startTime = Time.time;
+        float lastLogTime = Time.time;
         float timeout = 30f; // Generous timeout for user interaction
+        float logInterval = 3f; // Log every 3 seconds instead of every frame
 
         // Wait for required state
         while (valveController.CurrentState != requiredState || valveController.CurrentSubstate != requiredSubstate)
         {
+            float currentTime = Time.time;
+
             // Check for timeout (but don't fail - user might be slow)
-            if (Time.time - startTime > timeout)
+            if (currentTime - startTime > timeout)
             {
                 LogWarning($"🔧 WAITING: Valve {valveController.gameObject.name} taking longer than {timeout}s to reach required state for step {step.stepName}");
                 LogWarning($"🔧 Current: {valveController.CurrentState}-{valveController.CurrentSubstate}, Required: {requiredState}-{requiredSubstate}");
 
                 // Reset timeout for next check
-                startTime = Time.time;
+                startTime = currentTime;
+                lastLogTime = currentTime; // Also reset log timer
             }
 
-            LogDebug($"🔧 WAITING: Current: {valveController.CurrentState}-{valveController.CurrentSubstate}, Required: {requiredState}-{requiredSubstate}");
+            // Only log every few seconds to reduce spam
+            if (currentTime - lastLogTime > logInterval)
+            {
+                LogDebug($"🔧 WAITING: Current: {valveController.CurrentState}-{valveController.CurrentSubstate}, Required: {requiredState}-{requiredSubstate}");
+                lastLogTime = currentTime;
+            }
+
             yield return new WaitForSeconds(0.5f); // Check every half second
         }
 
@@ -263,23 +276,12 @@ public class ValveStepHandler : BaseStepHandler
         runtimeProfile.profileName = $"{currentProfile.profileName}_Runtime_{step.type}";
         runtimeProfile.rotationAxis = step.rotationAxis != currentProfile.rotationAxis ? step.rotationAxis : currentProfile.rotationAxis;
 
-        // Apply only relevant threshold values based on step type
-        if (IsTightenStep(step.type))
-        {
-            runtimeProfile.tightenThreshold = step.tightenThreshold != currentProfile.tightenThreshold ? step.tightenThreshold : currentProfile.tightenThreshold;
-            runtimeProfile.loosenThreshold = currentProfile.loosenThreshold; // Keep profile default
-        }
-        else if (IsLoosenStep(step.type))
-        {
-            runtimeProfile.tightenThreshold = currentProfile.tightenThreshold; // Keep profile default
-            runtimeProfile.loosenThreshold = step.loosenThreshold != currentProfile.loosenThreshold ? step.loosenThreshold : currentProfile.loosenThreshold;
-        }
-        else
-        {
-            // Install/Remove steps use both thresholds
-            runtimeProfile.tightenThreshold = step.tightenThreshold != currentProfile.tightenThreshold ? step.tightenThreshold : currentProfile.tightenThreshold;
-            runtimeProfile.loosenThreshold = step.loosenThreshold != currentProfile.loosenThreshold ? step.loosenThreshold : currentProfile.loosenThreshold;
-        }
+        // Apply ALL threshold values - sequence builder should control both thresholds regardless of step type
+        // This allows users to set complete valve behavior from sequence builder
+        runtimeProfile.tightenThreshold = step.tightenThreshold != currentProfile.tightenThreshold ? step.tightenThreshold : currentProfile.tightenThreshold;
+        runtimeProfile.loosenThreshold = step.loosenThreshold != currentProfile.loosenThreshold ? step.loosenThreshold : currentProfile.loosenThreshold;
+
+        LogDebug($"🔧 PARAMS: Threshold assignment - Tighten: {step.tightenThreshold} → {runtimeProfile.tightenThreshold}, Loosen: {step.loosenThreshold} → {runtimeProfile.loosenThreshold}");
 
         runtimeProfile.angleTolerance = step.valveAngleTolerance != currentProfile.angleTolerance ? step.valveAngleTolerance : currentProfile.angleTolerance;
         runtimeProfile.rotationDampening = step.rotationDampening != currentProfile.rotationDampening ? step.rotationDampening : currentProfile.rotationDampening;
