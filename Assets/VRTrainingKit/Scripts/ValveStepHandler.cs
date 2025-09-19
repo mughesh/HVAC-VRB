@@ -254,14 +254,16 @@ public class ValveStepHandler : BaseStepHandler
             return;
         }
 
-        // Check if we need to apply any overrides
+        // Check if we need to apply any overrides - check ALL possible overrides regardless of step type
         bool needsOverride = false;
 
         if (step.rotationAxis != currentProfile.rotationAxis) needsOverride = true;
-        if (IsTightenStep(step.type) && step.tightenThreshold != currentProfile.tightenThreshold) needsOverride = true;
-        if (IsLoosenStep(step.type) && step.loosenThreshold != currentProfile.loosenThreshold) needsOverride = true;
+        if (step.tightenThreshold != currentProfile.tightenThreshold) needsOverride = true; // Always check tighten threshold
+        if (step.loosenThreshold != currentProfile.loosenThreshold) needsOverride = true;   // Always check loosen threshold
         if (step.valveAngleTolerance != currentProfile.angleTolerance) needsOverride = true;
         if (step.rotationDampening != currentProfile.rotationDampening) needsOverride = true;
+
+        LogDebug($"🔧 PARAMS: Override check - Step tighten: {step.tightenThreshold}, Profile tighten: {currentProfile.tightenThreshold}");
 
         if (!needsOverride)
         {
@@ -276,12 +278,40 @@ public class ValveStepHandler : BaseStepHandler
         runtimeProfile.profileName = $"{currentProfile.profileName}_Runtime_{step.type}";
         runtimeProfile.rotationAxis = step.rotationAxis != currentProfile.rotationAxis ? step.rotationAxis : currentProfile.rotationAxis;
 
-        // Apply ALL threshold values - sequence builder should control both thresholds regardless of step type
-        // This allows users to set complete valve behavior from sequence builder
-        runtimeProfile.tightenThreshold = step.tightenThreshold != currentProfile.tightenThreshold ? step.tightenThreshold : currentProfile.tightenThreshold;
-        runtimeProfile.loosenThreshold = step.loosenThreshold != currentProfile.loosenThreshold ? step.loosenThreshold : currentProfile.loosenThreshold;
+        // Apply threshold values selectively based on step type to avoid cross-contamination
+        // Tighten steps control tighten threshold, Loosen steps control loosen threshold
 
-        LogDebug($"🔧 PARAMS: Threshold assignment - Tighten: {step.tightenThreshold} → {runtimeProfile.tightenThreshold}, Loosen: {step.loosenThreshold} → {runtimeProfile.loosenThreshold}");
+        // Debug the assignment logic
+        LogDebug($"🔧 PARAMS: Step type: {step.type}");
+        LogDebug($"🔧 PARAMS: Before assignment - Step tighten: {step.tightenThreshold}, Profile tighten: {currentProfile.tightenThreshold}");
+        LogDebug($"🔧 PARAMS: Before assignment - Step loosen: {step.loosenThreshold}, Profile loosen: {currentProfile.loosenThreshold}");
+
+        // Start with current profile values
+        runtimeProfile.tightenThreshold = currentProfile.tightenThreshold;
+        runtimeProfile.loosenThreshold = currentProfile.loosenThreshold;
+
+        // Apply overrides based on step type to prevent cross-contamination
+        if (IsTightenStep(step.type))
+        {
+            // Only override tighten threshold for tighten steps
+            if (step.tightenThreshold != currentProfile.tightenThreshold)
+            {
+                runtimeProfile.tightenThreshold = step.tightenThreshold;
+                LogDebug($"🔧 PARAMS: Applied TIGHTEN override: {step.tightenThreshold}°");
+            }
+        }
+
+        if (IsLoosenStep(step.type))
+        {
+            // Only override loosen threshold for loosen steps
+            if (step.loosenThreshold != currentProfile.loosenThreshold)
+            {
+                runtimeProfile.loosenThreshold = step.loosenThreshold;
+                LogDebug($"🔧 PARAMS: Applied LOOSEN override: {step.loosenThreshold}°");
+            }
+        }
+
+        LogDebug($"🔧 PARAMS: Final assignment - Runtime tighten: {runtimeProfile.tightenThreshold}, Runtime loosen: {runtimeProfile.loosenThreshold}");
 
         runtimeProfile.angleTolerance = step.valveAngleTolerance != currentProfile.angleTolerance ? step.valveAngleTolerance : currentProfile.angleTolerance;
         runtimeProfile.rotationDampening = step.rotationDampening != currentProfile.rotationDampening ? step.rotationDampening : currentProfile.rotationDampening;
