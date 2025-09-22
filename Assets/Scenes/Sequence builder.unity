@@ -15632,6 +15632,7 @@ GameObject:
   - component: {fileID: 2007943641}
   - component: {fileID: 2007943640}
   - component: {fileID: 2007943642}
+  - component: {fileID: 2007943643}
   m_Layer: 0
   m_Name: Sequence controller
   m_TagString: Untagged
@@ -15718,6 +15719,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04c49ddf9735e2549ab99198e4f5c10f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2007943643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2007943636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dfecab0f8917f6439baddd27fde2b78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2025421144

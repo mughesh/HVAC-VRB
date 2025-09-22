@@ -50,7 +50,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
+          isCompleted: 1
         - stepName: tight
           type: 5
           targetObject:
@@ -65,7 +65,7 @@ MonoBehaviour:
             _isValid: 0
           targetAngle: 0
           angleTolerance: 5
-          rotationAxis: {x: 1, y: 0, z: 0}
+          rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 117
           loosenThreshold: 90
           valveAngleTolerance: 5
@@ -79,8 +79,8 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
-        - stepName: loose
+          isCompleted: 1
+        - stepName: Loosen
           type: 6
           targetObject:
             _gameObject: {fileID: 0}
@@ -94,16 +94,45 @@ MonoBehaviour:
             _isValid: 0
           targetAngle: 0
           angleTolerance: 5
-          rotationAxis: {x: 1, y: 0, z: 0}
+          rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
-          loosenThreshold: 104
+          loosenThreshold: 108
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _gameObjectName: Socket
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
-          rotationDampening: 5
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 1
+        - stepName: knob
+          type: 2
+          targetObject:
+            _gameObject: {fileID: 0}
+            _gameObjectName: NitrogenValve
+            _scenePath: Assets/Scenes/Sequence builder.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 45
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
