@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81d8a2a1de410b54e960c4a3a9bd59d2, type: 3}
+  m_Script: {fileID: 11500000, guid: a89d01b910466764392e76a2fb4da6f6, type: 3}
   m_Name: GrabProfile
   m_EditorClassIdentifier: 
   profileName: New Profile
@@ -22,5 +22,5 @@ MonoBehaviour:
   throwAngularVelocityScale: 1
   useDynamicAttach: 1
   attachEaseInTime: 0.15
-  colliderType: 3
+  colliderType: 0
   addColliderToMeshChild: 1
