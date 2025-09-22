@@ -1,0 +1,568 @@
+// ModularTrainingSequenceController.cs
+// Modular runtime controller for executing VR training sequences
+// Uses handler-based architecture for event isolation and extensibility
+using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
+using System;
+
+// NO NAMESPACE - Follows existing project pattern
+
+/// <summary>
+/// Modular training sequence controller that delegates step handling to specialized handlers
+/// Provides clean separation between sequence orchestration and interaction-specific logic
+/// </summary>
+public class ModularTrainingSequenceController : MonoBehaviour
+{
+    [Header("Training Sequence")]
+    [Tooltip("The training sequence asset to execute")]
+    public TrainingSequenceAsset trainingAsset;
+
+    [Header("Debug Settings")]
+    [Tooltip("Log detailed debug information")]
+    public bool enableDebugLogging = true;
+
+    [Tooltip("Show step completion messages")]
+    public bool showStepCompletions = true;
+
+    // Handler system
+    private List<IStepHandler> stepHandlers = new List<IStepHandler>();
+    private Dictionary<InteractionStep, IStepHandler> activeStepHandlers = new Dictionary<InteractionStep, IStepHandler>();
+
+    // Runtime state
+    private TrainingProgram currentProgram;
+    private List<InteractionStep> activeSteps = new List<InteractionStep>();
+    private int currentModuleIndex = 0;
+    private int currentTaskGroupIndex = 0;
+    private bool sequenceComplete = false;
+
+    // Events for UI integration
+    public event Action<InteractionStep> OnStepCompleted;
+    public event Action<TaskGroup> OnTaskGroupCompleted;
+    public event Action<TrainingModule> OnModuleCompleted;
+    public event Action OnSequenceCompleted;
+
+    void Start()
+    {
+        InitializeSequence();
+    }
+
+    void OnDestroy()
+    {
+        CleanupHandlers();
+    }
+
+    /// <summary>
+    /// Initialize the training sequence execution
+    /// </summary>
+    void InitializeSequence()
+    {
+        if (trainingAsset == null)
+        {
+            LogError("No training asset assigned to ModularTrainingSequenceController!");
+            return;
+        }
+
+        currentProgram = trainingAsset.Program;
+        if (currentProgram == null)
+        {
+            LogError("Training asset has no program data!");
+            return;
+        }
+
+        LogInfo($"🚀 Starting modular training sequence: {currentProgram.programName}");
+
+        // Initialize handler system
+        InitializeHandlers();
+
+        // Start with the first module and task group
+        currentModuleIndex = 0;
+        currentTaskGroupIndex = 0;
+
+        // Begin execution
+        StartCurrentTaskGroup();
+    }
+
+    /// <summary>
+    /// Initialize all step handlers
+    /// </summary>
+    void InitializeHandlers()
+    {
+        LogInfo("🔧 Initializing step handlers...");
+
+        // Clear any existing handlers
+        CleanupHandlers();
+
+        // Auto-discover and initialize handlers in scene
+        var handlerComponents = FindObjectsOfType<MonoBehaviour>().OfType<IStepHandler>();
+        foreach (var handler in handlerComponents)
+        {
+            RegisterHandler(handler);
+        }
+
+        // If no handlers found, create default ones
+        if (stepHandlers.Count == 0)
+        {
+            LogWarning("No step handlers found in scene. Creating default handlers...");
+            CreateDefaultHandlers();
+        }
+
+        LogInfo($"🔧 Initialized {stepHandlers.Count} step handlers");
+    }
+
+    /// <summary>
+    /// Register a step handler
+    /// </summary>
+    public void RegisterHandler(IStepHandler handler)
+    {
+        if (handler == null) return;
+
+        stepHandlers.Add(handler);
+        handler.Initialize(this);
+
+        // Subscribe to handler events
+        if (handler is BaseStepHandler baseHandler)
+        {
+            baseHandler.OnStepCompleted += OnHandlerStepCompleted;
+        }
+
+        LogDebug($"📝 Registered handler: {handler.GetType().Name}");
+    }
+
+    /// <summary>
+    /// Create default handlers if none are found in scene
+    /// </summary>
+    void CreateDefaultHandlers()
+    {
+        // This will be implemented in Phase R2-R4
+        LogInfo("🏗️ Default handler creation will be implemented in subsequent phases");
+    }
+
+    /// <summary>
+    /// Handle step completion from handlers
+    /// </summary>
+    void OnHandlerStepCompleted(object sender, StepCompletionEventArgs args)
+    {
+        var step = args.step;
+        var reason = args.reason;
+
+        if (showStepCompletions)
+        {
+            LogInfo($"✅ Step completed: {step.stepName} - {reason}");
+        }
+
+        // Remove from active handlers
+        if (activeStepHandlers.ContainsKey(step))
+        {
+            activeStepHandlers.Remove(step);
+        }
+
+        // Fire external event
+        OnStepCompleted?.Invoke(step);
+
+        // Check if task group is complete
+        CheckTaskGroupCompletion();
+    }
+
+    /// <summary>
+    /// Start executing the current task group
+    /// </summary>
+    void StartCurrentTaskGroup()
+    {
+        if (sequenceComplete) return;
+
+        var currentModule = GetCurrentModule();
+        var currentTaskGroup = GetCurrentTaskGroup();
+
+        if (currentModule == null || currentTaskGroup == null)
+        {
+            CompleteSequence();
+            return;
+        }
+
+        LogInfo($"📂 Starting task group: {currentTaskGroup.groupName} (Module: {currentModule.moduleName})");
+
+        // Clear previous active steps
+        StopAllActiveSteps();
+
+        // Add all steps from current task group to active steps
+        foreach (var step in currentTaskGroup.steps)
+        {
+            if (step != null)
+            {
+                step.ResetCompletion(); // Reset completion state
+                activeSteps.Add(step);
+                LogDebug($"📋 Added step to active list: {step.stepName} [{step.type}]");
+            }
+        }
+
+        // Start handling all active steps
+        StartActiveSteps();
+
+        // Check for any steps that are already complete or can be completed immediately
+        CheckStepCompletions();
+    }
+
+    /// <summary>
+    /// Start handling all active steps by delegating to appropriate handlers
+    /// </summary>
+    void StartActiveSteps()
+    {
+        LogDebug("🎯 Starting active steps...");
+
+        foreach (var step in activeSteps)
+        {
+            StartStep(step);
+        }
+    }
+
+    /// <summary>
+    /// Start handling a single step
+    /// </summary>
+    void StartStep(InteractionStep step)
+    {
+        // Find appropriate handler for this step
+        var handler = FindHandlerForStep(step);
+        if (handler == null)
+        {
+            LogWarning($"⚠️ No handler found for step: {step.stepName} [{step.type}]");
+            return;
+        }
+
+        // Start handling the step
+        activeStepHandlers[step] = handler;
+        handler.StartStep(step);
+
+        LogDebug($"🎯 Started step: {step.stepName} with handler: {handler.GetType().Name}");
+    }
+
+    /// <summary>
+    /// Find the appropriate handler for a step
+    /// </summary>
+    IStepHandler FindHandlerForStep(InteractionStep step)
+    {
+        return stepHandlers.FirstOrDefault(h => h.CanHandle(step.type));
+    }
+
+    /// <summary>
+    /// Stop all active steps
+    /// </summary>
+    void StopAllActiveSteps()
+    {
+        LogDebug("🛑 Stopping all active steps...");
+
+        foreach (var kvp in activeStepHandlers.ToList())
+        {
+            var step = kvp.Key;
+            var handler = kvp.Value;
+            handler.StopStep(step);
+        }
+
+        activeStepHandlers.Clear();
+        activeSteps.Clear();
+    }
+
+    /// <summary>
+    /// Check if any steps can be completed (wait conditions, etc.)
+    /// </summary>
+    void CheckStepCompletions()
+    {
+        foreach (var step in activeSteps.ToList()) // ToList to avoid modification during iteration
+        {
+            if (step.isCompleted) continue;
+
+            if (step.type == InteractionStep.StepType.WaitForCondition)
+            {
+                CheckWaitCondition(step);
+            }
+            else if (step.type == InteractionStep.StepType.ShowInstruction)
+            {
+                // Instructions are auto-completed for now
+                CompleteStep(step, "Instruction shown");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Check if a wait condition step can be completed
+    /// </summary>
+    void CheckWaitCondition(InteractionStep waitStep)
+    {
+        var currentTaskGroup = GetCurrentTaskGroup();
+        if (currentTaskGroup == null) return;
+
+        bool allConditionsMet = true;
+        foreach (int stepIndex in waitStep.waitForSteps)
+        {
+            if (stepIndex < 0 || stepIndex >= currentTaskGroup.steps.Count)
+            {
+                LogWarning($"Invalid wait condition index {stepIndex} in step: {waitStep.stepName}");
+                continue;
+            }
+
+            var requiredStep = currentTaskGroup.steps[stepIndex];
+            if (!requiredStep.isCompleted)
+            {
+                allConditionsMet = false;
+                break;
+            }
+        }
+
+        if (allConditionsMet)
+        {
+            CompleteStep(waitStep, $"Wait conditions met ({waitStep.waitForSteps.Count} steps)");
+        }
+    }
+
+    /// <summary>
+    /// Complete a step manually (for wait conditions and instructions)
+    /// </summary>
+    void CompleteStep(InteractionStep step, string reason)
+    {
+        if (step.isCompleted) return;
+
+        step.isCompleted = true;
+        OnStepCompleted?.Invoke(step);
+
+        if (showStepCompletions)
+        {
+            LogInfo($"✅ Step completed: {step.stepName} - {reason}");
+        }
+
+        // Check if task group is complete
+        CheckTaskGroupCompletion();
+    }
+
+    /// <summary>
+    /// Check if the current task group is complete
+    /// </summary>
+    void CheckTaskGroupCompletion()
+    {
+        var currentTaskGroup = GetCurrentTaskGroup();
+        if (currentTaskGroup == null) return;
+
+        // Check if all required steps are complete
+        bool allRequiredStepsComplete = true;
+        int completedSteps = 0;
+        int totalSteps = 0;
+
+        foreach (var step in activeSteps)
+        {
+            totalSteps++;
+            if (step.isCompleted)
+            {
+                completedSteps++;
+            }
+            else if (!step.isOptional)
+            {
+                allRequiredStepsComplete = false;
+            }
+        }
+
+        LogDebug($"📊 Task group progress: {completedSteps}/{totalSteps} steps completed");
+
+        if (allRequiredStepsComplete)
+        {
+            CompleteTaskGroup();
+        }
+        else
+        {
+            // Check wait conditions for any remaining steps
+            CheckStepCompletions();
+        }
+    }
+
+    /// <summary>
+    /// Complete the current task group and move to the next
+    /// </summary>
+    void CompleteTaskGroup()
+    {
+        var currentTaskGroup = GetCurrentTaskGroup();
+        if (currentTaskGroup == null) return;
+
+        LogInfo($"✅ Task group completed: {currentTaskGroup.groupName}");
+        OnTaskGroupCompleted?.Invoke(currentTaskGroup);
+
+        // Move to next task group
+        currentTaskGroupIndex++;
+
+        var currentModule = GetCurrentModule();
+        if (currentTaskGroupIndex >= currentModule.taskGroups.Count)
+        {
+            // Current module is complete
+            CompleteModule();
+        }
+        else
+        {
+            // Start next task group
+            StartCurrentTaskGroup();
+        }
+    }
+
+    /// <summary>
+    /// Complete the current module and move to the next
+    /// </summary>
+    void CompleteModule()
+    {
+        var currentModule = GetCurrentModule();
+        if (currentModule == null) return;
+
+        LogInfo($"✅ Module completed: {currentModule.moduleName}");
+        OnModuleCompleted?.Invoke(currentModule);
+
+        // Move to next module
+        currentModuleIndex++;
+        currentTaskGroupIndex = 0;
+
+        if (currentModuleIndex >= currentProgram.modules.Count)
+        {
+            // All modules complete - sequence finished
+            CompleteSequence();
+        }
+        else
+        {
+            // Start next module
+            StartCurrentTaskGroup();
+        }
+    }
+
+    /// <summary>
+    /// Complete the entire training sequence
+    /// </summary>
+    void CompleteSequence()
+    {
+        sequenceComplete = true;
+        LogInfo($"🎉 Training sequence completed: {currentProgram.programName}");
+        OnSequenceCompleted?.Invoke();
+
+        StopAllActiveSteps();
+    }
+
+    /// <summary>
+    /// Clean up all handlers
+    /// </summary>
+    void CleanupHandlers()
+    {
+        LogDebug("🧹 Cleaning up handlers...");
+
+        foreach (var handler in stepHandlers)
+        {
+            if (handler is BaseStepHandler baseHandler)
+            {
+                baseHandler.OnStepCompleted -= OnHandlerStepCompleted;
+            }
+            handler.Cleanup();
+        }
+
+        stepHandlers.Clear();
+        activeStepHandlers.Clear();
+    }
+
+    /// <summary>
+    /// Get the current module
+    /// </summary>
+    TrainingModule GetCurrentModule()
+    {
+        if (currentProgram?.modules == null || currentModuleIndex >= currentProgram.modules.Count)
+            return null;
+        return currentProgram.modules[currentModuleIndex];
+    }
+
+    /// <summary>
+    /// Get the current task group
+    /// </summary>
+    TaskGroup GetCurrentTaskGroup()
+    {
+        var currentModule = GetCurrentModule();
+        if (currentModule?.taskGroups == null || currentTaskGroupIndex >= currentModule.taskGroups.Count)
+            return null;
+        return currentModule.taskGroups[currentTaskGroupIndex];
+    }
+
+    /// <summary>
+    /// Get current progress information
+    /// </summary>
+    public SequenceProgress GetProgress()
+    {
+        var progress = new SequenceProgress
+        {
+            currentModuleIndex = this.currentModuleIndex,
+            totalModules = currentProgram?.modules?.Count ?? 0,
+            currentTaskGroupIndex = this.currentTaskGroupIndex,
+            isComplete = this.sequenceComplete
+        };
+
+        var currentModule = GetCurrentModule();
+        if (currentModule != null)
+        {
+            progress.totalTaskGroups = currentModule.taskGroups?.Count ?? 0;
+            progress.currentModuleName = currentModule.moduleName;
+
+            var currentTaskGroup = GetCurrentTaskGroup();
+            if (currentTaskGroup != null)
+            {
+                progress.currentTaskGroupName = currentTaskGroup.groupName;
+                progress.completedSteps = activeSteps.Count(s => s.isCompleted);
+                progress.totalSteps = activeSteps.Count;
+            }
+        }
+
+        return progress;
+    }
+
+    // Logging methods
+    void LogInfo(string message)
+    {
+        Debug.Log($"[ModularTrainingSequence] {message}");
+    }
+
+    void LogDebug(string message)
+    {
+        if (enableDebugLogging)
+        {
+            Debug.Log($"[ModularTrainingSequence] {message}");
+        }
+    }
+
+    void LogWarning(string message)
+    {
+        Debug.LogWarning($"[ModularTrainingSequence] {message}");
+    }
+
+    void LogError(string message)
+    {
+        Debug.LogError($"[ModularTrainingSequence] {message}");
+    }
+
+    /// <summary>
+    /// Progress information for UI display (reused from original)
+    /// </summary>
+    [System.Serializable]
+    public class SequenceProgress
+    {
+        public int currentModuleIndex;
+        public int totalModules;
+        public string currentModuleName;
+
+        public int currentTaskGroupIndex;
+        public int totalTaskGroups;
+        public string currentTaskGroupName;
+
+        public int completedSteps;
+        public int totalSteps;
+
+        public bool isComplete;
+
+        public float GetOverallProgress()
+        {
+            if (totalModules == 0) return 0f;
+            return (float)currentModuleIndex / totalModules;
+        }
+
+        public float GetCurrentTaskGroupProgress()
+        {
+            if (totalSteps == 0) return 0f;
+            return (float)completedSteps / totalSteps;
+        }
+    }
+}

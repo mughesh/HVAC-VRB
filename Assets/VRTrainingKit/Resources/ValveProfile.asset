@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d831ee4aded68ef49944d6ea4b4a0b7b, type: 3}
+  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
   m_Name: ValveProfile
   m_EditorClassIdentifier: 
   profileName: New Profile
@@ -17,7 +17,7 @@ MonoBehaviour:
   rotationAxis: {x: 0, y: 1, z: 0}
   tightenThreshold: 50
   loosenThreshold: 90
-  angleTolerance: 2
+  angleTolerance: 5
   compatibleSocketTags:
   - valve_socket
   specificCompatibleSockets: []

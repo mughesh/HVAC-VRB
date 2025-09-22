@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 662dcd9f3324766419b57f4f8d82d891, type: 3}
+  m_Script: {fileID: 11500000, guid: 86d4d0b9e2aa4a74e84348f774eba504, type: 3}
   m_Name: SnapProfile
   m_EditorClassIdentifier: 
   profileName: New Profile
@@ -22,8 +22,5 @@ MonoBehaviour:
   ejectOnDisconnect: 1
   acceptedTags:
   - grab
-  - tool
-  - valve
   requireSpecificObjects: 0
-  specificAcceptedObjects:
-  - {fileID: 0}
+  specificAcceptedObjects: []
