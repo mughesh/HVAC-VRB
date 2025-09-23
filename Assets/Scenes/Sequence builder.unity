@@ -7382,7 +7382,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff69ed256991bab48929e233a2d15e7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trainingAsset: {fileID: 11400000, guid: 57feaab4b83721f4d995b9305693136d, type: 2}
+  trainingAsset: {fileID: 0}
   enableDebugLogging: 1
   showStepCompletions: 1
 --- !u!4 &966966447
@@ -13210,7 +13210,7 @@ GameObject:
   - component: {fileID: 1704593011}
   - component: {fileID: 1704593010}
   m_Layer: 0
-  m_Name: valve
+  m_Name: Valve2
   m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

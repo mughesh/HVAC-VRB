@@ -261,9 +261,84 @@ public class VRInteractionSetupWindow : EditorWindow
             }
         }
     }
-    
+
+    /// <summary>
+    /// Handles keyboard shortcuts for the editor window
+    /// </summary>
+    private void HandleKeyboardShortcuts()
+    {
+        Event current = Event.current;
+
+        // Ctrl+S or Cmd+S to force save
+        if (current.type == EventType.KeyDown &&
+            ((current.control && current.keyCode == KeyCode.S) ||
+             (current.command && current.keyCode == KeyCode.S)))
+        {
+            ForceSaveAllAssets();
+            current.Use(); // Consume the event so Unity doesn't process it
+        }
+
+        // Ctrl+R or Cmd+R to refresh references (useful after renaming objects)
+        if (current.type == EventType.KeyDown &&
+            ((current.control && current.keyCode == KeyCode.R) ||
+             (current.command && current.keyCode == KeyCode.R)))
+        {
+            RefreshAllObjectReferences();
+            current.Use();
+        }
+    }
+
+    /// <summary>
+    /// Refreshes all GameObject references in the current training program
+    /// Useful when objects have been renamed or moved
+    /// </summary>
+    private void RefreshAllObjectReferences()
+    {
+        if (currentProgram == null) return;
+
+        int refreshCount = 0;
+
+        foreach (var module in currentProgram.modules)
+        {
+            foreach (var taskGroup in module.taskGroups)
+            {
+                foreach (var step in taskGroup.steps)
+                {
+                    if (step.targetObject != null)
+                    {
+                        step.targetObject.RefreshReference();
+                        refreshCount++;
+                    }
+                    if (step.destination != null)
+                    {
+                        step.destination.RefreshReference();
+                        refreshCount++;
+                    }
+                    if (step.targetSocket != null)
+                    {
+                        step.targetSocket.RefreshReference();
+                        refreshCount++;
+                    }
+                }
+            }
+        }
+
+        if (refreshCount > 0)
+        {
+            AutoSaveCurrentAsset();
+            Debug.Log($"[VRTrainingKit] Refreshed {refreshCount} object references. Use Ctrl+R to refresh again if needed.");
+        }
+        else
+        {
+            Debug.Log("[VRTrainingKit] No object references found to refresh.");
+        }
+    }
+
     private void OnGUI()
     {
+        // Handle keyboard shortcuts
+        HandleKeyboardShortcuts();
+
         // Tab selection
         GUILayout.BeginHorizontal();
         if (GUILayout.Toggle(currentTab == Tab.Setup, "Setup", "Button"))
@@ -1134,11 +1209,8 @@ public class VRInteractionSetupWindow : EditorWindow
         
         if (EditorGUI.EndChangeCheck())
         {
-            // Mark the asset as dirty when changes are made
-            if (currentTrainingAsset != null)
-            {
-                EditorUtility.SetDirty(currentTrainingAsset);
-            }
+            // Auto-save when changes are made
+            AutoSaveCurrentAsset();
         }
     }
     
@@ -1474,8 +1546,8 @@ public class VRInteractionSetupWindow : EditorWindow
         
         // Auto-select the new module
         SelectItem(newModule, "module");
-        
-        EditorUtility.SetDirty(currentTrainingAsset);
+
+        AutoSaveCurrentAsset();
     }
     
     /// <summary>
@@ -1491,8 +1563,8 @@ public class VRInteractionSetupWindow : EditorWindow
         
         // Auto-select the new task group
         SelectItem(newTaskGroup, "taskgroup");
-        
-        EditorUtility.SetDirty(currentTrainingAsset);
+
+        AutoSaveCurrentAsset();
     }
     
     /// <summary>
@@ -1509,8 +1581,8 @@ public class VRInteractionSetupWindow : EditorWindow
         
         // Auto-select the new step
         SelectItem(newStep, "step");
-        
-        EditorUtility.SetDirty(currentTrainingAsset);
+
+        AutoSaveCurrentAsset();
     }
     
     /// <summary>
@@ -1523,7 +1595,7 @@ public class VRInteractionSetupWindow : EditorWindow
             currentProgram.modules.RemoveAt(moduleIndex);
             selectedHierarchyItem = null;
             selectedItemType = null;
-            EditorUtility.SetDirty(currentTrainingAsset);
+            AutoSaveCurrentAsset();
         }
     }
     
@@ -1537,7 +1609,7 @@ public class VRInteractionSetupWindow : EditorWindow
             module.taskGroups.RemoveAt(groupIndex);
             selectedHierarchyItem = null;
             selectedItemType = null;
-            EditorUtility.SetDirty(currentTrainingAsset);
+            AutoSaveCurrentAsset();
         }
     }
     
@@ -1551,7 +1623,7 @@ public class VRInteractionSetupWindow : EditorWindow
             taskGroup.steps.RemoveAt(stepIndex);
             selectedHierarchyItem = null;
             selectedItemType = null;
-            EditorUtility.SetDirty(currentTrainingAsset);
+            AutoSaveCurrentAsset();
         }
     }
     
@@ -1615,6 +1687,12 @@ public class VRInteractionSetupWindow : EditorWindow
         {
             SaveCurrentAsset();
         }
+
+        // Info about keyboard shortcuts
+        if (currentTrainingAsset != null)
+        {
+            GUILayout.Label("💡 Ctrl+S: Force Save | Ctrl+R: Refresh References", EditorStyles.miniLabel);
+        }
         
         EditorGUILayout.EndHorizontal();
     }
@@ -1662,6 +1740,38 @@ public class VRInteractionSetupWindow : EditorWindow
             UnityEditor.EditorUtility.SetDirty(currentTrainingAsset);
             UnityEditor.AssetDatabase.SaveAssets();
             EditorUtility.DisplayDialog("Save Complete", $"Saved {currentTrainingAsset.name}", "OK");
+            #endif
+        }
+    }
+
+    /// <summary>
+    /// Auto-saves the current asset without showing dialog
+    /// Called automatically when data changes
+    /// </summary>
+    private void AutoSaveCurrentAsset()
+    {
+        if (currentTrainingAsset != null)
+        {
+            #if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(currentTrainingAsset);
+            // Note: Don't call SaveAssets() here as it can cause performance issues
+            // Unity will save automatically when needed (scene save, project save, etc.)
+            Debug.Log($"[VRTrainingKit] Auto-saved training asset: {currentTrainingAsset.name}");
+            #endif
+        }
+    }
+
+    /// <summary>
+    /// Force saves all assets (equivalent to Ctrl+S)
+    /// </summary>
+    private void ForceSaveAllAssets()
+    {
+        if (currentTrainingAsset != null)
+        {
+            #if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(currentTrainingAsset);
+            UnityEditor.AssetDatabase.SaveAssets();
+            Debug.Log($"[VRTrainingKit] Force saved all assets including: {currentTrainingAsset.name}");
             #endif
         }
     }

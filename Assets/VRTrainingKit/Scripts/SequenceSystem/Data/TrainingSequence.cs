@@ -2,53 +2,84 @@
 // Core data structures for hierarchical VR training sequences
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
 /// Safe GameObject reference that works in both runtime and asset files
-/// Uses Unity's GlobalObjectId system for reliable cross-scene references
+/// Uses Unity's instance ID system for reliable object references that survive name changes
 /// </summary>
 [System.Serializable]
 public class GameObjectReference
 {
     [SerializeField] private GameObject _gameObject;
+    [SerializeField] private int _instanceID = 0;
     [SerializeField] private string _gameObjectName = "";
     [SerializeField] private string _scenePath = "";
     [SerializeField] private bool _isValid = false;
-    
+
     /// <summary>
     /// The referenced GameObject (null if not found or invalid)
     /// </summary>
     public GameObject GameObject
     {
-        get 
-        { 
+        get
+        {
             // Try to return the direct reference first
             if (_gameObject != null)
-                return _gameObject;
-            
-            // If direct reference is null but we have a name, try to find it
+            {
+                // Verify the reference is still valid (not destroyed)
+                try
+                {
+                    var name = _gameObject.name; // This will throw if destroyed
+                    return _gameObject;
+                }
+                catch
+                {
+                    _gameObject = null;
+                }
+            }
+
+            // Try to find by instance ID if we have one
+            if (_instanceID != 0)
+            {
+                #if UNITY_EDITOR
+                var found = UnityEditor.EditorUtility.InstanceIDToObject(_instanceID) as GameObject;
+                #else
+                var found = Resources.FindObjectsOfTypeAll<GameObject>()
+                    .FirstOrDefault(obj => obj.GetInstanceID() == _instanceID);
+                #endif
+
+                if (found != null)
+                {
+                    _gameObject = found;
+                    _gameObjectName = found.name; // Update name cache
+                    _isValid = true;
+                    return found;
+                }
+            }
+
+            // Fallback: try to find by name only as last resort (for backward compatibility)
             if (!string.IsNullOrEmpty(_gameObjectName))
             {
                 var found = GameObject.Find(_gameObjectName);
                 if (found != null)
                 {
-                    // Only update the direct reference at runtime to avoid serialization issues
-                    if (Application.isPlaying)
-                    {
-                        _gameObject = found;
-                        _isValid = true;
-                    }
+                    _gameObject = found;
+                    _instanceID = found.GetInstanceID(); // Cache the instance ID
+                    _isValid = true;
                     return found;
                 }
             }
-            
+
+            _isValid = false;
             return null;
         }
         set
         {
             _gameObject = value;
+            _instanceID = value != null ? value.GetInstanceID() : 0;
             _gameObjectName = value != null ? value.name : "";
             _scenePath = value != null && value.scene.IsValid() ? value.scene.path : "";
             _isValid = value != null;
@@ -58,7 +89,7 @@ public class GameObjectReference
     /// <summary>
     /// Whether this reference is valid and points to an existing GameObject
     /// </summary>
-    public bool IsValid => _gameObject != null || (!string.IsNullOrEmpty(_gameObjectName) && GameObject.Find(_gameObjectName) != null);
+    public bool IsValid => GameObject != null;
     
     /// <summary>
     /// Name of the referenced GameObject (even if the reference is broken)
@@ -100,21 +131,29 @@ public class GameObjectReference
     }
     
     /// <summary>
+    /// Refreshes the reference, useful when objects may have been renamed or moved
+    /// </summary>
+    public void RefreshReference()
+    {
+        // Force a lookup through the property getter
+        var current = GameObject;
+        if (current != null)
+        {
+            // Update cached name in case it changed
+            _gameObjectName = current.name;
+        }
+    }
+
+    /// <summary>
     /// Returns display name for editor UI
     /// </summary>
     public override string ToString()
     {
-        if (_gameObject != null)
-            return _gameObject.name;
+        var obj = GameObject; // Use the property to get the latest reference
+        if (obj != null)
+            return obj.name;
         if (!string.IsNullOrEmpty(_gameObjectName))
-        {
-            // Check if the object can be found by name
-            var found = GameObject.Find(_gameObjectName);
-            if (found != null)
-                return _gameObjectName; // Object exists, just not directly referenced
-            else
-                return $"{_gameObjectName} (Missing)"; // Object truly missing
-        }
+            return $"{_gameObjectName} (Missing)";
         return "None";
     }
 }
