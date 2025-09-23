@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "WebFetch(domain:earnest-robot.gitbook.io)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
