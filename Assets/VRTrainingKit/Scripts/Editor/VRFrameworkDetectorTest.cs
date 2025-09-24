@@ -1,6 +1,7 @@
 // VRFrameworkDetectorTest.cs
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 
 /// <summary>
 /// Simple test script for VRFrameworkDetector functionality
@@ -43,15 +44,30 @@ public static class VRFrameworkDetectorTest
         Debug.Log($"Manager Validation Errors: {validation.errors.Count}");
         Debug.Log($"Manager Validation Warnings: {validation.warnings.Count}");
 
+        // Test framework-aware validation
+        Debug.Log("=== Framework-Aware Validation Test ===");
+        var validationIssues = InteractionSetupService.ValidateSetup();
+        Debug.Log($"Setup Validation Issues Found: {validationIssues.Count}");
+
+        foreach (var issue in validationIssues)
+        {
+            Debug.Log($"  - {issue}");
+        }
+
         Debug.Log("=== Framework Test Complete ===");
 
         // Show results in dialog for easy viewing
+        var validationSummary = validationIssues.Count > 0
+            ? $"\nSetup Validation Issues ({validationIssues.Count}):\n{string.Join("\n", validationIssues.Take(3))}"
+            : "\nSetup Validation: All checks passed!";
+
         var message = $"Framework Test Results:\n\n" +
                      $"Detected: {displayName}\n" +
                      $"Active (Manager): {VRFrameworkDetector.GetFrameworkDisplayName(activeFramework)}\n" +
                      $"Valid Setup: {isValid}\n" +
-                     $"Has Mismatch: {hasMismatch}\n\n" +
-                     $"Details:\n{frameworkInfo}";
+                     $"Has Mismatch: {hasMismatch}\n" +
+                     validationSummary + "\n\n" +
+                     $"Framework Details:\n{frameworkInfo}";
 
         EditorUtility.DisplayDialog("Framework Test Results", message, "OK");
     }

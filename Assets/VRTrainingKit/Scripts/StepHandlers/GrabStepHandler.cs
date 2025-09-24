@@ -8,10 +8,10 @@ using System.Collections.Generic;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// Handler for grab-based interaction steps
+/// Handler for grab-based interaction steps using XRI framework
 /// Manages XRGrabInteractable event subscriptions and step completion
 /// </summary>
-public class GrabStepHandler : BaseStepHandler
+public class GrabStepHandler : BaseXRIStepHandler
 {
     // Component cache for grab interactables
     private Dictionary<GameObject, XRGrabInteractable> grabInteractables = new Dictionary<GameObject, XRGrabInteractable>();

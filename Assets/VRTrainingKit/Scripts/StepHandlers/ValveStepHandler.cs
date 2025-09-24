@@ -8,10 +8,10 @@ using System.Reflection;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// Handler for valve-based interaction steps with proper state machine integration
+/// Handler for valve-based interaction steps using XRI framework with proper state machine integration
 /// Waits for valve stabilization before applying sequence parameters and subscribing to events
 /// </summary>
-public class ValveStepHandler : BaseStepHandler
+public class ValveStepHandler : BaseXRIStepHandler
 {
     // Component cache for valve controllers
     private Dictionary<GameObject, ValveController> valveControllers = new Dictionary<GameObject, ValveController>();
