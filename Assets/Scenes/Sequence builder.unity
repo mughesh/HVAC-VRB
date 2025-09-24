@@ -1513,7 +1513,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableDebugLogging: 0
   enableValidationLogging: 0
-  enableEventLogging: 0
+  enableEventLogging: 1
 --- !u!4 &251468790
 Transform:
   m_ObjectHideFlags: 0
@@ -13118,7 +13118,7 @@ GameObject:
   - component: {fileID: 1704593011}
   - component: {fileID: 1704593010}
   m_Layer: 0
-  m_Name: Valve2
+  m_Name: Valve
   m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

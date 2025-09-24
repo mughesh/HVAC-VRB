@@ -26,13 +26,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 154684
-            _gameObjectName: valve
+            _instanceID: 198914
+            _gameObjectName: Valve
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 154014
+            _instanceID: 198246
             _gameObjectName: Socket
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
@@ -58,8 +58,8 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 154684
-            _gameObjectName: valve
+            _instanceID: 198914
+            _gameObjectName: Valve
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           destination:
@@ -71,27 +71,27 @@ MonoBehaviour:
           targetAngle: 0
           angleTolerance: 5
           rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 74
+          tightenThreshold: 69
           loosenThreshold: 90
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 154014
+            _instanceID: 198246
             _gameObjectName: Socket
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
-          rotationDampening: 0
+          rotationDampening: 1
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
           isCompleted: 1
-        - stepName: New Step
+        - stepName: Loosen
           type: 6
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 154684
-            _gameObjectName: valve
+            _instanceID: 198914
+            _gameObjectName: Valve
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           destination:
@@ -108,16 +108,16 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 154014
+            _instanceID: 198246
             _gameObjectName: Socket
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
-          rotationDampening: 0
+          rotationDampening: 1
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
+          isCompleted: 1
         isExpanded: 1
       - groupName: New Task Group
         description: Task group description
@@ -126,13 +126,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 154684
-            _gameObjectName: valve
+            _instanceID: 198914
+            _gameObjectName: Valve
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 154014
+            _instanceID: 198246
             _gameObjectName: Socket
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
@@ -153,12 +153,12 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
+          isCompleted: 1
         - stepName: Dummy 2
           type: 2
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 154030
+            _instanceID: 198262
             _gameObjectName: Nitrogen_Rotator
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
@@ -185,7 +185,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 1
+          isCompleted: 0
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1
