@@ -151,85 +151,264 @@ public class InteractionSetupService
         }
         
         /// <summary>
-        /// Validates the current setup
+        /// Validates the current setup based on detected VR framework
         /// </summary>
         public static List<string> ValidateSetup()
         {
             List<string> issues = new List<string>();
             var analysis = ScanScene();
-            
-            // Check grab objects
+
+            // Detect current framework and validate accordingly
+            var currentFramework = VRFrameworkDetector.DetectCurrentFramework();
+
+            Debug.Log($"[InteractionSetupService] Validating setup for framework: {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)}");
+
+            switch (currentFramework)
+            {
+                case VRFramework.XRI:
+                    ValidateXRIObjects(analysis, issues);
+                    break;
+
+                case VRFramework.AutoHands:
+                    ValidateAutoHandsObjects(analysis, issues);
+                    break;
+
+                case VRFramework.None:
+                    issues.Add("No VR framework detected in scene. Please add XR Origin or AutoHandPlayer rig.");
+                    break;
+
+                default:
+                    issues.Add($"Unknown framework detected: {currentFramework}");
+                    break;
+            }
+
+            // Log results
+            if (issues.Count == 0)
+            {
+                Debug.Log($"[InteractionSetupService] Setup validation passed - no issues found for {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)}!");
+            }
+            else
+            {
+                Debug.LogWarning($"[InteractionSetupService] Setup validation found {issues.Count} issues for {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)}");
+            }
+
+            return issues;
+        }
+
+        /// <summary>
+        /// Validates XRI framework objects and components
+        /// </summary>
+        private static void ValidateXRIObjects(SceneAnalysis analysis, List<string> issues)
+        {
+            Debug.Log($"[InteractionSetupService] Validating {analysis.TotalInteractables} objects for XRI framework");
+
+            // Check grab objects for XRI components
             foreach (var obj in analysis.grabObjects)
             {
                 if (obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>() == null)
                 {
-                    issues.Add($"Grab object '{obj.name}' missing XRGrabInteractable");
+                    issues.Add($"XRI: Grab object '{obj.name}' missing XRGrabInteractable");
                 }
                 if (obj.GetComponent<Rigidbody>() == null)
                 {
-                    issues.Add($"Grab object '{obj.name}' missing Rigidbody");
+                    issues.Add($"XRI: Grab object '{obj.name}' missing Rigidbody");
                 }
                 if (obj.GetComponent<Collider>() == null)
                 {
-                    issues.Add($"Grab object '{obj.name}' missing Collider");
+                    issues.Add($"XRI: Grab object '{obj.name}' missing Collider");
                 }
             }
-            
-            // Check knob objects
+
+            // Check knob objects for XRI components
             foreach (var obj in analysis.knobObjects)
             {
                 if (obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>() == null)
                 {
-                    issues.Add($"Knob object '{obj.name}' missing XRGrabInteractable");
+                    issues.Add($"XRI: Knob object '{obj.name}' missing XRGrabInteractable");
                 }
                 if (obj.GetComponent<KnobController>() == null)
                 {
-                    issues.Add($"Knob object '{obj.name}' missing KnobController");
+                    issues.Add($"XRI: Knob object '{obj.name}' missing KnobController");
+                }
+                if (obj.GetComponent<Rigidbody>() == null)
+                {
+                    issues.Add($"XRI: Knob object '{obj.name}' missing Rigidbody");
                 }
             }
-            
-            // Check tool objects
+
+            // Check tool objects for XRI components
             foreach (var obj in analysis.toolObjects)
             {
                 if (obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>() == null)
                 {
-                    issues.Add($"Tool object '{obj.name}' missing XRGrabInteractable");
+                    issues.Add($"XRI: Tool object '{obj.name}' missing XRGrabInteractable");
                 }
                 if (obj.GetComponent<Rigidbody>() == null)
                 {
-                    issues.Add($"Tool object '{obj.name}' missing Rigidbody");
+                    issues.Add($"XRI: Tool object '{obj.name}' missing Rigidbody");
                 }
                 if (obj.GetComponent<Collider>() == null)
                 {
-                    issues.Add($"Tool object '{obj.name}' missing Collider");
+                    issues.Add($"XRI: Tool object '{obj.name}' missing Collider");
                 }
             }
-            
-            // Check snap points
+
+            // Check valve objects for XRI components
+            foreach (var obj in analysis.valveObjects)
+            {
+                if (obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>() == null)
+                {
+                    issues.Add($"XRI: Valve object '{obj.name}' missing XRGrabInteractable");
+                }
+                if (obj.GetComponent<Rigidbody>() == null)
+                {
+                    issues.Add($"XRI: Valve object '{obj.name}' missing Rigidbody");
+                }
+            }
+
+            // Check snap points for XRI components
             foreach (var obj in analysis.snapObjects)
             {
                 if (obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor>() == null)
                 {
-                    issues.Add($"Snap point '{obj.name}' missing XRSocketInteractor");
+                    issues.Add($"XRI: Snap point '{obj.name}' missing XRSocketInteractor");
                 }
                 if (obj.GetComponent<SphereCollider>() == null)
                 {
-                    issues.Add($"Snap point '{obj.name}' missing SphereCollider");
+                    issues.Add($"XRI: Snap point '{obj.name}' missing SphereCollider");
                 }
             }
-            
-            if (issues.Count == 0)
-            {
-                Debug.Log("Setup validation passed - no issues found!");
-            }
-            else
-            {
-                Debug.LogWarning($"Setup validation found {issues.Count} issues");
-            }
-            
-            return issues;
+
+            Debug.Log($"[InteractionSetupService] XRI validation complete: {issues.Count} issues found");
         }
-        
+
+        /// <summary>
+        /// Validates AutoHands framework objects and components
+        /// Uses reflection-based detection for AutoHands components
+        /// </summary>
+        private static void ValidateAutoHandsObjects(SceneAnalysis analysis, List<string> issues)
+        {
+            Debug.Log($"[InteractionSetupService] Validating {analysis.TotalInteractables} objects for AutoHands framework");
+
+            // Validate grab objects for Grabbable component
+            foreach (var obj in analysis.grabObjects)
+            {
+                if (!HasAutoHandsComponent(obj, "Grabbable"))
+                {
+                    issues.Add($"AutoHands: Grab object '{obj.name}' missing Grabbable component");
+                }
+                else
+                {
+                    // Additional validation for grab objects
+                    ValidateAutoHandsGrabbableSetup(obj, issues);
+                }
+            }
+
+            // Validate snap objects for PlacePoint component
+            foreach (var obj in analysis.snapObjects)
+            {
+                if (!HasAutoHandsComponent(obj, "PlacePoint"))
+                {
+                    issues.Add($"AutoHands: Snap point '{obj.name}' missing PlacePoint component");
+                }
+                else
+                {
+                    // Additional validation for snap objects
+                    ValidateAutoHandsPlacePointSetup(obj, issues);
+                }
+            }
+
+            // Validate knob objects (knobs use Grabbable + physics constraints)
+            foreach (var obj in analysis.knobObjects)
+            {
+                if (!HasAutoHandsComponent(obj, "Grabbable"))
+                {
+                    issues.Add($"AutoHands: Knob object '{obj.name}' missing Grabbable component");
+                }
+
+                // Check for physics components (Rigidbody required for knobs)
+                if (obj.GetComponent<Rigidbody>() == null)
+                {
+                    issues.Add($"AutoHands: Knob object '{obj.name}' missing Rigidbody for physics interaction");
+                }
+            }
+
+            // Validate tool objects (tools use Grabbable)
+            foreach (var obj in analysis.toolObjects)
+            {
+                if (!HasAutoHandsComponent(obj, "Grabbable"))
+                {
+                    issues.Add($"AutoHands: Tool object '{obj.name}' missing Grabbable component");
+                }
+            }
+
+            // Validate valve objects (valves typically use both Grabbable and may have PlacePoint)
+            foreach (var obj in analysis.valveObjects)
+            {
+                if (!HasAutoHandsComponent(obj, "Grabbable"))
+                {
+                    issues.Add($"AutoHands: Valve object '{obj.name}' missing Grabbable component");
+                }
+            }
+
+            Debug.Log($"[InteractionSetupService] AutoHands validation complete: {issues.Count} issues found");
+        }
+
+        /// <summary>
+        /// Checks if a GameObject has a specific AutoHands component using reflection
+        /// </summary>
+        private static bool HasAutoHandsComponent(GameObject obj, string componentName)
+        {
+            if (obj == null) return false;
+
+            // Get all MonoBehaviour components
+            var components = obj.GetComponents<MonoBehaviour>();
+
+            foreach (var component in components)
+            {
+                if (component != null && component.GetType().Name == componentName)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Validates AutoHands Grabbable component setup
+        /// </summary>
+        private static void ValidateAutoHandsGrabbableSetup(GameObject obj, List<string> issues)
+        {
+            // Check for Rigidbody (required for AutoHands physics)
+            if (obj.GetComponent<Rigidbody>() == null)
+            {
+                issues.Add($"AutoHands: Grabbable object '{obj.name}' missing Rigidbody component");
+            }
+
+            // Check for Collider (required for interaction)
+            if (obj.GetComponent<Collider>() == null)
+            {
+                issues.Add($"AutoHands: Grabbable object '{obj.name}' missing Collider component");
+            }
+        }
+
+        /// <summary>
+        /// Validates AutoHands PlacePoint component setup
+        /// </summary>
+        private static void ValidateAutoHandsPlacePointSetup(GameObject obj, List<string> issues)
+        {
+            // Check for Collider (required for place detection)
+            var collider = obj.GetComponent<Collider>();
+            if (collider == null)
+            {
+                issues.Add($"AutoHands: PlacePoint '{obj.name}' missing Collider component");
+            }
+            else if (!collider.isTrigger)
+            {
+                issues.Add($"AutoHands: PlacePoint '{obj.name}' Collider should be set as Trigger");
+            }
+        }
+
         /// <summary>
         /// Removes all interaction components from tagged objects
         /// </summary>

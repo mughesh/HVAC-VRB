@@ -6,10 +6,10 @@ using System.Collections.Generic;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// Handler for knob rotation interaction steps (TurnKnob)
+/// Handler for knob rotation interaction steps (TurnKnob) using XRI framework
 /// Manages KnobController event subscriptions and angle completion detection
 /// </summary>
-public class KnobStepHandler : BaseStepHandler
+public class KnobStepHandler : BaseXRIStepHandler
 {
     // Component cache for knob controllers
     private Dictionary<GameObject, KnobController> knobControllers = new Dictionary<GameObject, KnobController>();

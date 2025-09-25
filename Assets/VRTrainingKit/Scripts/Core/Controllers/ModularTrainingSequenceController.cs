@@ -84,7 +84,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
     }
 
     /// <summary>
-    /// Initialize all step handlers
+    /// Initialize all step handlers based on current VR framework
     /// </summary>
     void InitializeHandlers()
     {
@@ -93,21 +93,37 @@ public class ModularTrainingSequenceController : MonoBehaviour
         // Clear any existing handlers
         CleanupHandlers();
 
-        // Auto-discover and initialize handlers in scene
+        // Detect current framework
+        var currentFramework = VRFrameworkDetector.DetectCurrentFramework();
+        LogInfo($"🎯 Current VR Framework: {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)}");
+
+        // Auto-discover and initialize compatible handlers in scene
         var handlerComponents = FindObjectsOfType<MonoBehaviour>().OfType<IStepHandler>();
+        var compatibleHandlers = 0;
+        var incompatibleHandlers = 0;
+
         foreach (var handler in handlerComponents)
         {
-            RegisterHandler(handler);
+            if (handler.SupportsFramework(currentFramework))
+            {
+                RegisterHandler(handler);
+                compatibleHandlers++;
+            }
+            else
+            {
+                LogDebug($"🚫 Skipping incompatible handler: {handler.GetType().Name} (supports {GetSupportedFrameworks(handler)}, current: {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)})");
+                incompatibleHandlers++;
+            }
         }
 
         // If no handlers found, create default ones
         if (stepHandlers.Count == 0)
         {
-            LogWarning("No step handlers found in scene. Creating default handlers...");
-            CreateDefaultHandlers();
+            LogWarning($"No compatible step handlers found for {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)}. Creating default handlers...");
+            CreateDefaultHandlers(currentFramework);
         }
 
-        LogInfo($"🔧 Initialized {stepHandlers.Count} step handlers");
+        LogInfo($"🔧 Initialized {compatibleHandlers} compatible handlers ({incompatibleHandlers} skipped) for {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)}");
     }
 
     /// <summary>
@@ -132,10 +148,72 @@ public class ModularTrainingSequenceController : MonoBehaviour
     /// <summary>
     /// Create default handlers if none are found in scene
     /// </summary>
-    void CreateDefaultHandlers()
+    void CreateDefaultHandlers(VRFramework framework)
     {
-        // This will be implemented in Phase R2-R4
-        LogInfo("🏗️ Default handler creation will be implemented in subsequent phases");
+        switch (framework)
+        {
+            case VRFramework.XRI:
+                CreateDefaultXRIHandlers();
+                break;
+            case VRFramework.AutoHands:
+                CreateDefaultAutoHandsHandlers();
+                break;
+            default:
+                LogWarning($"Cannot create default handlers for framework: {VRFrameworkDetector.GetFrameworkDisplayName(framework)}");
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Create default XRI handlers
+    /// </summary>
+    void CreateDefaultXRIHandlers()
+    {
+        LogInfo("🏗️ Creating default XRI handlers...");
+
+        // Create XRI handler GameObjects
+        var grabHandler = new GameObject("GrabStepHandler").AddComponent<GrabStepHandler>();
+        var snapHandler = new GameObject("SnapStepHandler").AddComponent<SnapStepHandler>();
+        var knobHandler = new GameObject("KnobStepHandler").AddComponent<KnobStepHandler>();
+        var valveHandler = new GameObject("ValveStepHandler").AddComponent<ValveStepHandler>();
+
+        // Set as children of this controller for organization
+        grabHandler.transform.SetParent(transform);
+        snapHandler.transform.SetParent(transform);
+        knobHandler.transform.SetParent(transform);
+        valveHandler.transform.SetParent(transform);
+
+        // Register the handlers
+        RegisterHandler(grabHandler);
+        RegisterHandler(snapHandler);
+        RegisterHandler(knobHandler);
+        RegisterHandler(valveHandler);
+    }
+
+    /// <summary>
+    /// Create default AutoHands handlers (placeholder for Phase 2)
+    /// </summary>
+    void CreateDefaultAutoHandsHandlers()
+    {
+        LogWarning("🏗️ AutoHands default handlers not yet implemented - will be added in Phase 2");
+        // TODO: Create AutoHands handlers in Phase 2
+    }
+
+    /// <summary>
+    /// Get supported frameworks for a handler (for logging)
+    /// </summary>
+    string GetSupportedFrameworks(IStepHandler handler)
+    {
+        var supportedFrameworks = new List<string>();
+
+        if (handler.SupportsFramework(VRFramework.XRI))
+            supportedFrameworks.Add("XRI");
+        if (handler.SupportsFramework(VRFramework.AutoHands))
+            supportedFrameworks.Add("AutoHands");
+        if (handler.SupportsFramework(VRFramework.None))
+            supportedFrameworks.Add("None");
+
+        return supportedFrameworks.Count > 0 ? string.Join(", ", supportedFrameworks) : "Unknown";
     }
 
     /// <summary>

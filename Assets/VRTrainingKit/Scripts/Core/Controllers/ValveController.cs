@@ -146,11 +146,12 @@ public class ValveController : MonoBehaviour
         
         var previousProfile = profile?.profileName ?? "NULL";
         profile = valveProfile;
-        
+
         // Reset to unlocked state only if needed
         if (currentState != ValveState.Unlocked || currentSubstate != ValveSubstate.None)
         {
             SetState(ValveState.Unlocked, ValveSubstate.None);
+            Debug.Log("SET STATE : 1");
         }
         
         // Reset rotation tracking
@@ -268,8 +269,18 @@ public class ValveController : MonoBehaviour
                 break;
                 
             case ValveState.Locked:
-                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying LOCKED state setup (substate: {currentSubstate})");
-                ApplyLockedConstraints();
+                if (currentSubstate == ValveSubstate.Loose)
+                {
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying LOCKED-LOOSE specific state setup");
+                    Debug.Log("CONSTRAINTS : Applying Locked-Loose Constraints");
+                    ApplyLockedLooseConstraints();
+                }
+                else
+                {
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying LOCKED state setup (substate: {currentSubstate})");
+                    Debug.Log("CONSTRAINTS : Applying Locked Constraints");
+                    ApplyLockedConstraints();
+                }
                 break;
         }
         
@@ -330,7 +341,52 @@ public class ValveController : MonoBehaviour
             }
         }
     }
-    
+
+    /// <summary>
+    /// Apply constraints specifically for LOCKED-LOOSE state - allows for potential removal
+    /// </summary>
+    private void ApplyLockedLooseConstraints()
+    {
+        if (rigidBody != null && grabInteractable != null && profile != null)
+        {
+            // Configure grab interactable for rotation-only (same as locked tight)
+            grabInteractable.trackPosition = false;  // Prevent movement
+            grabInteractable.trackRotation = true;   // Allow rotation
+
+            // For LOOSE state, we want less rigid constraints to allow potential removal
+            rigidBody.isKinematic = true;  // Keep kinematic to maintain position control
+
+            // Set constraints to freeze position and all rotation axes except the specified one
+            RigidbodyConstraints constraints = RigidbodyConstraints.FreezePosition;
+
+            // Apply same rotation constraints as tight state for consistency
+            if (profile.rotationAxis == Vector3.right) // X axis
+            {
+                constraints |= RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+            }
+            else if (profile.rotationAxis == Vector3.up) // Y axis
+            {
+                constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            }
+            else if (profile.rotationAxis == Vector3.forward) // Z axis
+            {
+                constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+            }
+            else
+            {
+                constraints |= RigidbodyConstraints.FreezeRotation;
+                VRTrainingDebug.LogWarning($"[ValveController] {gameObject.name} unrecognized rotation axis {profile.rotationAxis}, freezing all rotation");
+            }
+
+            rigidBody.constraints = constraints;
+
+            // Handle socket interactor based on LOOSE substate logic
+            HandleSocketInteractorForSubstate();
+
+            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED-LOOSE - position fixed, rotation allowed on local {profile.rotationAxis}, socket handling per substate");
+        }
+    }
+
     /// <summary>
     /// Handle socket interactor enable/disable based on current substate
     /// </summary>
@@ -565,6 +621,7 @@ public class ValveController : MonoBehaviour
 
         // Now transition to LOCKED-LOOSE state
         SetState(ValveState.Locked, ValveSubstate.Loose);
+        Debug.Log("SET STATE : 2");
         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} → LOCKED-LOOSE after confirmed socket positioning");
     }
     
@@ -722,7 +779,7 @@ public class ValveController : MonoBehaviour
     {
         SetState(ValveState.Locked, ValveSubstate.Tight);
         ResetRotationTracking(); // Reset for loosening phase
-        
+        Debug.Log("SET STATE : 3");
         OnValveTightened?.Invoke();
     }
     
@@ -736,6 +793,7 @@ public class ValveController : MonoBehaviour
         readyForSocketReEnable = true;
         
         SetState(ValveState.Locked, ValveSubstate.Loose);
+        Debug.Log("SET STATE : 4");
         
         // IMPORTANT: Reset rotation tracking to prevent confusion when back in LOOSE state
         ResetRotationTracking();
@@ -771,6 +829,7 @@ public class ValveController : MonoBehaviour
     private void TransitionToUnlocked()
     {
         SetState(ValveState.Unlocked, ValveSubstate.None);
+        Debug.Log("SET STATE : 5");
         currentSocket = null;
         
         VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} now UNLOCKED and removable");

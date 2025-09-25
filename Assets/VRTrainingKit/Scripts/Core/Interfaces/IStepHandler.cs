@@ -7,7 +7,7 @@ using System;
 
 /// <summary>
 /// Interface for handling specific types of interaction steps in training sequences
-/// Enables modular, event-isolated step processing
+/// Enables modular, event-isolated step processing with framework awareness
 /// </summary>
 public interface IStepHandler
 {
@@ -15,6 +15,11 @@ public interface IStepHandler
     /// Check if this handler can process the given step type
     /// </summary>
     bool CanHandle(InteractionStep.StepType stepType);
+
+    /// <summary>
+    /// Check if this handler supports the specified VR framework
+    /// </summary>
+    bool SupportsFramework(VRFramework framework);
 
     /// <summary>
     /// Initialize the handler with reference to main controller
@@ -66,6 +71,7 @@ public abstract class BaseStepHandler : MonoBehaviour, IStepHandler
     public event EventHandler<StepCompletionEventArgs> OnStepCompleted;
 
     public abstract bool CanHandle(InteractionStep.StepType stepType);
+    public abstract bool SupportsFramework(VRFramework framework);
 
     public virtual void Initialize(ModularTrainingSequenceController controller)
     {
@@ -113,5 +119,131 @@ public abstract class BaseStepHandler : MonoBehaviour, IStepHandler
     protected void LogError(string message)
     {
         Debug.LogError($"[{GetType().Name}] {message}");
+    }
+}
+
+/// <summary>
+/// Base class for XRI-specific step handlers
+/// Provides framework support and common XRI functionality
+/// </summary>
+public abstract class BaseXRIStepHandler : BaseStepHandler
+{
+    public override bool SupportsFramework(VRFramework framework)
+    {
+        return framework == VRFramework.XRI;
+    }
+
+    public override void Initialize(ModularTrainingSequenceController controller)
+    {
+        base.Initialize(controller);
+
+        // Verify XRI framework is available
+        var currentFramework = VRFrameworkDetector.DetectCurrentFramework();
+        if (currentFramework != VRFramework.XRI)
+        {
+            LogWarning($"XRI step handler initialized but current framework is: {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)}");
+        }
+        else
+        {
+            LogDebug("XRI step handler initialized successfully");
+        }
+    }
+
+    /// <summary>
+    /// Helper method to validate XRI component existence
+    /// </summary>
+    protected bool ValidateXRIComponent<T>(GameObject obj, string componentName) where T : Component
+    {
+        if (obj.GetComponent<T>() == null)
+        {
+            LogError($"Missing {componentName} component on {obj.name}");
+            return false;
+        }
+        return true;
+    }
+}
+
+/// <summary>
+/// Base class for AutoHands-specific step handlers
+/// Will be implemented in Phase 2
+/// </summary>
+public abstract class BaseAutoHandsStepHandler : BaseStepHandler
+{
+    public override bool SupportsFramework(VRFramework framework)
+    {
+        return framework == VRFramework.AutoHands;
+    }
+
+    public override void Initialize(ModularTrainingSequenceController controller)
+    {
+        base.Initialize(controller);
+
+        // Verify AutoHands framework is available
+        var currentFramework = VRFrameworkDetector.DetectCurrentFramework();
+        if (currentFramework != VRFramework.AutoHands)
+        {
+            LogWarning($"AutoHands step handler initialized but current framework is: {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)}");
+        }
+        else
+        {
+            LogDebug("AutoHands step handler initialized successfully");
+        }
+    }
+
+    /// <summary>
+    /// Helper method to validate AutoHands component existence using reflection
+    /// Uses same approach as InteractionSetupService AutoHands validation
+    /// </summary>
+    protected bool ValidateAutoHandsComponent<T>(GameObject obj, string componentName) where T : Component
+    {
+        if (obj == null)
+        {
+            LogError($"GameObject is null when validating {componentName}");
+            return false;
+        }
+
+        // For generic Component type, check by name using reflection (AutoHands components)
+        if (typeof(T) == typeof(Component) || typeof(T) == typeof(MonoBehaviour))
+        {
+            var components = obj.GetComponents<MonoBehaviour>();
+            foreach (var component in components)
+            {
+                if (component != null && component.GetType().Name == componentName)
+                {
+                    LogDebug($"✅ Found {componentName} component on {obj.name}");
+                    return true;
+                }
+            }
+            LogError($"❌ Missing {componentName} component on {obj.name}");
+            return false;
+        }
+
+        // For standard Unity components, use standard validation
+        if (obj.GetComponent<T>() == null)
+        {
+            LogError($"❌ Missing {componentName} component on {obj.name}");
+            return false;
+        }
+
+        LogDebug($"✅ Found {componentName} component on {obj.name}");
+        return true;
+    }
+
+    /// <summary>
+    /// Helper method to check for AutoHands components by name (reflection-based)
+    /// </summary>
+    protected bool HasAutoHandsComponent(GameObject obj, string componentName)
+    {
+        if (obj == null) return false;
+
+        var components = obj.GetComponents<MonoBehaviour>();
+        foreach (var component in components)
+        {
+            if (component != null && component.GetType().Name == componentName)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

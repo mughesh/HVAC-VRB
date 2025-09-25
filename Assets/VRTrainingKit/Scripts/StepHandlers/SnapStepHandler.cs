@@ -8,10 +8,10 @@ using System.Collections.Generic;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// Handler for snap-based interaction steps (GrabAndSnap)
+/// Handler for snap-based interaction steps (GrabAndSnap) using XRI framework
 /// Manages XRSocketInteractor event subscriptions and step completion
 /// </summary>
-public class SnapStepHandler : BaseStepHandler
+public class SnapStepHandler : BaseXRIStepHandler
 {
     // Component cache for socket interactors
     private Dictionary<GameObject, XRSocketInteractor> socketInteractors = new Dictionary<GameObject, XRSocketInteractor>();
