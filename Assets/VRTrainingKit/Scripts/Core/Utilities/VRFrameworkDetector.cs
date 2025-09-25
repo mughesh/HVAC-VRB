@@ -20,28 +20,115 @@ public enum VRFramework
 public static class VRFrameworkDetector
 {
     /// <summary>
-    /// Detects the current VR framework based on components present in the scene
+    /// Detects the current VR framework based on component hierarchy analysis
+    /// Uses multi-layered detection for accurate framework identification
     /// </summary>
     /// <returns>The detected VR framework</returns>
     public static VRFramework DetectCurrentFramework()
     {
-        // Check for XRI framework - look for XR Origin component
-        if (Object.FindObjectOfType<Unity.XR.CoreUtils.XROrigin>() != null)
+        // Layer 1: Check for AutoHandPlayer (most reliable AutoHands identifier)
+        if (HasAutoHandPlayerComponent())
         {
-            Debug.Log("[VRFrameworkDetector] XRI framework detected (XR Origin found)");
-            return VRFramework.XRI;
+            Debug.Log("[VRFrameworkDetector] AutoHands framework detected (AutoHandPlayer component found)");
+            return VRFramework.AutoHands;
         }
 
-        // Check for AutoHands framework - look for AutoHandPlayer component
-        var autoHandPlayer = Object.FindObjectOfType<MonoBehaviour>();
-        if (autoHandPlayer != null && autoHandPlayer.GetType().Name == "AutoHandPlayer")
+        // Layer 2: Check for AutoHands Hand components (secondary AutoHands identifier)
+        if (HasAutoHandsHandComponents())
         {
-            Debug.Log("[VRFrameworkDetector] AutoHands framework detected (AutoHandPlayer found)");
+            Debug.Log("[VRFrameworkDetector] AutoHands framework detected (Hand components found)");
             return VRFramework.AutoHands;
+        }
+
+        // Layer 3: Check for XRI components
+        if (HasXRIComponents())
+        {
+            Debug.Log("[VRFrameworkDetector] XRI framework detected (XRI components found)");
+            return VRFramework.XRI;
         }
 
         Debug.Log("[VRFrameworkDetector] No VR framework detected");
         return VRFramework.None;
+    }
+
+    /// <summary>
+    /// Checks for AutoHandPlayer component (primary AutoHands identifier)
+    /// </summary>
+    private static bool HasAutoHandPlayerComponent()
+    {
+        var allMonoBehaviours = Object.FindObjectsOfType<MonoBehaviour>();
+        foreach (var component in allMonoBehaviours)
+        {
+            if (component != null && component.GetType().Name == "AutoHandPlayer")
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Checks for AutoHands Hand components (secondary AutoHands identifier)
+    /// </summary>
+    private static bool HasAutoHandsHandComponents()
+    {
+        var allMonoBehaviours = Object.FindObjectsOfType<MonoBehaviour>();
+        int handComponentCount = 0;
+        int handFollowCount = 0;
+
+        foreach (var component in allMonoBehaviours)
+        {
+            if (component == null) continue;
+
+            var typeName = component.GetType().Name;
+            if (typeName == "Hand")
+            {
+                handComponentCount++;
+            }
+            else if (typeName == "HandFollow")
+            {
+                handFollowCount++;
+            }
+
+            // If we find multiple AutoHands-specific components, it's likely AutoHands
+            if (handComponentCount >= 2 && handFollowCount >= 1)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks for XRI framework components
+    /// </summary>
+    private static bool HasXRIComponents()
+    {
+        // Check for XR Origin
+        var xrOrigin = Object.FindObjectOfType<Unity.XR.CoreUtils.XROrigin>();
+        if (xrOrigin == null) return false;
+
+        // Verify XRI-specific components exist alongside XR Origin
+        var allMonoBehaviours = Object.FindObjectsOfType<MonoBehaviour>();
+        bool hasXRInteractionComponents = false;
+
+        foreach (var component in allMonoBehaviours)
+        {
+            if (component == null) continue;
+
+            var typeName = component.GetType().Name;
+            if (typeName.Contains("XRPokeInteractor") ||
+                typeName.Contains("NearFarInteractor") ||
+                typeName.Contains("XRInteractionGroup") ||
+                typeName.Contains("ControllerInputActionManager"))
+            {
+                hasXRInteractionComponents = true;
+                break;
+            }
+        }
+
+        return hasXRInteractionComponents;
     }
 
     /// <summary>
@@ -81,24 +168,110 @@ public static class VRFrameworkDetector
 
         switch (currentFramework)
         {
+            case VRFramework.AutoHands:
+                var info = $"{displayName}\n";
+
+                // Check AutoHandPlayer
+                var autoHandPlayer = FindAutoHandPlayerComponent();
+                if (autoHandPlayer != null)
+                {
+                    info += $"AutoHandPlayer: {autoHandPlayer.name}\n";
+                }
+
+                // Check Hand components
+                var handComponents = GetAutoHandsHandComponentInfo();
+                if (handComponents.handCount > 0)
+                {
+                    info += $"Hand Components: {handComponents.handCount} found\n";
+                    info += $"HandFollow Components: {handComponents.handFollowCount} found\n";
+                }
+
+                return info.TrimEnd();
+
             case VRFramework.XRI:
                 var xrOrigin = Object.FindObjectOfType<Unity.XR.CoreUtils.XROrigin>();
-                return $"{displayName}\nXR Origin: {xrOrigin?.name ?? "Not found"}";
+                var xriInfo = $"{displayName}\nXR Origin: {xrOrigin?.name ?? "Not found"}\n";
 
-            case VRFramework.AutoHands:
-                var autoHandPlayer = Object.FindObjectOfType<MonoBehaviour>();
-                if (autoHandPlayer != null && autoHandPlayer.GetType().Name == "AutoHandPlayer")
-                {
-                    return $"{displayName}\nAutoHandPlayer: {autoHandPlayer.name}";
-                }
-                return $"{displayName}\nAutoHandPlayer: Not found";
+                // Check XRI interaction components
+                var xriComponentCount = GetXRIComponentCount();
+                xriInfo += $"XRI Interaction Components: {xriComponentCount} found";
+
+                return xriInfo;
 
             case VRFramework.None:
-                return $"{displayName}\nNo XR Origin or AutoHandPlayer components found in scene.";
+                return $"{displayName}\nNo AutoHandPlayer, Hand, or XRI components found in scene.";
 
             default:
                 return $"{displayName}\nUnknown framework state.";
         }
+    }
+
+    /// <summary>
+    /// Finds the AutoHandPlayer component in the scene
+    /// </summary>
+    private static MonoBehaviour FindAutoHandPlayerComponent()
+    {
+        var allMonoBehaviours = Object.FindObjectsOfType<MonoBehaviour>();
+        foreach (var component in allMonoBehaviours)
+        {
+            if (component != null && component.GetType().Name == "AutoHandPlayer")
+            {
+                return component;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Gets information about AutoHands Hand components
+    /// </summary>
+    private static (int handCount, int handFollowCount) GetAutoHandsHandComponentInfo()
+    {
+        var allMonoBehaviours = Object.FindObjectsOfType<MonoBehaviour>();
+        int handCount = 0;
+        int handFollowCount = 0;
+
+        foreach (var component in allMonoBehaviours)
+        {
+            if (component == null) continue;
+
+            var typeName = component.GetType().Name;
+            if (typeName == "Hand")
+            {
+                handCount++;
+            }
+            else if (typeName == "HandFollow")
+            {
+                handFollowCount++;
+            }
+        }
+
+        return (handCount, handFollowCount);
+    }
+
+    /// <summary>
+    /// Counts XRI interaction components
+    /// </summary>
+    private static int GetXRIComponentCount()
+    {
+        var allMonoBehaviours = Object.FindObjectsOfType<MonoBehaviour>();
+        int count = 0;
+
+        foreach (var component in allMonoBehaviours)
+        {
+            if (component == null) continue;
+
+            var typeName = component.GetType().Name;
+            if (typeName.Contains("XRPokeInteractor") ||
+                typeName.Contains("NearFarInteractor") ||
+                typeName.Contains("XRInteractionGroup") ||
+                typeName.Contains("ControllerInputActionManager"))
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     /// <summary>

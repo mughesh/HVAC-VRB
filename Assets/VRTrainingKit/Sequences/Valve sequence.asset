@@ -26,13 +26,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 198914
-            _gameObjectName: Valve
-            _scenePath: Assets/Scenes/Sequence builder.unity
+            _instanceID: 64442
+            _gameObjectName: Valve2
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 198246
+            _instanceID: 63766
             _gameObjectName: Socket
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
@@ -58,9 +58,9 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 198914
-            _gameObjectName: Valve
-            _scenePath: Assets/Scenes/Sequence builder.unity
+            _instanceID: 64442
+            _gameObjectName: Valve2
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
@@ -76,9 +76,9 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 198246
+            _instanceID: 63766
             _gameObjectName: Socket
-            _scenePath: Assets/Scenes/Sequence builder.unity
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           rotationDampening: 1
           allowParallel: 0
@@ -90,9 +90,9 @@ MonoBehaviour:
           type: 6
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 198914
-            _gameObjectName: Valve
-            _scenePath: Assets/Scenes/Sequence builder.unity
+            _instanceID: 64442
+            _gameObjectName: Valve2
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
@@ -108,9 +108,9 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 198246
+            _instanceID: 63766
             _gameObjectName: Socket
-            _scenePath: Assets/Scenes/Sequence builder.unity
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           rotationDampening: 1
           allowParallel: 0
@@ -126,13 +126,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 198914
-            _gameObjectName: Valve
-            _scenePath: Assets/Scenes/Sequence builder.unity
+            _instanceID: 64442
+            _gameObjectName: Valve2
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 198246
+            _instanceID: 63766
             _gameObjectName: Socket
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
@@ -158,7 +158,7 @@ MonoBehaviour:
           type: 2
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 198262
+            _instanceID: 63782
             _gameObjectName: Nitrogen_Rotator
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1

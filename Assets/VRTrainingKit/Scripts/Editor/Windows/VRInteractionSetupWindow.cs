@@ -375,7 +375,11 @@ public class VRInteractionSetupWindow : EditorWindow
     {
         EditorGUILayout.LabelField("Scene Setup", headerStyle);
         EditorGUILayout.Space(5);
-        
+
+        // Framework Status Section
+        DrawFrameworkStatus();
+        EditorGUILayout.Space(10);
+
         // Scan button
         if (GUILayout.Button("Scan Scene", GUILayout.Height(30)))
         {
@@ -597,7 +601,11 @@ public class VRInteractionSetupWindow : EditorWindow
     {
         EditorGUILayout.LabelField("Profile Configuration", headerStyle);
         EditorGUILayout.Space(5);
-        
+
+        // Framework compatibility notice
+        DrawConfigureFrameworkNotice();
+        EditorGUILayout.Space(5);
+
         configScrollPos = EditorGUILayout.BeginScrollView(configScrollPos);
         
         // Grab Profile
@@ -2024,12 +2032,139 @@ public class VRInteractionSetupWindow : EditorWindow
         // Mark the controller as dirty so changes are saved
         EditorUtility.SetDirty(sequenceController);
         
-        EditorUtility.DisplayDialog("Sequence Setup Complete", 
+        EditorUtility.DisplayDialog("Sequence Setup Complete",
             "AC Leak Testing sequence has been configured.\n\n" +
             "Next steps:\n" +
             "1. Add SequenceValidator components to the nitrogen cylinder valve\n" +
-            "2. Set Required State Group to 'System Ready'", 
+            "2. Set Required State Group to 'System Ready'",
             "OK");
+    }
+
+    /// <summary>
+    /// Draws framework status information in the Setup tab
+    /// </summary>
+    private void DrawFrameworkStatus()
+    {
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        EditorGUILayout.LabelField("🔧 VR Framework Status", EditorStyles.boldLabel);
+        EditorGUILayout.Space(3);
+
+        // Detect current framework
+        var detectedFramework = VRFrameworkDetector.DetectCurrentFramework();
+        var frameworkDisplayName = VRFrameworkDetector.GetFrameworkDisplayName(detectedFramework);
+        var isFrameworkValid = VRFrameworkDetector.ValidateFrameworkSetup();
+
+        // Framework detection display
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Detected Framework:", GUILayout.Width(140));
+
+        // Framework status with color coding
+        var originalColor = GUI.color;
+        if (detectedFramework == VRFramework.None)
+        {
+            GUI.color = Color.red;
+            EditorGUILayout.LabelField("❌ " + frameworkDisplayName, EditorStyles.boldLabel);
+        }
+        else if (isFrameworkValid)
+        {
+            GUI.color = Color.green;
+            EditorGUILayout.LabelField("✅ " + frameworkDisplayName, EditorStyles.boldLabel);
+        }
+        else
+        {
+            GUI.color = Color.yellow;
+            EditorGUILayout.LabelField("⚠️ " + frameworkDisplayName, EditorStyles.boldLabel);
+        }
+        GUI.color = originalColor;
+        EditorGUILayout.EndHorizontal();
+
+        // Framework Manager status (if available)
+        var frameworkManager = VRFrameworkManager.Instance;
+        if (frameworkManager != null)
+        {
+            var activeFramework = frameworkManager.GetActiveFramework();
+            var hasMismatch = frameworkManager.HasFrameworkMismatch();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Active Framework:", GUILayout.Width(140));
+
+            if (hasMismatch)
+            {
+                GUI.color = Color.yellow;
+                EditorGUILayout.LabelField("⚠️ " + VRFrameworkDetector.GetFrameworkDisplayName(activeFramework) + " (Mismatch)", EditorStyles.boldLabel);
+                GUI.color = originalColor;
+            }
+            else
+            {
+                EditorGUILayout.LabelField(VRFrameworkDetector.GetFrameworkDisplayName(activeFramework));
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // Show mismatch warning
+            if (hasMismatch)
+            {
+                EditorGUILayout.HelpBox(frameworkManager.GetFrameworkMismatchInfo(), MessageType.Warning);
+            }
+        }
+
+        // Framework validation issues
+        if (detectedFramework != VRFramework.None && !isFrameworkValid)
+        {
+            EditorGUILayout.HelpBox($"Framework setup issues detected. Use VR Training > Framework Validator for details.", MessageType.Warning);
+        }
+
+        EditorGUILayout.EndVertical();
+    }
+
+    /// <summary>
+    /// Draws framework compatibility notice in the Configure tab
+    /// </summary>
+    private void DrawConfigureFrameworkNotice()
+    {
+        var detectedFramework = VRFrameworkDetector.DetectCurrentFramework();
+        var frameworkDisplayName = VRFrameworkDetector.GetFrameworkDisplayName(detectedFramework);
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        var originalColor = GUI.color;
+
+        switch (detectedFramework)
+        {
+            case VRFramework.XRI:
+                EditorGUILayout.LabelField("✅ XRI Framework Detected", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Current profiles are compatible with your XRI setup.", EditorStyles.wordWrappedLabel);
+                break;
+
+            case VRFramework.AutoHands:
+                GUI.color = new Color(1f, 0.8f, 0f); // Orange
+                EditorGUILayout.LabelField("⚠️ AutoHands Framework Detected", EditorStyles.boldLabel);
+                GUI.color = originalColor;
+
+                EditorGUILayout.LabelField(
+                    "Current profiles are XRI-based. AutoHands profiles will be available in Phase 2.",
+                    EditorStyles.wordWrappedLabel);
+
+                EditorGUILayout.Space(3);
+                EditorGUILayout.HelpBox("Use VR Training > Framework Validator for detailed framework analysis.", MessageType.Info);
+                break;
+
+            case VRFramework.None:
+                GUI.color = new Color(1f, 0.5f, 0.5f); // Light red
+                EditorGUILayout.LabelField("❌ No VR Framework Detected", EditorStyles.boldLabel);
+                GUI.color = originalColor;
+
+                EditorGUILayout.LabelField(
+                    "No VR framework found in scene. Add an XR Origin (XRI) or AutoHandPlayer (AutoHands) to use profiles.",
+                    EditorStyles.wordWrappedLabel);
+                break;
+
+            default:
+                EditorGUILayout.LabelField($"Framework: {frameworkDisplayName}", EditorStyles.boldLabel);
+                break;
+        }
+
+        EditorGUILayout.EndVertical();
     }
 }
 #endif

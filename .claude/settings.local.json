@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(ls:*)",
-      "WebFetch(domain:earnest-robot.gitbook.io)"
+      "WebFetch(domain:earnest-robot.gitbook.io)",
+      "Read(//c/Users/SKILLVERI DEV/OneDrive/Desktop/**)"
     ],
     "deny": [],
     "ask": []

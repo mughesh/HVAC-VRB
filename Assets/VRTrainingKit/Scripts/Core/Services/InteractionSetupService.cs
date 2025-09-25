@@ -284,31 +284,129 @@ public class InteractionSetupService
 
         /// <summary>
         /// Validates AutoHands framework objects and components
+        /// Uses reflection-based detection for AutoHands components
         /// </summary>
         private static void ValidateAutoHandsObjects(SceneAnalysis analysis, List<string> issues)
         {
             Debug.Log($"[InteractionSetupService] Validating {analysis.TotalInteractables} objects for AutoHands framework");
 
-            // TODO: Implement AutoHands validation in Phase 2
-            // For now, add placeholder validation
-            issues.Add("AutoHands validation not yet implemented - will be added in Phase 2");
-
-            // Basic placeholder checks for AutoHands components
+            // Validate grab objects for Grabbable component
             foreach (var obj in analysis.grabObjects)
             {
-                // TODO: Check for Grabbable component
-                // if (obj.GetComponent<Grabbable>() == null)
-                //     issues.Add($"AutoHands: Grab object '{obj.name}' missing Grabbable component");
+                if (!HasAutoHandsComponent(obj, "Grabbable"))
+                {
+                    issues.Add($"AutoHands: Grab object '{obj.name}' missing Grabbable component");
+                }
+                else
+                {
+                    // Additional validation for grab objects
+                    ValidateAutoHandsGrabbableSetup(obj, issues);
+                }
             }
 
+            // Validate snap objects for PlacePoint component
             foreach (var obj in analysis.snapObjects)
             {
-                // TODO: Check for PlacePoint component
-                // if (obj.GetComponent<PlacePoint>() == null)
-                //     issues.Add($"AutoHands: Snap point '{obj.name}' missing PlacePoint component");
+                if (!HasAutoHandsComponent(obj, "PlacePoint"))
+                {
+                    issues.Add($"AutoHands: Snap point '{obj.name}' missing PlacePoint component");
+                }
+                else
+                {
+                    // Additional validation for snap objects
+                    ValidateAutoHandsPlacePointSetup(obj, issues);
+                }
             }
 
-            Debug.Log($"[InteractionSetupService] AutoHands validation complete (placeholder): {issues.Count} issues found");
+            // Validate knob objects (knobs use Grabbable + physics constraints)
+            foreach (var obj in analysis.knobObjects)
+            {
+                if (!HasAutoHandsComponent(obj, "Grabbable"))
+                {
+                    issues.Add($"AutoHands: Knob object '{obj.name}' missing Grabbable component");
+                }
+
+                // Check for physics components (Rigidbody required for knobs)
+                if (obj.GetComponent<Rigidbody>() == null)
+                {
+                    issues.Add($"AutoHands: Knob object '{obj.name}' missing Rigidbody for physics interaction");
+                }
+            }
+
+            // Validate tool objects (tools use Grabbable)
+            foreach (var obj in analysis.toolObjects)
+            {
+                if (!HasAutoHandsComponent(obj, "Grabbable"))
+                {
+                    issues.Add($"AutoHands: Tool object '{obj.name}' missing Grabbable component");
+                }
+            }
+
+            // Validate valve objects (valves typically use both Grabbable and may have PlacePoint)
+            foreach (var obj in analysis.valveObjects)
+            {
+                if (!HasAutoHandsComponent(obj, "Grabbable"))
+                {
+                    issues.Add($"AutoHands: Valve object '{obj.name}' missing Grabbable component");
+                }
+            }
+
+            Debug.Log($"[InteractionSetupService] AutoHands validation complete: {issues.Count} issues found");
+        }
+
+        /// <summary>
+        /// Checks if a GameObject has a specific AutoHands component using reflection
+        /// </summary>
+        private static bool HasAutoHandsComponent(GameObject obj, string componentName)
+        {
+            if (obj == null) return false;
+
+            // Get all MonoBehaviour components
+            var components = obj.GetComponents<MonoBehaviour>();
+
+            foreach (var component in components)
+            {
+                if (component != null && component.GetType().Name == componentName)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Validates AutoHands Grabbable component setup
+        /// </summary>
+        private static void ValidateAutoHandsGrabbableSetup(GameObject obj, List<string> issues)
+        {
+            // Check for Rigidbody (required for AutoHands physics)
+            if (obj.GetComponent<Rigidbody>() == null)
+            {
+                issues.Add($"AutoHands: Grabbable object '{obj.name}' missing Rigidbody component");
+            }
+
+            // Check for Collider (required for interaction)
+            if (obj.GetComponent<Collider>() == null)
+            {
+                issues.Add($"AutoHands: Grabbable object '{obj.name}' missing Collider component");
+            }
+        }
+
+        /// <summary>
+        /// Validates AutoHands PlacePoint component setup
+        /// </summary>
+        private static void ValidateAutoHandsPlacePointSetup(GameObject obj, List<string> issues)
+        {
+            // Check for Collider (required for place detection)
+            var collider = obj.GetComponent<Collider>();
+            if (collider == null)
+            {
+                issues.Add($"AutoHands: PlacePoint '{obj.name}' missing Collider component");
+            }
+            else if (!collider.isTrigger)
+            {
+                issues.Add($"AutoHands: PlacePoint '{obj.name}' Collider should be set as Trigger");
+            }
         }
 
         /// <summary>

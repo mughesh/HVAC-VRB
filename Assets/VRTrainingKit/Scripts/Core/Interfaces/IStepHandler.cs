@@ -191,13 +191,59 @@ public abstract class BaseAutoHandsStepHandler : BaseStepHandler
     }
 
     /// <summary>
-    /// Helper method to validate AutoHands component existence
-    /// TODO: Implement in Phase 2
+    /// Helper method to validate AutoHands component existence using reflection
+    /// Uses same approach as InteractionSetupService AutoHands validation
     /// </summary>
     protected bool ValidateAutoHandsComponent<T>(GameObject obj, string componentName) where T : Component
     {
-        // TODO: Implement AutoHands component validation in Phase 2
-        LogWarning($"AutoHands component validation not yet implemented for {componentName}");
-        return true; // Placeholder
+        if (obj == null)
+        {
+            LogError($"GameObject is null when validating {componentName}");
+            return false;
+        }
+
+        // For generic Component type, check by name using reflection (AutoHands components)
+        if (typeof(T) == typeof(Component) || typeof(T) == typeof(MonoBehaviour))
+        {
+            var components = obj.GetComponents<MonoBehaviour>();
+            foreach (var component in components)
+            {
+                if (component != null && component.GetType().Name == componentName)
+                {
+                    LogDebug($"✅ Found {componentName} component on {obj.name}");
+                    return true;
+                }
+            }
+            LogError($"❌ Missing {componentName} component on {obj.name}");
+            return false;
+        }
+
+        // For standard Unity components, use standard validation
+        if (obj.GetComponent<T>() == null)
+        {
+            LogError($"❌ Missing {componentName} component on {obj.name}");
+            return false;
+        }
+
+        LogDebug($"✅ Found {componentName} component on {obj.name}");
+        return true;
+    }
+
+    /// <summary>
+    /// Helper method to check for AutoHands components by name (reflection-based)
+    /// </summary>
+    protected bool HasAutoHandsComponent(GameObject obj, string componentName)
+    {
+        if (obj == null) return false;
+
+        var components = obj.GetComponents<MonoBehaviour>();
+        foreach (var component in components)
+        {
+            if (component != null && component.GetType().Name == componentName)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
