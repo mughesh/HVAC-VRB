@@ -203,13 +203,38 @@ public class VRInteractionSetupWindow : EditorWindow
     
     private void LoadDefaultProfiles()
     {
-        // Try to load default profiles from Resources
-        selectedGrabProfile = Resources.Load<GrabProfile>("DefaultGrabProfile");
-        selectedKnobProfile = Resources.Load<KnobProfile>("DefaultKnobProfile");
-        selectedSnapProfile = Resources.Load<SnapProfile>("DefaultSnapProfile");
-        selectedToolProfile = Resources.Load<ToolProfile>("DefaultToolProfile");
-        selectedValveProfile = Resources.Load<ValveProfile>("DefaultValveProfile");
-        
+        // Detect current framework and load appropriate profiles
+        var currentFramework = VRFrameworkDetector.DetectCurrentFramework();
+
+        Debug.Log($"[VRInteractionSetupWindow] Loading profiles for framework: {VRFrameworkDetector.GetFrameworkDisplayName(currentFramework)}");
+
+        // For Phase 1, always load XRI profiles since AutoHands profiles are placeholders
+        // In Phase 2, this will be updated to actually switch between profile types
+        LoadXRIProfiles();
+
+        // Log framework-specific message
+        if (currentFramework == VRFramework.AutoHands)
+        {
+            Debug.Log("[VRInteractionSetupWindow] AutoHands framework detected - Loading XRI profiles as placeholders until Phase 2 implementation");
+        }
+        else if (currentFramework == VRFramework.None)
+        {
+            Debug.LogWarning("[VRInteractionSetupWindow] No VR framework detected - Loading XRI profiles as fallback");
+        }
+    }
+
+    /// <summary>
+    /// Load XRI profiles from Resources and Assets
+    /// </summary>
+    private void LoadXRIProfiles()
+    {
+        // Try to load default profiles from Resources (framework-specific paths first, then fallback)
+        selectedGrabProfile = Resources.Load<GrabProfile>("XRI/DefaultGrabProfile") ?? Resources.Load<GrabProfile>("DefaultGrabProfile");
+        selectedKnobProfile = Resources.Load<KnobProfile>("XRI/DefaultKnobProfile") ?? Resources.Load<KnobProfile>("DefaultKnobProfile");
+        selectedSnapProfile = Resources.Load<SnapProfile>("XRI/DefaultSnapProfile") ?? Resources.Load<SnapProfile>("DefaultSnapProfile");
+        selectedToolProfile = Resources.Load<ToolProfile>("XRI/DefaultToolProfile") ?? Resources.Load<ToolProfile>("DefaultToolProfile");
+        selectedValveProfile = Resources.Load<ValveProfile>("XRI/DefaultValveProfile") ?? Resources.Load<ValveProfile>("DefaultValveProfile");
+
         // If not found in Resources, search in Assets
         if (selectedGrabProfile == null)
         {
@@ -220,7 +245,7 @@ public class VRInteractionSetupWindow : EditorWindow
                 selectedGrabProfile = AssetDatabase.LoadAssetAtPath<GrabProfile>(path);
             }
         }
-        
+
         if (selectedKnobProfile == null)
         {
             string[] guids = AssetDatabase.FindAssets("t:KnobProfile");
@@ -230,7 +255,7 @@ public class VRInteractionSetupWindow : EditorWindow
                 selectedKnobProfile = AssetDatabase.LoadAssetAtPath<KnobProfile>(path);
             }
         }
-        
+
         if (selectedSnapProfile == null)
         {
             string[] guids = AssetDatabase.FindAssets("t:SnapProfile");
@@ -240,7 +265,7 @@ public class VRInteractionSetupWindow : EditorWindow
                 selectedSnapProfile = AssetDatabase.LoadAssetAtPath<SnapProfile>(path);
             }
         }
-        
+
         if (selectedToolProfile == null)
         {
             string[] guids = AssetDatabase.FindAssets("t:ToolProfile");
@@ -250,7 +275,7 @@ public class VRInteractionSetupWindow : EditorWindow
                 selectedToolProfile = AssetDatabase.LoadAssetAtPath<ToolProfile>(path);
             }
         }
-        
+
         if (selectedValveProfile == null)
         {
             string[] guids = AssetDatabase.FindAssets("t:ValveProfile");

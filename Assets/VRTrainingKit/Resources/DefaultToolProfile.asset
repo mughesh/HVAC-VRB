@@ -9,24 +9,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 126d932ff59994145a0c5419aaedeaed, type: 3}
-  m_Name: ToolProfile
+  m_Script: {fileID: 11500000, guid: 220d16ecb7abc5d49ab1d7a691e43622, type: 3}
+  m_Name: DefaultToolProfile
   m_EditorClassIdentifier: 
-  profileName: Default Tool Profile
+  profileName: Default Tool
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  rotationAxis: {x: 0, y: 0, z: 1}
-  tightenAngle: 180
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenAngle: 90
   loosenAngle: 90
   compatibleSocketTags:
   - snap
-  specificCompatibleSockets:
-  - _gameObject: {fileID: 0}
-    _gameObjectName: ww
-    _scenePath: Assets/Scenes/HVAC-Testing.unity
-    _isValid: 1
+  specificCompatibleSockets: []
   requireSpecificSockets: 0
   tightenThreshold: 90
-  loosenThreshold: 90
+  loosenThreshold: 45
   angleTolerance: 5
   lockedRotationSpeed: 1
   initialState: 0
