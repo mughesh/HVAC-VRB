@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d096df2da2014749994bfa09334d63b, type: 3}
+  m_Name: AutoHandsKnobProfile
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  enableAutoHandsDebugLogging: 0
+  implementationPending: 1
+  plannedRotationAxis: X/Y/Z axis with constraints
+  plannedAngleLimits: Min/Max angles, snap-to-angles
+  plannedJointSettings: HingeJoint or ConfigurableJoint for rotation
+  plannedColliderType: 2
