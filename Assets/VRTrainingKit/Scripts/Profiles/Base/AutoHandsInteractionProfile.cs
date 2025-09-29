@@ -44,11 +44,31 @@ public abstract class AutoHandsInteractionProfile : InteractionProfile
     protected abstract bool ValidateAutoHandsGameObject(GameObject target);
 
     /// <summary>
-    /// Helper method to check if a GameObject has a specific AutoHands component
-    /// Uses reflection-based detection to avoid assembly dependencies
+    /// Helper method to check if a GameObject has an AutoHands Grabbable component
     /// </summary>
     /// <param name="obj">GameObject to check</param>
-    /// <param name="componentName">Name of AutoHands component (e.g. "Grabbable", "PlacePoint")</param>
+    /// <returns>True if Grabbable component found</returns>
+    protected bool HasGrabbableComponent(GameObject obj)
+    {
+        if (obj == null) return false;
+
+        var grabbable = obj.GetComponent<Autohand.Grabbable>();
+        if (grabbable != null)
+        {
+            LogDebug($"✅ Found Grabbable component on {obj.name}");
+            return true;
+        }
+
+        LogDebug($"❌ No Grabbable component found on {obj.name}");
+        return false;
+    }
+
+    /// <summary>
+    /// Helper method to check if a GameObject has a specific AutoHands component (fallback method)
+    /// Uses reflection-based detection for components we don't have direct references to
+    /// </summary>
+    /// <param name="obj">GameObject to check</param>
+    /// <param name="componentName">Name of AutoHands component (e.g. "PlacePoint")</param>
     /// <returns>True if component found</returns>
     protected bool HasAutoHandsComponent(GameObject obj, string componentName)
     {
@@ -83,28 +103,71 @@ public abstract class AutoHandsInteractionProfile : InteractionProfile
             return null;
         }
 
-        // Try to find the component type
-        var componentType = System.Type.GetType(componentName);
+        // Try multiple approaches to find the AutoHands component type
+        System.Type componentType = null;
+
+        // Method 1: Try exact name
+        componentType = System.Type.GetType(componentName);
+        LogDebug($"Method 1 - GetType('{componentName}'): {(componentType != null ? "Found" : "Not Found")}");
+
+        // Method 2: Try common AutoHands namespaces
         if (componentType == null)
         {
-            // Try common AutoHands namespaces
-            string[] namespaces = { "Autohand", "AutoHand" };
+            string[] namespaces = { "Autohand", "AutoHand", "Autohand.Core" };
             foreach (var ns in namespaces)
             {
-                componentType = System.Type.GetType($"{ns}.{componentName}");
+                string fullName = $"{ns}.{componentName}";
+                componentType = System.Type.GetType(fullName);
+                LogDebug($"Method 2 - GetType('{fullName}'): {(componentType != null ? "Found" : "Not Found")}");
                 if (componentType != null) break;
+            }
+        }
+
+        // Method 3: Search through loaded assemblies
+        if (componentType == null)
+        {
+            LogDebug($"Method 3 - Searching loaded assemblies for '{componentName}'");
+            foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    var types = assembly.GetTypes();
+                    componentType = System.Array.Find(types, t => t.Name == componentName);
+                    if (componentType != null)
+                    {
+                        LogDebug($"Method 3 - Found {componentName} in assembly: {assembly.FullName}");
+                        break;
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    // Some assemblies may throw exceptions when getting types
+                    LogDebug($"Method 3 - Could not get types from {assembly.FullName}: {ex.Message}");
+                }
             }
         }
 
         if (componentType == null)
         {
-            LogError($"Could not find AutoHands component type: {componentName}");
+            LogError($"❌ Could not find AutoHands component type: {componentName}");
+            LogError($"   Searched namespaces: Autohand, AutoHand, Autohand.Core");
+            LogError($"   Searched all loaded assemblies");
             return null;
         }
 
-        var addedComponent = obj.AddComponent(componentType);
-        LogDebug($"✅ Added {componentName} component to {obj.name}");
-        return addedComponent;
+        LogDebug($"✅ Found component type: {componentType.FullName}");
+
+        try
+        {
+            var addedComponent = obj.AddComponent(componentType);
+            LogDebug($"✅ Successfully added {componentName} component to {obj.name}");
+            return addedComponent;
+        }
+        catch (System.Exception ex)
+        {
+            LogError($"❌ Failed to add component {componentName}: {ex.Message}");
+            return null;
+        }
     }
 
     /// <summary>

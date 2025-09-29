@@ -15,7 +15,26 @@ MonoBehaviour:
   profileName: Autohands_Grab
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   enableAutoHandsDebugLogging: 0
-  implementationPending: 1
-  plannedGrabType: Default/HandToGrabbable/GrabbableToHand
-  plannedPhysicsSettings: Mass, Drag, Joint Break Force
-  plannedColliderType: 0
+  grabType: 0
+  grabPoseType: 0
+  handType: 0
+  singleHandOnly: 0
+  makeChildrenGrabbable: 0
+  instantGrab: 0
+  allowHeldSwapping: 1
+  useGentleGrab: 0
+  maintainGrabOffset: 1
+  ignoreWeight: 0
+  parentOnGrab: 0
+  holdNoFriction: 1
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
+  throwPower: 1
+  jointBreakForce: 3500
+  grabPriorityWeight: 1
+  ignoreReleaseTime: 0.5
+  minHeldDrag: 1.5
+  minHeldAngleDrag: 3
+  minHeldMass: 0.1
+  maxHeldVelocity: 10
+  colliderType: 0

@@ -29,7 +29,7 @@ public static class VRFrameworkDetector
         // Layer 1: Check for AutoHandPlayer (most reliable AutoHands identifier)
         if (HasAutoHandPlayerComponent())
         {
-            Debug.Log("[VRFrameworkDetector] AutoHands framework detected (AutoHandPlayer component found)");
+//            Debug.Log("[VRFrameworkDetector] AutoHands framework detected (AutoHandPlayer component found)");
             return VRFramework.AutoHands;
         }
 
