@@ -30,7 +30,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
     private Dictionary<InteractionStep, IStepHandler> activeStepHandlers = new Dictionary<InteractionStep, IStepHandler>();
 
     // Runtime state
-    private TrainingProgram currentProgram;
+    public TrainingProgram currentProgram;
     private List<InteractionStep> activeSteps = new List<InteractionStep>();
     private int currentModuleIndex = 0;
     private int currentTaskGroupIndex = 0;
