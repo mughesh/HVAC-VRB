@@ -754,20 +754,50 @@ public class VRInteractionSetupWindow : EditorWindow
             {
                 EditorGUILayout.BeginHorizontal();
                 
-                // Check if configured
+                // Check if configured (framework-aware)
                 bool isConfigured = false;
                 XRBaseInteractable interactable = null;
                 XRSocketInteractor socketInteractor = null;
-                
-                if (tag == "grab" || tag == "knob" || tag == "tool" || tag == "valve")
+
+                // Detect current framework
+                var currentFramework = VRFrameworkDetector.DetectCurrentFramework();
+
+                if (currentFramework == VRFramework.XRI)
                 {
-                    interactable = obj.GetComponent<XRGrabInteractable>();
-                    isConfigured = interactable != null;
+                    // XRI validation
+                    if (tag == "grab" || tag == "knob" || tag == "tool" || tag == "valve")
+                    {
+                        interactable = obj.GetComponent<XRGrabInteractable>();
+                        isConfigured = interactable != null;
+                    }
+                    else if (tag == "snap")
+                    {
+                        socketInteractor = obj.GetComponent<XRSocketInteractor>();
+                        isConfigured = socketInteractor != null;
+                    }
                 }
-                else if (tag == "snap")
+                else if (currentFramework == VRFramework.AutoHands)
                 {
-                    socketInteractor = obj.GetComponent<XRSocketInteractor>();
-                    isConfigured = socketInteractor != null;
+                    // AutoHands validation - check for Grabbable component
+                    if (tag == "grab" || tag == "knob" || tag == "tool" || tag == "valve")
+                    {
+                        var grabbable = obj.GetComponent<Autohand.Grabbable>();
+                        isConfigured = grabbable != null;
+                    }
+                    else if (tag == "snap")
+                    {
+                        // AutoHands PlacePoint validation (will be implemented later)
+                        // For now, check by reflection
+                        var components = obj.GetComponents<MonoBehaviour>();
+                        foreach (var component in components)
+                        {
+                            if (component != null && component.GetType().Name == "PlacePoint")
+                            {
+                                isConfigured = true;
+                                break;
+                            }
+                        }
+                    }
                 }
                 
                 string statusIcon = isConfigured ? "✓" : "○";
@@ -776,36 +806,48 @@ public class VRInteractionSetupWindow : EditorWindow
                 // Object name
                 EditorGUILayout.LabelField($"{statusIcon} {obj.name}", statusStyle, GUILayout.Width(200));
                 
-                // Layer mask dropdown (only if configured)
+                // Layer mask dropdown (only if configured and XRI framework)
                 if (isConfigured)
                 {
-                    EditorGUI.BeginChangeCheck();
-                    
-                    LayerMask currentMask = 0;
-                    if (interactable != null)
-                        currentMask = interactable.interactionLayers.value;
-                    else if (socketInteractor != null)
-                        currentMask = socketInteractor.interactionLayers.value;
-                    
-                    // Create a dropdown for interaction layers
-                    LayerMask newMask = DrawInteractionLayerMask(currentMask, GUILayout.Width(150));
-                    
-                    if (EditorGUI.EndChangeCheck())
+                    if (currentFramework == VRFramework.XRI && (interactable != null || socketInteractor != null))
                     {
-                        Undo.RecordObject(obj, "Change Interaction Layer");
+                        EditorGUI.BeginChangeCheck();
+
+                        LayerMask currentMask = 0;
                         if (interactable != null)
-                        {
-                            var layers = interactable.interactionLayers;
-                            layers.value = newMask;
-                            interactable.interactionLayers = layers;
-                        }
+                            currentMask = interactable.interactionLayers.value;
                         else if (socketInteractor != null)
+                            currentMask = socketInteractor.interactionLayers.value;
+
+                        // Create a dropdown for interaction layers
+                        LayerMask newMask = DrawInteractionLayerMask(currentMask, GUILayout.Width(150));
+
+                        if (EditorGUI.EndChangeCheck())
                         {
-                            var layers = socketInteractor.interactionLayers;
-                            layers.value = newMask;
-                            socketInteractor.interactionLayers = layers;
+                            Undo.RecordObject(obj, "Change Interaction Layer");
+                            if (interactable != null)
+                            {
+                                var layers = interactable.interactionLayers;
+                                layers.value = newMask;
+                                interactable.interactionLayers = layers;
+                            }
+                            else if (socketInteractor != null)
+                            {
+                                var layers = socketInteractor.interactionLayers;
+                                layers.value = newMask;
+                                socketInteractor.interactionLayers = layers;
+                            }
+                            EditorUtility.SetDirty(obj);
                         }
-                        EditorUtility.SetDirty(obj);
+                    }
+                    else if (currentFramework == VRFramework.AutoHands)
+                    {
+                        // AutoHands doesn't use XRI interaction layers
+                        EditorGUILayout.LabelField("✓ Configured (AutoHands)", EditorStyles.miniLabel, GUILayout.Width(150));
+                    }
+                    else
+                    {
+                        EditorGUILayout.LabelField("Default", EditorStyles.miniLabel, GUILayout.Width(150));
                     }
                 }
                 else
