@@ -26,7 +26,7 @@ MonoBehaviour:
           type: 0
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: -7328
+            _instanceID: 80110
             _gameObjectName: Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -52,7 +52,7 @@ MonoBehaviour:
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
-          hint: 
+          hint: Step instruction goes here
           isCompleted: 0
         isExpanded: 1
       isExpanded: 1

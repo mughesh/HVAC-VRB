@@ -37,4 +37,4 @@ MonoBehaviour:
   minHeldAngleDrag: 3
   minHeldMass: 0.1
   maxHeldVelocity: 10
-  colliderType: 0
+  colliderType: 3
