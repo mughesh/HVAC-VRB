@@ -786,8 +786,7 @@ public class VRInteractionSetupWindow : EditorWindow
                     }
                     else if (tag == "snap")
                     {
-                        // AutoHands PlacePoint validation (will be implemented later)
-                        // For now, check by reflection
+                        // AutoHands PlacePoint validation using reflection
                         var components = obj.GetComponents<MonoBehaviour>();
                         foreach (var component in components)
                         {

@@ -26,7 +26,7 @@ MonoBehaviour:
           type: 0
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 60672
+            _instanceID: 109832
             _gameObjectName: Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -53,18 +53,18 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 1
+          isCompleted: 0
         - stepName: New Step
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 60672
+            _instanceID: 109832
             _gameObjectName: Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 60488
+            _instanceID: 109648
             _gameObjectName: Socket (1)
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -85,7 +85,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 1
+          isCompleted: 0
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1
