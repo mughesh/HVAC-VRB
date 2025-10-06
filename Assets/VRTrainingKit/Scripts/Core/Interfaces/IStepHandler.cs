@@ -191,7 +191,29 @@ public abstract class BaseAutoHandsStepHandler : BaseStepHandler
     }
 
     /// <summary>
-    /// Helper method to validate AutoHands component existence using reflection
+    /// Helper method to validate AutoHands Grabbable component existence using direct type reference
+    /// </summary>
+    protected bool ValidateGrabbableComponent(GameObject obj)
+    {
+        if (obj == null)
+        {
+            LogError($"GameObject is null when validating Grabbable component");
+            return false;
+        }
+
+        var grabbable = obj.GetComponent<Autohand.Grabbable>();
+        if (grabbable == null)
+        {
+            LogError($"❌ Missing Grabbable component on {obj.name}");
+            return false;
+        }
+
+        LogDebug($"✅ Found Grabbable component on {obj.name}");
+        return true;
+    }
+
+    /// <summary>
+    /// Helper method to validate AutoHands component existence using reflection (fallback for other components)
     /// Uses same approach as InteractionSetupService AutoHands validation
     /// </summary>
     protected bool ValidateAutoHandsComponent<T>(GameObject obj, string componentName) where T : Component

@@ -89,7 +89,7 @@ public class VRFrameworkManager : ScriptableObject
                 return preferredFramework;
             }
 
-            Debug.Log($"[VRFrameworkManager] Auto-detected framework: {GetFrameworkDisplayName(detectedFramework)}");
+//            Debug.Log($"[VRFrameworkManager] Auto-detected framework: {GetFrameworkDisplayName(detectedFramework)}");
             return detectedFramework;
         }
 

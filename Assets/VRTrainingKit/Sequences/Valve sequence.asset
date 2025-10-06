@@ -26,14 +26,14 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 64442
+            _instanceID: 58320
             _gameObjectName: Valve2
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
-            _gameObject: {fileID: 0}
+            _gameObject: {fileID: 6232648896408745235, guid: 46ed827a29b96854d8d1319e32577beb, type: 3}
             _instanceID: 63766
-            _gameObjectName: Socket
+            _gameObjectName: R_LittleTip
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           targetAngle: 0
@@ -58,7 +58,7 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 64442
+            _instanceID: 58320
             _gameObjectName: Valve2
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -75,9 +75,9 @@ MonoBehaviour:
           loosenThreshold: 90
           valveAngleTolerance: 5
           targetSocket:
-            _gameObject: {fileID: 0}
+            _gameObject: {fileID: 6232648896408745235, guid: 46ed827a29b96854d8d1319e32577beb, type: 3}
             _instanceID: 63766
-            _gameObjectName: Socket
+            _gameObjectName: R_LittleTip
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           rotationDampening: 1
@@ -90,7 +90,7 @@ MonoBehaviour:
           type: 6
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 64442
+            _instanceID: 58320
             _gameObjectName: Valve2
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -107,9 +107,9 @@ MonoBehaviour:
           loosenThreshold: 108
           valveAngleTolerance: 5
           targetSocket:
-            _gameObject: {fileID: 0}
+            _gameObject: {fileID: 6232648896408745235, guid: 46ed827a29b96854d8d1319e32577beb, type: 3}
             _instanceID: 63766
-            _gameObjectName: Socket
+            _gameObjectName: R_LittleTip
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           rotationDampening: 1
@@ -126,14 +126,14 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 64442
+            _instanceID: 58320
             _gameObjectName: Valve2
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
-            _gameObject: {fileID: 0}
+            _gameObject: {fileID: 6232648896408745235, guid: 46ed827a29b96854d8d1319e32577beb, type: 3}
             _instanceID: 63766
-            _gameObjectName: Socket
+            _gameObjectName: R_LittleTip
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           targetAngle: 0
@@ -158,7 +158,7 @@ MonoBehaviour:
           type: 2
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 63782
+            _instanceID: 57660
             _gameObjectName: Nitrogen_Rotator
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1

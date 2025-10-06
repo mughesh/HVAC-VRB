@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc5916dbd0cec074d9f3c442d41bb153, type: 3}
+  m_Name: AutoHandsValveProfile
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  enableAutoHandsDebugLogging: 0
+  implementationPending: 1
+  plannedGrabSettings: Handle Grabbable with rotation constraints
+  plannedSocketSettings: PlacePoint with valve-specific validation
+  plannedValvePhysics: Joint constraints, rotation limits, spring return
+  plannedColliderType: 2

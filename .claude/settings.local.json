@@ -3,7 +3,9 @@
     "allow": [
       "Bash(ls:*)",
       "WebFetch(domain:earnest-robot.gitbook.io)",
-      "Read(//c/Users/SKILLVERI DEV/OneDrive/Desktop/**)"
+      "Read(//c/Users/SKILLVERI DEV/OneDrive/Desktop/**)",
+      "Read(//c/Users/SKILLVERI DEV/OneDrive/Pictures/Screenshots/**)",
+      "Read(//c/Users/Mugesh/Pictures/Screenshots/**)"
     ],
     "deny": [],
     "ask": []
