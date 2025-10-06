@@ -76,40 +76,23 @@ public class AutoHandsSnapProfile : AutoHandsInteractionProfile
     [Tooltip("Joint break force if using placedJointLink")]
     public float jointBreakForce = 1000f;
 
-    [Header("Collider Settings")]
-    [Tooltip("Type of trigger collider to create")]
-    public ColliderType colliderType = ColliderType.Sphere;
-
     /// <summary>
     /// Apply AutoHands PlacePoint component and configure all settings
+    /// Note: PlacePoint automatically creates its own trigger collider in Awake() based on shapeType
     /// </summary>
     public override void ApplyToGameObject(GameObject target)
     {
         LogDebug($"Applying AutoHands PlacePoint to: {target.name}");
 
-        // Ensure trigger collider exists for detection
-        Collider triggerCollider = EnsureCollider(target, colliderType) ? target.GetComponent<Collider>() : null;
-        if (triggerCollider != null)
-        {
-            triggerCollider.isTrigger = true;
-            LogDebug($"✅ Configured trigger collider on {target.name}");
-        }
-
-        // Ensure Rigidbody exists (required for trigger detection, must be kinematic for snap points)
-        Rigidbody rb = EnsureRigidbody(target, true);
-        if (rb != null)
-        {
-            rb.useGravity = false;
-            LogDebug($"✅ Configured kinematic Rigidbody on {target.name}");
-        }
-
         // Add PlacePoint component using reflection (AutoHands component)
+        // PlacePoint will automatically create trigger collider in its Awake() method
         Component placePointComponent = AddAutoHandsComponent(target, "PlacePoint");
 
         if (placePointComponent != null)
         {
             ConfigurePlacePointComponent(placePointComponent);
             LogDebug($"✅ Successfully configured PlacePoint on {target.name}");
+            LogDebug($"   PlacePoint will auto-create {shapeType} trigger collider on Awake");
         }
         else
         {

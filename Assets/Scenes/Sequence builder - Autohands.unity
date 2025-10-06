@@ -7291,6 +7291,7 @@ GameObject:
   - component: {fileID: 966966449}
   - component: {fileID: 966966448}
   - component: {fileID: 966966452}
+  - component: {fileID: 966966453}
   m_Layer: 0
   m_Name: Sequence Manager
   m_TagString: Untagged
@@ -7391,6 +7392,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4fbff5fb0d29c944b874fcc181362cec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &966966453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 966966445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f670a28c8d50624bbbc43e5b5ccee83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &979733953
@@ -12447,7 +12460,7 @@ Transform:
   m_GameObject: {fileID: 1672545301}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.289, y: 1.1250377, z: 0.804}
+  m_LocalPosition: {x: 0.289, y: 1.1250377, z: 0.841}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -14632,7 +14645,7 @@ Transform:
   m_GameObject: {fileID: 1892110665}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.236, y: 1.112, z: 0.777}
+  m_LocalPosition: {x: 0.09, y: 1.027, z: 0.796}
   m_LocalScale: {x: 0.07, y: 0.07, z: 0.07}
   m_ConstrainProportionsScale: 1
   m_Children: []
