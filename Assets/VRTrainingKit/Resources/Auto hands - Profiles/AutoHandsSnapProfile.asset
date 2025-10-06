@@ -15,7 +15,24 @@ MonoBehaviour:
   profileName: New Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   enableAutoHandsDebugLogging: 0
-  implementationPending: 1
-  plannedSnapDistance: 0.1f - 0.5f
-  plannedValidation: Tag-based or specific object validation
-  plannedTriggerCollider: 1
+  shapeType: 0
+  placeRadius: 0.15
+  placeSize: {x: 0.15, y: 0.15, z: 0.15}
+  shapeOffset: {x: 0, y: 0, z: 0}
+  grabbablePlacePoint: 1
+  forcePlace: 0
+  forceHandRelease: 1
+  parentOnPlace: 1
+  matchPosition: 1
+  matchRotation: 1
+  heldPlaceOnly: 0
+  nameCompareType: 1
+  placeNames:
+  - grab
+  blacklistNames: []
+  makePlacedKinematic: 1
+  disableRigidbodyOnPlace: 0
+  disableGrabOnPlace: 0
+  disablePlacePointOnPlace: 0
+  destroyObjectOnPlace: 0
+  jointBreakForce: 1000
