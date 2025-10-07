@@ -26,13 +26,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 186080
+            _instanceID: 260516
             _gameObjectName: Valve
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 185412
+            _instanceID: 259848
             _gameObjectName: Socket
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
@@ -58,7 +58,7 @@ MonoBehaviour:
           type: 2
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 185428
+            _instanceID: 259864
             _gameObjectName: Nitrogen_Rotator
             _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1

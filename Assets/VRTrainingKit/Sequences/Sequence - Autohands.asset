@@ -85,7 +85,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 1
+          isCompleted: 0
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1
