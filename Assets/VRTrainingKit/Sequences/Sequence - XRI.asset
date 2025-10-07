@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5288bdac7d20d1b4bb582fa20543d397, type: 3}
-  m_Name: New Training Sequence
+  m_Name: Sequence - XRI
   m_EditorClassIdentifier: 
   program:
     programName: New Training Program
@@ -23,12 +23,44 @@ MonoBehaviour:
         description: 
         steps:
         - stepName: New Step
-          type: 0
+          type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 131956
-            _gameObjectName: Cube
-            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _instanceID: 186080
+            _gameObjectName: Valve
+            _scenePath: Assets/Scenes/Sequence builder.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 185412
+            _gameObjectName: Socket
+            _scenePath: Assets/Scenes/Sequence builder.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: 
+          isCompleted: 0
+        - stepName: New Step
+          type: 2
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 185428
+            _gameObjectName: Nitrogen_Rotator
+            _scenePath: Assets/Scenes/Sequence builder.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
@@ -53,7 +85,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 1
+          isCompleted: 0
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1

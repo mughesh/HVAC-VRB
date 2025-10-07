@@ -15,8 +15,25 @@ MonoBehaviour:
   profileName: New Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   enableAutoHandsDebugLogging: 0
-  implementationPending: 1
-  plannedRotationAxis: X/Y/Z axis with constraints
-  plannedAngleLimits: Min/Max angles, snap-to-angles
-  plannedJointSettings: HingeJoint or ConfigurableJoint for rotation
-  plannedColliderType: 2
+  rotationAxis: 1
+  minAngle: 0
+  maxAngle: 180
+  useLimits: 1
+  autoConfigureConnectedAnchor: 1
+  useSpring: 1
+  springValue: 0
+  damper: 0.1
+  targetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  grabType: 0
+  handType: 0
+  singleHandOnly: 0
+  throwPower: 1
+  jointBreakForce: 3500
+  rotationSpeed: 1
+  snapToAngles: 0
+  snapAngleIncrement: 15
+  useHapticFeedback: 1
+  hapticIntensity: 0.3
+  colliderType: 0
