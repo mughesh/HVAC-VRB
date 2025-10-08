@@ -29,6 +29,7 @@ MonoBehaviour:
   nameCompareType: 1
   placeNames:
   - grab
+  - valve
   blacklistNames: []
   makePlacedKinematic: 1
   disableRigidbodyOnPlace: 0
