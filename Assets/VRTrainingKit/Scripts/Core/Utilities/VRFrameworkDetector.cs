@@ -109,7 +109,7 @@ public static class VRFrameworkDetector
         var xrOrigin = Object.FindObjectOfType<Unity.XR.CoreUtils.XROrigin>();
         if (xrOrigin == null) return false;
 
-        // Verify XRI-specific components exist alongside XR Origin
+        // Verify ANY XR-related components exist alongside XR Origin
         var allMonoBehaviours = Object.FindObjectsOfType<MonoBehaviour>();
         bool hasXRInteractionComponents = false;
 
@@ -118,12 +118,14 @@ public static class VRFrameworkDetector
             if (component == null) continue;
 
             var typeName = component.GetType().Name;
-            if (typeName.Contains("XRPokeInteractor") ||
-                typeName.Contains("NearFarInteractor") ||
+            // Loosened check: Any XR Interactor, XRController, or XRI components
+            if (typeName.Contains("XRInteractor") ||       // Catches XRDirectInteractor, XRRayInteractor, etc.
+                typeName.Contains("XRController") ||       // Catches ActionBasedController, etc.
                 typeName.Contains("XRInteractionGroup") ||
-                typeName.Contains("ControllerInputActionManager"))
+                typeName.Contains("XRGrab"))               // Catches XRGrabInteractable
             {
                 hasXRInteractionComponents = true;
+                Debug.Log($"[VRFrameworkDetector] Found XRI component: {typeName} on {component.name}");
                 break;
             }
         }
