@@ -43,6 +43,11 @@ public class AutoHandsValveController : MonoBehaviour
     private bool isWaitingForGrabRelease = false;
     private bool readyForSocketReEnable = false;
 
+    // Distance-based unlock tracking
+    private Vector3 unlockedPosition;
+    private bool isUnlockedAndConstrained = false; // True when unlocked but held at socket by constraints
+    private const float REMOVAL_DISTANCE_THRESHOLD = 0.3f; // 0.3m threshold for socket re-enable
+
     // Events
     public event Action OnValveSnapped;
     public event Action OnValveTightened;
@@ -351,6 +356,13 @@ public class AutoHandsValveController : MonoBehaviour
         // This allows continuous tracking across multiple grab-release cycles
         lastRotation = transform.rotation;
 
+        // Check if valve is unlocked and constrained (floating at socket)
+        if (isUnlockedAndConstrained)
+        {
+            // Monitor distance from unlock position - release constraints when moved away
+            CheckDistanceForConstraintRelease();
+        }
+
         Debug.Log($"[AutoHandsValveController] {gameObject.name} grabbed - State: {currentState}-{currentSubstate}, currentRotation: {currentRotationAngle:F1}°");
     }
 
@@ -394,6 +406,11 @@ public class AutoHandsValveController : MonoBehaviour
                 // Apply rotation dampening when not grabbed to stop spinning
                 ApplyRotationDampening();
             }
+        }
+        // Monitor distance when unlocked and grabbed
+        else if (currentState == ValveState.Unlocked && isUnlockedAndConstrained && isGrabbed)
+        {
+            CheckDistanceForConstraintRelease();
         }
     }
 
@@ -531,10 +548,13 @@ public class AutoHandsValveController : MonoBehaviour
         readyForSocketReEnable = true; // Mark ready for removal
         isWaitingForGrabRelease = true;
 
+        // Keep constraints locked (prevent over-loosening) - mirrors TransitionToTight behavior
+        ApplyLockedConstraints();
+
         // Apply visual feedback
         ApplyVisualFeedback(profile.looseMaterial);
 
-        Debug.Log($"[AutoHandsValveController] {gameObject.name} → LOCKED (LOOSE) - Valve loosened! Ready for removal.");
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} → LOCKED (LOOSE) - Valve loosened! Ready for removal. Rotation locked.");
         OnValveLoosened?.Invoke();
     }
 
@@ -623,16 +643,24 @@ public class AutoHandsValveController : MonoBehaviour
     }
 
     /// <summary>
-    /// Unlock valve for free movement
+    /// Unlock valve - keep floating at socket position until grabbed and moved away
     /// </summary>
     private void UnlockValve()
     {
         if (rb == null) return;
 
-        rb.isKinematic = false;
-        rb.constraints = RigidbodyConstraints.None;
+        // Store unlock position for distance tracking
+        unlockedPosition = transform.position;
+        isUnlockedAndConstrained = true;
 
-        Debug.Log($"[AutoHandsValveController] UNLOCKED - free movement enabled");
+        // Keep kinematic and position frozen - valve floats at socket
+        rb.isKinematic = true;
+        rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
+
+        // Socket stays disabled until valve is moved away
+        DisablePlacePoint();
+
+        Debug.Log($"[AutoHandsValveController] UNLOCKED - floating at socket position (constraints will release when moved > {REMOVAL_DISTANCE_THRESHOLD}m)");
     }
 
     /// <summary>
@@ -707,6 +735,30 @@ public class AutoHandsValveController : MonoBehaviour
         catch (Exception ex)
         {
             Debug.LogError($"[AutoHandsValveController] Failed to enable PlacePoint: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Check distance from unlock position and release constraints if moved away
+    /// </summary>
+    private void CheckDistanceForConstraintRelease()
+    {
+        if (!isUnlockedAndConstrained) return;
+
+        float distance = Vector3.Distance(transform.position, unlockedPosition);
+
+        if (distance > REMOVAL_DISTANCE_THRESHOLD)
+        {
+            // Valve has been moved away from socket - release constraints and enable socket
+            isUnlockedAndConstrained = false;
+
+            rb.isKinematic = false;
+            rb.constraints = RigidbodyConstraints.None;
+
+            // Re-enable socket for future snaps
+            EnablePlacePoint();
+
+            Debug.Log($"[AutoHandsValveController] {gameObject.name} moved {distance:F2}m from socket - constraints released, PlacePoint re-enabled");
         }
     }
 
