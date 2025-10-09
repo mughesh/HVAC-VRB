@@ -2,6 +2,7 @@
 // Controls valve state machine and rotation behavior for AutoHands framework
 using UnityEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -29,11 +30,18 @@ public class AutoHandsValveController : MonoBehaviour
     private Dictionary<Component, System.Delegate> placeEventDelegates = new Dictionary<Component, System.Delegate>();
     private Dictionary<Component, System.Delegate> removeEventDelegates = new Dictionary<Component, System.Delegate>();
 
+    // Socket tracking
+    private Component currentPlacePoint; // Current PlacePoint (socket) holding this valve
+
     // Rotation tracking
     private float baselineAngle = 0f;
     private float accumulatedRotation = 0f;
     private Quaternion lastRotation;
     private bool isGrabbed = false;
+
+    // State management flags
+    private bool isWaitingForGrabRelease = false;
+    private bool readyForSocketReEnable = false;
 
     // Events
     public event Action OnValveSnapped;
@@ -88,12 +96,16 @@ public class AutoHandsValveController : MonoBehaviour
         var previousProfile = profile?.profileName ?? "NULL";
         profile = valveProfile;
 
+        isInitialized = true;
+
         Debug.Log($"[AutoHandsValveController] Configure() called for {gameObject.name}:");
         Debug.Log($"  Previous Profile: {previousProfile} → New Profile: {profile.profileName}");
         Debug.Log($"  Rotation Axis: {profile.rotationAxis}");
         Debug.Log($"  Tighten Threshold: {profile.tightenThreshold}°");
         Debug.Log($"  Loosen Threshold: {profile.loosenThreshold}°");
         Debug.Log($"  Angle Tolerance: {profile.angleTolerance}°");
+        Debug.Log($"  Position Tolerance: {profile.positionTolerance}");
+        Debug.Log($"  Velocity Threshold: {profile.velocityThreshold}");
 
         #if UNITY_EDITOR
         UnityEditor.EditorUtility.SetDirty(this);
@@ -204,10 +216,97 @@ public class AutoHandsValveController : MonoBehaviour
     {
         if (snappedGrabbable.gameObject != gameObject) return;
 
+        // GUARD: Ignore duplicate snap events when already locked to same socket
+        if (currentState == ValveState.Locked && currentPlacePoint == placePoint)
+        {
+            Debug.Log($"[AutoHandsValveController] {gameObject.name} ignoring duplicate snap event - already locked to {placePoint.gameObject.name}");
+            return;
+        }
+
         Debug.Log($"[AutoHandsValveController] {gameObject.name} snapped to socket {placePoint.gameObject.name}");
 
-        // Transition to Locked(Loose) state
-        TransitionToLockedLoose();
+        // Track current PlacePoint
+        currentPlacePoint = placePoint;
+
+        // Start position monitoring coroutine instead of immediate transition
+        StartCoroutine(MonitorPlacePointPositioning(placePoint));
+
+        OnValveSnapped?.Invoke();
+
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} detected by PlacePoint: {placePoint.gameObject.name} → Monitoring position stability");
+    }
+
+    /// <summary>
+    /// Monitor PlacePoint positioning until object is stable, then apply constraints
+    /// Mirrors XRI ValveController.MonitorSocketPositioning()
+    /// </summary>
+    private IEnumerator MonitorPlacePointPositioning(Component placePoint)
+    {
+        if (profile == null)
+        {
+            Debug.LogWarning($"[AutoHandsValveController] No profile found for {gameObject.name}, applying constraints immediately");
+            FinalizeLockToSocket();
+            yield break;
+        }
+
+        float startTime = Time.time;
+        float lastLogTime = startTime;
+        float positionTolerance = profile.positionTolerance;
+        float velocityThreshold = profile.velocityThreshold;
+        float timeout = profile.positioningTimeout;
+
+        Vector3 socketCenter = placePoint.transform.position;
+
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} monitoring positioning: tolerance={positionTolerance:F4}, velocity={velocityThreshold:F4}, timeout={timeout}s");
+
+        while (Time.time - startTime < timeout)
+        {
+            // Check if we're still connected to the same PlacePoint
+            if (currentPlacePoint != placePoint)
+            {
+                Debug.Log($"[AutoHandsValveController] {gameObject.name} PlacePoint changed during monitoring, aborting");
+                yield break;
+            }
+
+            // Calculate current distance from PlacePoint center
+            float distance = Vector3.Distance(transform.position, socketCenter);
+
+            // Check velocity (both linear and angular)
+            float linearVelocity = rb != null ? rb.linearVelocity.magnitude : 0f;
+            float angularVelocity = rb != null ? rb.angularVelocity.magnitude : 0f;
+            float totalVelocity = linearVelocity + angularVelocity;
+
+            // Log progress every 0.2 seconds for debugging
+            if (Time.time - lastLogTime > 0.2f)
+            {
+                Debug.Log($"[AutoHandsValveController] {gameObject.name} positioning: distance={distance:F4}, velocity={totalVelocity:F4}");
+                lastLogTime = Time.time;
+            }
+
+            // Check if object is positioned and stabilized
+            if (distance <= positionTolerance && totalVelocity <= velocityThreshold)
+            {
+                Debug.Log($"[AutoHandsValveController] {gameObject.name} positioning complete: distance={distance:F4}, velocity={totalVelocity:F4} (took {Time.time - startTime:F2}s)");
+                FinalizeLockToSocket();
+                yield break;
+            }
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        // Timeout reached - apply constraints anyway with warning
+        Debug.LogWarning($"[AutoHandsValveController] {gameObject.name} positioning timeout ({timeout}s) - applying constraints anyway");
+        FinalizeLockToSocket();
+    }
+
+    /// <summary>
+    /// Apply final locked state and constraints after socket positioning is complete
+    /// Mirrors XRI ValveController.FinalizeLockToSocket()
+    /// </summary>
+    private void FinalizeLockToSocket()
+    {
+        // Reset flag for new interaction cycle
+        readyForSocketReEnable = false;
 
         // Set baseline angle for rotation tracking
         lastRotation = transform.rotation;
@@ -215,11 +314,15 @@ public class AutoHandsValveController : MonoBehaviour
         accumulatedRotation = 0f;
         currentRotationAngle = 0f;
 
-        OnValveSnapped?.Invoke();
+        // Now transition to LOCKED-LOOSE state (applies constraints)
+        TransitionToLockedLoose();
+
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} → LOCKED-LOOSE after confirmed socket positioning");
     }
 
     /// <summary>
     /// Called when valve is removed from socket
+    /// Mirrors XRI ValveController.OnSocketReleased()
     /// </summary>
     private void OnSocketUnsnapped(Component placePoint, Component removedGrabbable)
     {
@@ -227,31 +330,70 @@ public class AutoHandsValveController : MonoBehaviour
 
         Debug.Log($"[AutoHandsValveController] {gameObject.name} removed from socket {placePoint.gameObject.name}");
 
-        // Transition back to Unlocked state
-        TransitionToUnlocked();
+        // Stop any running positioning coroutines
+        StopAllCoroutines();
 
-        OnValveRemoved?.Invoke();
+        // Only change state if we're currently unlocked (removable)
+        if (currentState == ValveState.Unlocked)
+        {
+            // Clear PlacePoint tracking
+            currentPlacePoint = null;
+
+            OnValveRemoved?.Invoke();
+        }
     }
 
     private void OnGrab(Autohand.Hand hand, Autohand.Grabbable grabbable)
     {
         isGrabbed = true;
-        Debug.Log($"[AutoHandsValveController] {gameObject.name} grabbed - State: {currentState}-{currentSubstate}");
+
+        // Update lastRotation to current rotation when grabbed (for delta tracking)
+        // This allows continuous tracking across multiple grab-release cycles
+        lastRotation = transform.rotation;
+
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} grabbed - State: {currentState}-{currentSubstate}, currentRotation: {currentRotationAngle:F1}°");
     }
 
     private void OnRelease(Autohand.Hand hand, Autohand.Grabbable grabbable)
     {
         isGrabbed = false;
         Debug.Log($"[AutoHandsValveController] {gameObject.name} released - State: {currentState}-{currentSubstate}, Rotation: {currentRotationAngle:F1}°");
+
+        // Check if we need to enable PlacePoint and transition after loosening
+        // Mirrors XRI ValveController.OnReleased() logic
+        if (isWaitingForGrabRelease && currentState == ValveState.Locked && currentSubstate == ValveSubstate.Loose && readyForSocketReEnable)
+        {
+            Debug.Log($"[AutoHandsValveController] Grab released after loosening - enabling PlacePoint for snap-back");
+
+            // Enable PlacePoint just as user releases - object will naturally fall/snap into socket
+            EnablePlacePoint();
+
+            // Start coroutine to wait for snap-back and then transition to unlocked
+            StartCoroutine(TransitionToUnlockedAfterSnap());
+
+            // Clear flags
+            isWaitingForGrabRelease = false;
+            readyForSocketReEnable = false;
+        }
     }
 
     private void Update()
     {
+        if (!isInitialized || profile == null) return;
+
         // Only track rotation when valve is locked in socket
-        if (currentState == ValveState.Locked && isGrabbed)
+        if (currentState == ValveState.Locked)
         {
-            TrackRotation();
-            CheckRotationThresholds();
+            if (isGrabbed)
+            {
+                TrackRotation();
+                CheckRotationThresholds();
+            }
+            else
+            {
+                // Apply rotation dampening when not grabbed to stop spinning
+                ApplyRotationDampening();
+            }
         }
     }
 
@@ -287,26 +429,43 @@ public class AutoHandsValveController : MonoBehaviour
 
     /// <summary>
     /// Check if rotation has passed thresholds for state transitions
+    /// Mirrors XRI ValveController.CheckRotationThresholds() with detailed logging
     /// </summary>
     private void CheckRotationThresholds()
     {
         if (profile == null) return;
 
-        // Check tighten threshold (Loose → Tight)
-        if (currentSubstate == ValveSubstate.Loose)
+        switch (currentSubstate)
         {
-            if (currentRotationAngle >= profile.tightenThreshold - profile.angleTolerance)
-            {
-                TransitionToTight();
-            }
-        }
-        // Check loosen threshold (Tight → Loose)
-        else if (currentSubstate == ValveSubstate.Tight)
-        {
-            if (currentRotationAngle <= -(profile.loosenThreshold - profile.angleTolerance))
-            {
-                TransitionToLooseAfterTight();
-            }
+            case ValveSubstate.Loose:
+                // Check if tightened enough to transition to TIGHT
+                float tighteningProgress = currentRotationAngle;
+                if (tighteningProgress >= profile.tightenThreshold - profile.angleTolerance)
+                {
+                    Debug.Log($"[AutoHandsValveController] {gameObject.name} TIGHTENED! {tighteningProgress:F1}° reached (threshold: {profile.tightenThreshold}°)");
+                    TransitionToTight();
+                }
+                else if (tighteningProgress > 0) // Log positive tightening progress every 10°
+                {
+                    Debug.Log($"[AutoHandsValveController] {gameObject.name} tightening: {tighteningProgress:F1}° / {profile.tightenThreshold}°");
+                }
+                break;
+
+            case ValveSubstate.Tight:
+                // Check if loosened enough to allow removal (negative rotation)
+                float looseningProgress = -currentRotationAngle; // Negative rotation becomes positive progress
+                Debug.Log($"[AutoHandsValveController] {gameObject.name} loosening check: currentAngle={currentRotationAngle:F1}°, looseningProgress={looseningProgress:F1}°, threshold={profile.loosenThreshold}°");
+
+                if (looseningProgress >= profile.loosenThreshold - profile.angleTolerance)
+                {
+                    Debug.Log($"[AutoHandsValveController] {gameObject.name} LOOSENED! {looseningProgress:F1}° loosening completed");
+                    TransitionToLooseAfterTight();
+                }
+                else if (looseningProgress > 0) // Log positive loosening progress
+                {
+                    Debug.Log($"[AutoHandsValveController] {gameObject.name} loosening: {looseningProgress:F1}° / {profile.loosenThreshold}°");
+                }
+                break;
         }
     }
 
@@ -336,6 +495,7 @@ public class AutoHandsValveController : MonoBehaviour
     {
         currentState = ValveState.Unlocked;
         currentSubstate = ValveSubstate.None;
+        UnlockValve();
         Debug.Log($"[AutoHandsValveController] {gameObject.name} → UNLOCKED");
     }
 
@@ -343,29 +503,57 @@ public class AutoHandsValveController : MonoBehaviour
     {
         currentState = ValveState.Locked;
         currentSubstate = ValveSubstate.Loose;
+        ApplyLockedLooseConstraints();
         Debug.Log($"[AutoHandsValveController] {gameObject.name} → LOCKED (LOOSE) - Ready for tightening");
     }
 
     private void TransitionToTight()
     {
         currentSubstate = ValveSubstate.Tight;
-        Debug.Log($"[AutoHandsValveController] {gameObject.name} → LOCKED (TIGHT) - Valve tightened!");
+        ApplyLockedConstraints(); // Apply tight constraints
+
+        // Reset rotation tracking for loosening phase (mirrors XRI)
+        accumulatedRotation = 0f;
+        currentRotationAngle = 0f;
+        lastRotation = transform.rotation;
+        Debug.Log($"[AutoHandsValveController] Reset rotation tracking for loosening phase");
 
         // Apply visual feedback
         ApplyVisualFeedback(profile.tightMaterial);
 
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} → LOCKED (TIGHT) - Valve tightened!");
         OnValveTightened?.Invoke();
     }
 
     private void TransitionToLooseAfterTight()
     {
         currentSubstate = ValveSubstate.Loose;
-        Debug.Log($"[AutoHandsValveController] {gameObject.name} → LOCKED (LOOSE) - Valve loosened!");
+        readyForSocketReEnable = true; // Mark ready for removal
+        isWaitingForGrabRelease = true;
 
         // Apply visual feedback
         ApplyVisualFeedback(profile.looseMaterial);
 
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} → LOCKED (LOOSE) - Valve loosened! Ready for removal.");
         OnValveLoosened?.Invoke();
+    }
+
+    /// <summary>
+    /// Wait for valve to snap back to PlacePoint, then transition to unlocked
+    /// Mirrors XRI ValveController.TransitionToUnlockedAfterSnap()
+    /// </summary>
+    private IEnumerator TransitionToUnlockedAfterSnap()
+    {
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} waiting for snap-back to PlacePoint...");
+
+        // Wait a moment for physics to settle and object to snap back
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForFixedUpdate();
+
+        // Transition to unlocked state - object should now be in socket but removable
+        TransitionToUnlocked();
+
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} snap-back complete - now UNLOCKED in socket");
     }
 
     /// <summary>
@@ -381,6 +569,155 @@ public class AutoHandsValveController : MonoBehaviour
             renderer.material = material;
             Debug.Log($"[AutoHandsValveController] Applied visual material to {gameObject.name}");
         }
+    }
+
+    // ===== LOCKING MECHANISM (XRI equivalent) =====
+
+    /// <summary>
+    /// Apply locked constraints - freeze position and unwanted rotation axes
+    /// Mirrors XRI ValveController.ApplyLockedConstraints()
+    /// </summary>
+    private void ApplyLockedConstraints()
+    {
+        if (rb == null || profile == null) return;
+
+        // Make kinematic to prevent physics movement
+        rb.isKinematic = true;
+
+        // Freeze position
+        RigidbodyConstraints constraints = RigidbodyConstraints.FreezePosition;
+
+        // Freeze unwanted rotation axes based on profile.rotationAxis
+        if (profile.rotationAxis == Vector3.right) // X axis
+        {
+            constraints |= RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+        }
+        else if (profile.rotationAxis == Vector3.up) // Y axis
+        {
+            constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
+        else if (profile.rotationAxis == Vector3.forward) // Z axis
+        {
+            constraints |= RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+        }
+        else
+        {
+            constraints |= RigidbodyConstraints.FreezeRotation;
+            Debug.LogWarning($"[AutoHandsValveController] Unrecognized rotation axis {profile.rotationAxis}, freezing all rotation");
+        }
+
+        rb.constraints = constraints;
+
+        // Disable PlacePoint to prevent re-snapping
+        HandlePlacePointForSubstate();
+
+        Debug.Log($"[AutoHandsValveController] LOCKED - position frozen, rotation allowed on {profile.rotationAxis}");
+    }
+
+    /// <summary>
+    /// Apply locked-loose constraints (same as locked but different PlacePoint handling)
+    /// </summary>
+    private void ApplyLockedLooseConstraints()
+    {
+        ApplyLockedConstraints(); // Same constraint logic
+    }
+
+    /// <summary>
+    /// Unlock valve for free movement
+    /// </summary>
+    private void UnlockValve()
+    {
+        if (rb == null) return;
+
+        rb.isKinematic = false;
+        rb.constraints = RigidbodyConstraints.None;
+
+        Debug.Log($"[AutoHandsValveController] UNLOCKED - free movement enabled");
+    }
+
+    /// <summary>
+    /// Handle PlacePoint enable/disable based on substate (mirrors XRI socket handling)
+    /// </summary>
+    private void HandlePlacePointForSubstate()
+    {
+        switch (currentSubstate)
+        {
+            case ValveSubstate.Loose:
+                if (readyForSocketReEnable)
+                {
+                    Debug.Log($"[AutoHandsValveController] LOCKED-LOOSE - keeping PlacePoint ENABLED for removal");
+                }
+                else
+                {
+                    DisablePlacePoint();
+                    Debug.Log($"[AutoHandsValveController] LOCKED-LOOSE - PlacePoint disabled (initial snap)");
+                }
+                break;
+
+            case ValveSubstate.Tight:
+                DisablePlacePoint();
+                Debug.Log($"[AutoHandsValveController] LOCKED-TIGHT - PlacePoint disabled");
+                break;
+
+            default:
+                DisablePlacePoint();
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Disable PlacePoint (AutoHands equivalent of socketActive = false)
+    /// </summary>
+    private void DisablePlacePoint()
+    {
+        if (currentPlacePoint == null) return;
+
+        try
+        {
+            // Set PlacePoint.enabled = false to disable snapping
+            var enabledProperty = currentPlacePoint.GetType().GetProperty("enabled");
+            if (enabledProperty != null)
+            {
+                enabledProperty.SetValue(currentPlacePoint, false);
+                Debug.Log($"[AutoHandsValveController] Disabled PlacePoint on {currentPlacePoint.gameObject.name}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[AutoHandsValveController] Failed to disable PlacePoint: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Enable PlacePoint (AutoHands equivalent of socketActive = true)
+    /// </summary>
+    private void EnablePlacePoint()
+    {
+        if (currentPlacePoint == null) return;
+
+        try
+        {
+            var enabledProperty = currentPlacePoint.GetType().GetProperty("enabled");
+            if (enabledProperty != null)
+            {
+                enabledProperty.SetValue(currentPlacePoint, true);
+                Debug.Log($"[AutoHandsValveController] Enabled PlacePoint on {currentPlacePoint.gameObject.name}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[AutoHandsValveController] Failed to enable PlacePoint: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Apply rotation dampening when not grabbed (mirrors XRI logic)
+    /// </summary>
+    private void ApplyRotationDampening()
+    {
+        if (rb == null || profile == null) return;
+
+        rb.angularVelocity = Vector3.Lerp(rb.angularVelocity, Vector3.zero, profile.dampeningSpeed * Time.deltaTime);
     }
 
     #if UNITY_EDITOR

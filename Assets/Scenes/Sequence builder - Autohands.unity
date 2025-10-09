@@ -12928,13 +12928,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1650517671}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.2958747, y: 0, z: 0, w: 0.9552268}
+  m_LocalRotation: {x: 0.27991286, y: 0, z: 0, w: 0.9600254}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1672545306}
-  m_LocalEulerAnglesHint: {x: 34.42, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 32.51, y: 0, z: 0}
 --- !u!1 &1672545301
 GameObject:
   m_ObjectHideFlags: 0
@@ -12945,7 +12945,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1672545306}
   - component: {fileID: 1672545307}
-  - component: {fileID: 1672545308}
   m_Layer: 0
   m_Name: Socket (1)
   m_TagString: snap
@@ -12985,65 +12984,6 @@ MonoBehaviour:
   showPlaceSettings: 1
   startPlaced: {fileID: 0}
   placedOffset: {fileID: 1650517672}
-  shapeType: 0
-  placeRadius: 0.15
-  placeSize: {x: 0.15, y: 0.15, z: 0.15}
-  shapeOffset: {x: 0, y: 0, z: 0}
-  grabbablePlacePoint: 1
-  forcePlace: 0
-  forceHandRelease: 1
-  parentOnPlace: 1
-  matchPosition: 1
-  matchRotation: 1
-  resizeOnPlace: 0
-  resizeOffset: -0.02
-  disableRigidbodyOnPlace: 0
-  disableGrabOnPlace: 0
-  disablePlacePointOnPlace: 0
-  destroyObjectOnPlace: 0
-  makePlacedKinematic: 1
-  placedJointLink: {fileID: 0}
-  jointBreakForce: 1000
-  showPlaceRequirements: 1
-  heldPlaceOnly: 0
-  nameCompareType: 1
-  placeNames:
-  - grab
-  blacklistNames: []
-  onlyAllows: []
-  dontAllows: []
-  placeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  showEvents: 1
-  OnPlace:
-    m_PersistentCalls:
-      m_Calls: []
-  OnRemove:
-    m_PersistentCalls:
-      m_Calls: []
-  OnHighlight:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStopHighlight:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &1672545308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1672545301}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d9c288aa20513c4aafa0228d4cfd80e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ignoreMe: 0
-  showPlaceSettings: 1
-  startPlaced: {fileID: 0}
-  placedOffset: {fileID: 1672545306}
   shapeType: 0
   placeRadius: 0.15
   placeSize: {x: 0.15, y: 0.15, z: 0.15}
