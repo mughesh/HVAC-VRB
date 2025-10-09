@@ -643,7 +643,7 @@ public class AutoHandsValveController : MonoBehaviour
     }
 
     /// <summary>
-    /// Unlock valve - keep floating at socket position until grabbed and moved away
+    /// Unlock valve - force remove from PlacePoint and track distance for re-enable
     /// </summary>
     private void UnlockValve()
     {
@@ -653,14 +653,15 @@ public class AutoHandsValveController : MonoBehaviour
         unlockedPosition = transform.position;
         isUnlockedAndConstrained = true;
 
-        // Keep kinematic and position frozen - valve floats at socket
-        rb.isKinematic = true;
-        rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
+        // CRITICAL: Force remove from PlacePoint to break parent-child relationship
+        // This prevents snap-back on release (PlacePoint.OnDisable doesn't call Remove!)
+        ForceRemoveFromPlacePoint();
 
-        // Socket stays disabled until valve is moved away
-        DisablePlacePoint();
+        // Release constraints immediately - valve moves with hand
+        rb.isKinematic = false;
+        rb.constraints = RigidbodyConstraints.None;
 
-        Debug.Log($"[AutoHandsValveController] UNLOCKED - floating at socket position (constraints will release when moved > {REMOVAL_DISTANCE_THRESHOLD}m)");
+        Debug.Log($"[AutoHandsValveController] UNLOCKED - removed from PlacePoint, tracking distance for re-enable at {REMOVAL_DISTANCE_THRESHOLD}m");
     }
 
     /// <summary>
@@ -690,6 +691,38 @@ public class AutoHandsValveController : MonoBehaviour
             default:
                 DisablePlacePoint();
                 break;
+        }
+    }
+
+    /// <summary>
+    /// Force remove valve from PlacePoint - breaks parent-child relationship
+    /// This is CRITICAL to prevent snap-back when PlacePoint component is disabled
+    /// </summary>
+    private void ForceRemoveFromPlacePoint()
+    {
+        if (currentPlacePoint == null) return;
+
+        try
+        {
+            // Get Grabbable component
+            var grabbable = GetComponent<Autohand.Grabbable>();
+            if (grabbable == null)
+            {
+                Debug.LogWarning($"[AutoHandsValveController] No Grabbable found on {gameObject.name}");
+                return;
+            }
+
+            // Call PlacePoint.Remove(grabbable) to break parent relationship
+            var removeMethod = currentPlacePoint.GetType().GetMethod("Remove", new[] { typeof(Autohand.Grabbable) });
+            if (removeMethod != null)
+            {
+                removeMethod.Invoke(currentPlacePoint, new object[] { grabbable });
+                Debug.Log($"[AutoHandsValveController] Force removed {gameObject.name} from PlacePoint {currentPlacePoint.gameObject.name}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[AutoHandsValveController] Failed to force remove from PlacePoint: {ex.Message}");
         }
     }
 
@@ -739,7 +772,7 @@ public class AutoHandsValveController : MonoBehaviour
     }
 
     /// <summary>
-    /// Check distance from unlock position and release constraints if moved away
+    /// Check distance from unlock position and re-enable PlacePoint if moved away
     /// </summary>
     private void CheckDistanceForConstraintRelease()
     {
@@ -749,16 +782,13 @@ public class AutoHandsValveController : MonoBehaviour
 
         if (distance > REMOVAL_DISTANCE_THRESHOLD)
         {
-            // Valve has been moved away from socket - release constraints and enable socket
+            // Valve has been moved away from socket - re-enable PlacePoint for future snaps
             isUnlockedAndConstrained = false;
 
-            rb.isKinematic = false;
-            rb.constraints = RigidbodyConstraints.None;
-
-            // Re-enable socket for future snaps
+            // Re-enable PlacePoint for future snaps
             EnablePlacePoint();
 
-            Debug.Log($"[AutoHandsValveController] {gameObject.name} moved {distance:F2}m from socket - constraints released, PlacePoint re-enabled");
+            Debug.Log($"[AutoHandsValveController] {gameObject.name} moved {distance:F2}m from socket - PlacePoint re-enabled for future snaps");
         }
     }
 
