@@ -357,10 +357,12 @@ public class AutoHandsValveController : MonoBehaviour
         lastRotation = transform.rotation;
 
         // Check if valve is unlocked and constrained (floating at socket)
-        if (isUnlockedAndConstrained)
+        if (isUnlockedAndConstrained && rb != null)
         {
-            // Monitor distance from unlock position - release constraints when moved away
-            CheckDistanceForConstraintRelease();
+            // Release constraints immediately when grabbed - valve can now move with hand
+            rb.isKinematic = false;
+            rb.constraints = RigidbodyConstraints.None;
+            Debug.Log($"[AutoHandsValveController] {gameObject.name} grabbed while unlocked - constraints released, tracking distance");
         }
 
         Debug.Log($"[AutoHandsValveController] {gameObject.name} grabbed - State: {currentState}-{currentSubstate}, currentRotation: {currentRotationAngle:F1}°");
@@ -643,7 +645,7 @@ public class AutoHandsValveController : MonoBehaviour
     }
 
     /// <summary>
-    /// Unlock valve - force remove from PlacePoint and track distance for re-enable
+    /// Unlock valve - force remove from PlacePoint and keep floating until grabbed
     /// </summary>
     private void UnlockValve()
     {
@@ -657,11 +659,11 @@ public class AutoHandsValveController : MonoBehaviour
         // This prevents snap-back on release (PlacePoint.OnDisable doesn't call Remove!)
         ForceRemoveFromPlacePoint();
 
-        // Release constraints immediately - valve moves with hand
-        rb.isKinematic = false;
-        rb.constraints = RigidbodyConstraints.None;
+        // Keep kinematic temporarily - valve floats at position until grabbed
+        rb.isKinematic = true;
+        rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
 
-        Debug.Log($"[AutoHandsValveController] UNLOCKED - removed from PlacePoint, tracking distance for re-enable at {REMOVAL_DISTANCE_THRESHOLD}m");
+        Debug.Log($"[AutoHandsValveController] UNLOCKED - removed from PlacePoint, floating until grabbed (will track distance for re-enable at {REMOVAL_DISTANCE_THRESHOLD}m)");
     }
 
     /// <summary>
