@@ -28,6 +28,15 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     [Range(1f, 15f)]
     public float angleTolerance = 5f;
 
+    [Header("HingeJoint Limits")]
+    [Tooltip("Minimum rotation angle limit for HingeJoint (degrees)")]
+    [Range(-180f, 0f)]
+    public float hingeMinAngle = -180f;
+
+    [Tooltip("Maximum rotation angle limit for HingeJoint (degrees)")]
+    [Range(0f, 180f)]
+    public float hingeMaxAngle = 180f;
+
     [Header("Socket Compatibility")]
     [Tooltip("Tags of sockets this valve can work with")]
     public string[] compatibleSocketTags = {"valve_socket"};
@@ -137,15 +146,15 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
             AddCollider(target, colliderType);
         }
 
-        // 4. Add AutoHandsValveController (AutoHands-specific valve controller)
-        AutoHandsValveController valveController = target.GetComponent<AutoHandsValveController>();
+        // 4. Add AutoHandsValveControllerV2 (Clean HingeJoint-based valve controller)
+        AutoHandsValveControllerV2 valveController = target.GetComponent<AutoHandsValveControllerV2>();
         if (valveController == null)
         {
-            valveController = target.AddComponent<AutoHandsValveController>();
-            LogDebug($"✅ Added AutoHandsValveController to {target.name}");
+            valveController = target.AddComponent<AutoHandsValveControllerV2>();
+            LogDebug($"✅ Added AutoHandsValveControllerV2 to {target.name}");
         }
 
-        // Configure AutoHandsValveController with this profile
+        // Configure AutoHandsValveControllerV2 with this profile
         ConfigureValveController(valveController);
 
         LogDebug($"✅ Successfully configured AutoHands valve on {target.name}");
@@ -175,10 +184,10 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     }
 
     /// <summary>
-    /// Configure AutoHandsValveController with a temporary ValveProfile
-    /// We create a ValveProfile ScriptableObject at runtime to pass settings to AutoHandsValveController
+    /// Configure AutoHandsValveControllerV2 with a temporary ValveProfile
+    /// We create a ValveProfile ScriptableObject at runtime to pass settings to AutoHandsValveControllerV2
     /// </summary>
-    private void ConfigureValveController(AutoHandsValveController valveController)
+    private void ConfigureValveController(AutoHandsValveControllerV2 valveController)
     {
         // Create a temporary ValveProfile to pass to AutoHandsValveController
         ValveProfile tempProfile = ScriptableObject.CreateInstance<ValveProfile>();
@@ -188,6 +197,8 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
         tempProfile.tightenThreshold = tightenThreshold;
         tempProfile.loosenThreshold = loosenThreshold;
         tempProfile.angleTolerance = angleTolerance;
+        tempProfile.hingeMinAngle = hingeMinAngle;
+        tempProfile.hingeMaxAngle = hingeMaxAngle;
         tempProfile.compatibleSocketTags = compatibleSocketTags;
         tempProfile.specificCompatibleSockets = specificCompatibleSockets;
         tempProfile.requireSpecificSockets = requireSpecificSockets;
@@ -203,10 +214,10 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
         tempProfile.showProgressIndicator = showProgressIndicator;
         tempProfile.colliderType = colliderType;
 
-        // Configure AutoHandsValveController with the temp profile
+        // Configure AutoHandsValveControllerV2 with the temp profile
         valveController.Configure(tempProfile);
 
-        LogDebug($"✅ Configured AutoHandsValveController with settings from AutoHandsValveProfile");
+        LogDebug($"✅ Configured AutoHandsValveControllerV2 with settings from AutoHandsValveProfile");
         LogDebug($"   - Rotation Axis: {rotationAxis}");
         LogDebug($"   - Tighten Threshold: {tightenThreshold}°");
         LogDebug($"   - Loosen Threshold: {loosenThreshold}°");

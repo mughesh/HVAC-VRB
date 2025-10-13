@@ -19,6 +19,8 @@ MonoBehaviour:
   tightenThreshold: 50
   loosenThreshold: 90
   angleTolerance: 5
+  hingeMinAngle: -23.6
+  hingeMaxAngle: 15.7
   compatibleSocketTags:
   - snap
   specificCompatibleSockets: []
