@@ -404,7 +404,7 @@ MonoBehaviour:
   instantGrab: 0
   useGentleGrab: 0
   maintainGrabOffset: 0
-  parentOnGrab: 0
+  parentOnGrab: 1
   heldNoFriction: 1
   ignoreWeight: 0
   allowHeldSwapping: 1
@@ -1489,8 +1489,6 @@ MonoBehaviour:
   tightenThreshold: 50
   loosenThreshold: 90
   angleTolerance: 5
-  hingeMinAngle: -23.6
-  hingeMaxAngle: 15.7
   compatibleSocketTags:
   - snap
   specificCompatibleSockets: []
@@ -7586,6 +7584,7 @@ GameObject:
   - component: {fileID: 966966452}
   - component: {fileID: 966966453}
   - component: {fileID: 966966454}
+  - component: {fileID: 966966455}
   m_Layer: 0
   m_Name: Sequence Manager
   m_TagString: Untagged
@@ -7710,6 +7709,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a765aea91356294ba3caf9fa425deac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &966966455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 966966445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 149cb7f38113c894aa7e453d40fcccd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &979733953
@@ -12784,7 +12795,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1672545306}
   - component: {fileID: 1672545307}
-  - component: {fileID: 1672545308}
   m_Layer: 0
   m_Name: Socket (1)
   m_TagString: snap
@@ -12841,64 +12851,6 @@ MonoBehaviour:
   disablePlacePointOnPlace: 0
   destroyObjectOnPlace: 0
   makePlacedKinematic: 0
-  placedJointLink: {fileID: 0}
-  jointBreakForce: 1000
-  showPlaceRequirements: 1
-  heldPlaceOnly: 0
-  nameCompareType: 0
-  placeNames: []
-  blacklistNames: []
-  onlyAllows: []
-  dontAllows: []
-  placeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  showEvents: 1
-  OnPlace:
-    m_PersistentCalls:
-      m_Calls: []
-  OnRemove:
-    m_PersistentCalls:
-      m_Calls: []
-  OnHighlight:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStopHighlight:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &1672545308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1672545301}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d9c288aa20513c4aafa0228d4cfd80e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ignoreMe: 0
-  showPlaceSettings: 1
-  startPlaced: {fileID: 0}
-  placedOffset: {fileID: 1672545306}
-  shapeType: 0
-  placeRadius: 0.1
-  placeSize: {x: 0.1, y: 0.1, z: 0.1}
-  shapeOffset: {x: 0, y: 0, z: 0}
-  grabbablePlacePoint: 1
-  forcePlace: 0
-  forceHandRelease: 1
-  parentOnPlace: 1
-  matchPosition: 1
-  matchRotation: 1
-  resizeOnPlace: 0
-  resizeOffset: -0.02
-  disableRigidbodyOnPlace: 0
-  disableGrabOnPlace: 0
-  disablePlacePointOnPlace: 0
-  destroyObjectOnPlace: 0
-  makePlacedKinematic: 1
   placedJointLink: {fileID: 0}
   jointBreakForce: 1000
   showPlaceRequirements: 1
