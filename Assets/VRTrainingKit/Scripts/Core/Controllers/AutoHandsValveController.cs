@@ -356,10 +356,20 @@ public class AutoHandsValveController : MonoBehaviour
         // This allows continuous tracking across multiple grab-release cycles
         lastRotation = transform.rotation;
 
-        // Check if valve is unlocked and constrained (floating at socket)
-        if (isUnlockedAndConstrained && rb != null)
+        // Handle different states
+        if (currentState == ValveState.Locked && rb != null)
         {
-            // Release constraints immediately when grabbed - valve can now move with hand
+            // CRITICAL FIX: Disable kinematic when grabbed in Locked state
+            // This fixes TWO issues:
+            // 1. Rotation reset on release (kinematic bodies don't maintain rotation from hand)
+            // 2. Hand tracking grab loss (kinematic changes break collision-based pinch detection)
+            // Position constraints (FreezePosition) still prevent movement
+            rb.isKinematic = false;
+            Debug.Log($"[AutoHandsValveController] {gameObject.name} grabbed in Locked state - disabled kinematic for AutoHands control (fixes rotation reset + hand tracking)");
+        }
+        else if (isUnlockedAndConstrained && rb != null)
+        {
+            // Release constraints when grabbed in unlocked state - valve can now move with hand
             rb.isKinematic = false;
             rb.constraints = RigidbodyConstraints.None;
             Debug.Log($"[AutoHandsValveController] {gameObject.name} grabbed while unlocked - constraints released, tracking distance");
@@ -372,6 +382,13 @@ public class AutoHandsValveController : MonoBehaviour
     {
         isGrabbed = false;
         Debug.Log($"[AutoHandsValveController] {gameObject.name} released - State: {currentState}-{currentSubstate}, Rotation: {currentRotationAngle:F1}°");
+
+        // Re-apply kinematic when released in Locked state to maintain position
+        if (currentState == ValveState.Locked && rb != null)
+        {
+            rb.isKinematic = true;
+            Debug.Log($"[AutoHandsValveController] {gameObject.name} released in Locked state - re-enabled kinematic to maintain position");
+        }
 
         // Check if we need to enable PlacePoint and transition after loosening
         // Mirrors XRI ValveController.OnReleased() logic
@@ -529,7 +546,13 @@ public class AutoHandsValveController : MonoBehaviour
     private void TransitionToTight()
     {
         currentSubstate = ValveSubstate.Tight;
-        ApplyLockedConstraints(); // Apply tight constraints
+
+        // Only apply constraints if NOT grabbed (constraints applied on release via OnRelease)
+        // CRITICAL: Prevents kinematic toggling during grab (breaks hand tracking)
+        if (!isGrabbed)
+        {
+            ApplyLockedConstraints();
+        }
 
         // Reset rotation tracking for loosening phase (mirrors XRI)
         accumulatedRotation = 0f;
@@ -550,8 +573,12 @@ public class AutoHandsValveController : MonoBehaviour
         readyForSocketReEnable = true; // Mark ready for removal
         isWaitingForGrabRelease = true;
 
-        // Keep constraints locked (prevent over-loosening) - mirrors TransitionToTight behavior
-        ApplyLockedConstraints();
+        // Only apply constraints if NOT grabbed (constraints applied on release via OnRelease)
+        // CRITICAL: Prevents kinematic toggling during grab (breaks hand tracking)
+        if (!isGrabbed)
+        {
+            ApplyLockedConstraints();
+        }
 
         // Apply visual feedback
         ApplyVisualFeedback(profile.looseMaterial);
@@ -730,6 +757,7 @@ public class AutoHandsValveController : MonoBehaviour
 
     /// <summary>
     /// Disable PlacePoint (AutoHands equivalent of socketActive = false)
+    /// Also disables matchRotation to prevent rotation reset
     /// </summary>
     private void DisablePlacePoint()
     {
@@ -737,6 +765,15 @@ public class AutoHandsValveController : MonoBehaviour
 
         try
         {
+            // CRITICAL: Disable matchRotation to prevent PlacePoint from resetting valve rotation
+            // PlacePoint.CheckPlaceObjectLoop() continuously resets rotation if matchRotation = true
+            var matchRotationField = currentPlacePoint.GetType().GetField("matchRotation");
+            if (matchRotationField != null)
+            {
+                matchRotationField.SetValue(currentPlacePoint, false);
+                Debug.Log($"[AutoHandsValveController] Disabled matchRotation on PlacePoint {currentPlacePoint.gameObject.name}");
+            }
+
             // Set PlacePoint.enabled = false to disable snapping
             var enabledProperty = currentPlacePoint.GetType().GetProperty("enabled");
             if (enabledProperty != null)
@@ -753,6 +790,7 @@ public class AutoHandsValveController : MonoBehaviour
 
     /// <summary>
     /// Enable PlacePoint (AutoHands equivalent of socketActive = true)
+    /// Also re-enables matchRotation for future snaps
     /// </summary>
     private void EnablePlacePoint()
     {
@@ -760,6 +798,14 @@ public class AutoHandsValveController : MonoBehaviour
 
         try
         {
+            // Re-enable matchRotation for future snaps (was disabled during valve lock)
+            var matchRotationField = currentPlacePoint.GetType().GetField("matchRotation");
+            if (matchRotationField != null)
+            {
+                matchRotationField.SetValue(currentPlacePoint, true);
+                Debug.Log($"[AutoHandsValveController] Re-enabled matchRotation on PlacePoint {currentPlacePoint.gameObject.name}");
+            }
+
             var enabledProperty = currentPlacePoint.GetType().GetProperty("enabled");
             if (enabledProperty != null)
             {
