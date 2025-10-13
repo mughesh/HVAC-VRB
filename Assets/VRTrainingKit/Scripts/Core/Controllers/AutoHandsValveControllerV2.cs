@@ -30,6 +30,7 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
 
     // State tracking
     private bool isGrabbed = false;
+    private bool isReadyForRemoval = false; // Set when loosening complete, cleared on release
 
     // Events
     public event Action OnValveSnapped;
@@ -318,6 +319,14 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
     {
         isGrabbed = true;
         Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} grabbed - State: {currentState}-{currentSubstate}");
+
+        // If valve is Unlocked and in socket, re-enable matchRotation when grabbed
+        // (User is about to pull it out)
+        if (currentState == ValveState.Unlocked && currentPlacePoint != null)
+        {
+            EnableMatchRotation();
+            Debug.Log($"[AutoHandsValveControllerV2] Valve grabbed while Unlocked - re-enabled matchRotation for removal");
+        }
     }
 
     /// <summary>
@@ -327,6 +336,17 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
     {
         isGrabbed = false;
         Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} released - State: {currentState}-{currentSubstate}");
+
+        // If valve was loosened and ready for removal, remove HingeJoint on release
+        if (isReadyForRemoval && currentState == ValveState.Locked)
+        {
+            RemoveHingeJoint();
+            SetState(ValveState.Unlocked, ValveSubstate.None);
+            OnValveLoosened?.Invoke();
+            Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} is now UNLOCKED and removable from socket");
+
+            isReadyForRemoval = false;
+        }
     }
 
     /// <summary>
@@ -378,7 +398,8 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
                 if (currentRotationAngle <= -(profile.loosenThreshold - profile.angleTolerance))
                 {
                     Debug.Log($"[AutoHandsValveControllerV2] ✅ LOOSENED! Angle: {currentRotationAngle:F1}° (threshold: -{profile.loosenThreshold}°)");
-                    TransitionToUnlocked();
+                    Debug.Log($"[AutoHandsValveControllerV2] Waiting for grab release to remove HingeJoint...");
+                    isReadyForRemoval = true;
                 }
                 break;
         }
@@ -394,23 +415,16 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
     }
 
     /// <summary>
-    /// Transition from Tight to Unlocked (after loosening)
-    /// Remove HingeJoint to allow removal from socket
+    /// Remove HingeJoint to allow valve removal from socket
     /// </summary>
-    private void TransitionToUnlocked()
+    private void RemoveHingeJoint()
     {
-        // Remove HingeJoint - valve can now be removed from socket
         if (hingeJoint != null)
         {
             Destroy(hingeJoint);
             hingeJoint = null;
             Debug.Log($"[AutoHandsValveControllerV2] ✅ Removed HingeJoint - valve can now be removed from socket");
         }
-
-        SetState(ValveState.Unlocked, ValveSubstate.None);
-        OnValveLoosened?.Invoke();
-
-        Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} is now UNLOCKED and removable from socket");
     }
 
     /// <summary>
