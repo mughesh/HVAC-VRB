@@ -27,11 +27,9 @@ public class AutoHandsValveController : MonoBehaviour
     // Component references
     private Autohand.Grabbable grabbable;
     private Rigidbody rb;
-    private Dictionary<Component, System.Delegate> placeEventDelegates = new Dictionary<Component, System.Delegate>();
-    private Dictionary<Component, System.Delegate> removeEventDelegates = new Dictionary<Component, System.Delegate>();
 
     // Socket tracking
-    private Component currentPlacePoint; // Current PlacePoint (socket) holding this valve
+    private ValveSocketController currentSocket; // Current socket holding this valve
 
     // Rotation tracking
     private float baselineAngle = 0f;
@@ -86,13 +84,13 @@ public class AutoHandsValveController : MonoBehaviour
             grabbable.OnReleaseEvent -= OnRelease;
         }
 
-        CleanupPlacePointSubscriptions();
+        CleanupSocketSubscriptions();
     }
 
     private void Start()
     {
-        // Subscribe to ALL PlacePoints in scene (let PlacePoint handle compatibility)
-        SubscribeToAllPlacePoints();
+        // Subscribe to ALL valve sockets in scene
+        SubscribeToAllValveSockets();
         isInitialized = true;
     }
 
@@ -118,134 +116,72 @@ public class AutoHandsValveController : MonoBehaviour
     }
 
     /// <summary>
-    /// Subscribe to ALL PlacePoints in scene (they handle compatibility)
+    /// Subscribe to ALL ValveSocketControllers in scene
     /// </summary>
-    private void SubscribeToAllPlacePoints()
+    private void SubscribeToAllValveSockets()
     {
-        var allMonoBehaviours = FindObjectsOfType<MonoBehaviour>();
-        foreach (var component in allMonoBehaviours)
+        var sockets = FindObjectsOfType<ValveSocketController>();
+        foreach (var socket in sockets)
         {
-            if (component.GetType().Name == "PlacePoint")
-            {
-                SubscribeToPlacePointEvents(component);
-            }
+            socket.OnObjectSnapped += OnSocketSnapped;
+            socket.OnObjectRemoved += OnSocketRemoved;
+            Debug.Log($"[AutoHandsValveController] {gameObject.name} subscribed to socket: {socket.gameObject.name}");
         }
     }
 
     /// <summary>
-    /// Subscribe to PlacePoint events using reflection (same pattern as AutoHandsSnapStepHandler)
+    /// Cleanup all socket subscriptions
     /// </summary>
-    private void SubscribeToPlacePointEvents(Component placePoint)
+    private void CleanupSocketSubscriptions()
     {
-        if (placePoint == null) return;
-
-        try
+        var sockets = FindObjectsOfType<ValveSocketController>();
+        foreach (var socket in sockets)
         {
-            // OnPlaceEvent
-            FieldInfo placeEventField = placePoint.GetType().GetField("OnPlaceEvent");
-            if (placeEventField != null)
-            {
-                Action<Component, Component> wrapper = (point, grb) => OnSocketSnapped(point, grb);
-                Delegate eventDelegate = Delegate.CreateDelegate(placeEventField.FieldType, wrapper.Target, wrapper.Method);
-
-                Delegate currentDelegate = placeEventField.GetValue(placePoint) as Delegate;
-                Delegate newDelegate = Delegate.Combine(currentDelegate, eventDelegate);
-                placeEventField.SetValue(placePoint, newDelegate);
-
-                placeEventDelegates[placePoint] = eventDelegate;
-            }
-
-            // OnRemoveEvent
-            FieldInfo removeEventField = placePoint.GetType().GetField("OnRemoveEvent");
-            if (removeEventField != null)
-            {
-                Action<Component, Component> wrapper = (point, grb) => OnSocketUnsnapped(point, grb);
-                Delegate eventDelegate = Delegate.CreateDelegate(removeEventField.FieldType, wrapper.Target, wrapper.Method);
-
-                Delegate currentDelegate = removeEventField.GetValue(placePoint) as Delegate;
-                Delegate newDelegate = Delegate.Combine(currentDelegate, eventDelegate);
-                removeEventField.SetValue(placePoint, newDelegate);
-
-                removeEventDelegates[placePoint] = eventDelegate;
-            }
+            socket.OnObjectSnapped -= OnSocketSnapped;
+            socket.OnObjectRemoved -= OnSocketRemoved;
         }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[AutoHandsValveController] Failed to subscribe to PlacePoint: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Cleanup all PlacePoint subscriptions
-    /// </summary>
-    private void CleanupPlacePointSubscriptions()
-    {
-        foreach (var kvp in placeEventDelegates)
-        {
-            try
-            {
-                FieldInfo eventField = kvp.Key.GetType().GetField("OnPlaceEvent");
-                if (eventField != null)
-                {
-                    Delegate currentDelegate = eventField.GetValue(kvp.Key) as Delegate;
-                    Delegate newDelegate = Delegate.Remove(currentDelegate, kvp.Value);
-                    eventField.SetValue(kvp.Key, newDelegate);
-                }
-            }
-            catch { }
-        }
-
-        foreach (var kvp in removeEventDelegates)
-        {
-            try
-            {
-                FieldInfo eventField = kvp.Key.GetType().GetField("OnRemoveEvent");
-                if (eventField != null)
-                {
-                    Delegate currentDelegate = eventField.GetValue(kvp.Key) as Delegate;
-                    Delegate newDelegate = Delegate.Remove(currentDelegate, kvp.Value);
-                    eventField.SetValue(kvp.Key, newDelegate);
-                }
-            }
-            catch { }
-        }
-
-        placeEventDelegates.Clear();
-        removeEventDelegates.Clear();
     }
 
     /// <summary>
     /// Called when valve is snapped into socket
     /// </summary>
-    private void OnSocketSnapped(Component placePoint, Component snappedGrabbable)
+    private void OnSocketSnapped(GameObject snappedObject)
     {
-        if (snappedGrabbable.gameObject != gameObject) return;
+        if (snappedObject != gameObject) return;
 
-        // GUARD: Ignore duplicate snap events when already locked to same socket
-        if (currentState == ValveState.Locked && currentPlacePoint == placePoint)
+        // GUARD: Ignore duplicate snap events when already locked
+        if (currentState == ValveState.Locked)
         {
-            Debug.Log($"[AutoHandsValveController] {gameObject.name} ignoring duplicate snap event - already locked to {placePoint.gameObject.name}");
+            Debug.Log($"[AutoHandsValveController] {gameObject.name} ignoring duplicate snap event - already locked");
             return;
         }
 
-        Debug.Log($"[AutoHandsValveController] {gameObject.name} snapped to socket {placePoint.gameObject.name}");
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} snapped to socket");
 
-        // Track current PlacePoint
-        currentPlacePoint = placePoint;
+        // Find which socket snapped us (for tracking)
+        var sockets = FindObjectsOfType<ValveSocketController>();
+        foreach (var socket in sockets)
+        {
+            if (socket.SnappedObject == gameObject)
+            {
+                currentSocket = socket;
+                break;
+            }
+        }
 
-        // Start position monitoring coroutine instead of immediate transition
-        StartCoroutine(MonitorPlacePointPositioning(placePoint));
+        // Start position monitoring coroutine
+        StartCoroutine(MonitorSocketPositioning());
 
         OnValveSnapped?.Invoke();
 
-        Debug.Log($"[AutoHandsValveController] {gameObject.name} detected by PlacePoint: {placePoint.gameObject.name} → Monitoring position stability");
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} detected by socket → Monitoring position stability");
     }
 
     /// <summary>
-    /// Monitor PlacePoint positioning until object is stable, then apply constraints
+    /// Monitor socket positioning until object is stable, then apply constraints
     /// Mirrors XRI ValveController.MonitorSocketPositioning()
     /// </summary>
-    private IEnumerator MonitorPlacePointPositioning(Component placePoint)
+    private IEnumerator MonitorSocketPositioning()
     {
         if (profile == null)
         {
@@ -260,20 +196,20 @@ public class AutoHandsValveController : MonoBehaviour
         float velocityThreshold = profile.velocityThreshold;
         float timeout = profile.positioningTimeout;
 
-        Vector3 socketCenter = placePoint.transform.position;
+        Vector3 socketCenter = currentSocket != null ? currentSocket.SnapPosition : transform.position;
 
         Debug.Log($"[AutoHandsValveController] {gameObject.name} monitoring positioning: tolerance={positionTolerance:F4}, velocity={velocityThreshold:F4}, timeout={timeout}s");
 
         while (Time.time - startTime < timeout)
         {
-            // Check if we're still connected to the same PlacePoint
-            if (currentPlacePoint != placePoint)
+            // Check if we're still connected to socket
+            if (currentSocket == null || currentSocket.SnappedObject != gameObject)
             {
-                Debug.Log($"[AutoHandsValveController] {gameObject.name} PlacePoint changed during monitoring, aborting");
+                Debug.Log($"[AutoHandsValveController] {gameObject.name} socket changed during monitoring, aborting");
                 yield break;
             }
 
-            // Calculate current distance from PlacePoint center
+            // Calculate current distance from socket center
             float distance = Vector3.Distance(transform.position, socketCenter);
 
             // Check velocity (both linear and angular)
@@ -329,11 +265,11 @@ public class AutoHandsValveController : MonoBehaviour
     /// Called when valve is removed from socket
     /// Mirrors XRI ValveController.OnSocketReleased()
     /// </summary>
-    private void OnSocketUnsnapped(Component placePoint, Component removedGrabbable)
+    private void OnSocketRemoved(GameObject removedObject)
     {
-        if (removedGrabbable.gameObject != gameObject) return;
+        if (removedObject != gameObject) return;
 
-        Debug.Log($"[AutoHandsValveController] {gameObject.name} removed from socket {placePoint.gameObject.name}");
+        Debug.Log($"[AutoHandsValveController] {gameObject.name} removed from socket");
 
         // Stop any running positioning coroutines
         StopAllCoroutines();
@@ -341,8 +277,8 @@ public class AutoHandsValveController : MonoBehaviour
         // Only change state if we're currently unlocked (removable)
         if (currentState == ValveState.Unlocked)
         {
-            // Clear PlacePoint tracking
-            currentPlacePoint = null;
+            // Clear socket tracking
+            currentSocket = null;
 
             OnValveRemoved?.Invoke();
         }
@@ -364,13 +300,13 @@ public class AutoHandsValveController : MonoBehaviour
             // 1. Rotation reset on release (kinematic bodies don't maintain rotation from hand)
             // 2. Hand tracking grab loss (kinematic changes break collision-based pinch detection)
             // Position constraints (FreezePosition) still prevent movement
-            rb.isKinematic = false;
+            //rb.isKinematic = false;
             Debug.Log($"[AutoHandsValveController] {gameObject.name} grabbed in Locked state - disabled kinematic for AutoHands control (fixes rotation reset + hand tracking)");
         }
         else if (isUnlockedAndConstrained && rb != null)
         {
             // Release constraints when grabbed in unlocked state - valve can now move with hand
-            rb.isKinematic = false;
+            //rb.isKinematic = false;
             rb.constraints = RigidbodyConstraints.None;
             Debug.Log($"[AutoHandsValveController] {gameObject.name} grabbed while unlocked - constraints released, tracking distance");
         }
@@ -386,21 +322,18 @@ public class AutoHandsValveController : MonoBehaviour
         // Re-apply kinematic when released in Locked state to maintain position
         if (currentState == ValveState.Locked && rb != null)
         {
-            rb.isKinematic = true;
+            //rb.isKinematic = true;
             Debug.Log($"[AutoHandsValveController] {gameObject.name} released in Locked state - re-enabled kinematic to maintain position");
         }
 
-        // Check if we need to enable PlacePoint and transition after loosening
+        // Check if we need to transition after loosening
         // Mirrors XRI ValveController.OnReleased() logic
         if (isWaitingForGrabRelease && currentState == ValveState.Locked && currentSubstate == ValveSubstate.Loose && readyForSocketReEnable)
         {
-            Debug.Log($"[AutoHandsValveController] Grab released after loosening - enabling PlacePoint for snap-back");
+            Debug.Log($"[AutoHandsValveController] Grab released after loosening - transitioning to unlocked");
 
-            // Enable PlacePoint just as user releases - object will naturally fall/snap into socket
-            EnablePlacePoint();
-
-            // Start coroutine to wait for snap-back and then transition to unlocked
-            StartCoroutine(TransitionToUnlockedAfterSnap());
+            // Transition to unlocked immediately
+            TransitionToUnlocked();
 
             // Clear flags
             isWaitingForGrabRelease = false;
@@ -425,11 +358,6 @@ public class AutoHandsValveController : MonoBehaviour
                 // Apply rotation dampening when not grabbed to stop spinning
                 ApplyRotationDampening();
             }
-        }
-        // Monitor distance when unlocked and grabbed
-        else if (currentState == ValveState.Unlocked && isUnlockedAndConstrained && isGrabbed)
-        {
-            CheckDistanceForConstraintRelease();
         }
     }
 
@@ -587,23 +515,6 @@ public class AutoHandsValveController : MonoBehaviour
         OnValveLoosened?.Invoke();
     }
 
-    /// <summary>
-    /// Wait for valve to snap back to PlacePoint, then transition to unlocked
-    /// Mirrors XRI ValveController.TransitionToUnlockedAfterSnap()
-    /// </summary>
-    private IEnumerator TransitionToUnlockedAfterSnap()
-    {
-        Debug.Log($"[AutoHandsValveController] {gameObject.name} waiting for snap-back to PlacePoint...");
-
-        // Wait a moment for physics to settle and object to snap back
-        yield return new WaitForEndOfFrame();
-        yield return new WaitForFixedUpdate();
-
-        // Transition to unlocked state - object should now be in socket but removable
-        TransitionToUnlocked();
-
-        Debug.Log($"[AutoHandsValveController] {gameObject.name} snap-back complete - now UNLOCKED in socket");
-    }
 
     /// <summary>
     /// Apply visual feedback material
@@ -631,7 +542,7 @@ public class AutoHandsValveController : MonoBehaviour
         if (rb == null || profile == null) return;
 
         // Make kinematic to prevent physics movement
-        rb.isKinematic = true;
+        //rb.isKinematic = true;
 
         // Freeze position
         RigidbodyConstraints constraints = RigidbodyConstraints.FreezePosition;
@@ -657,9 +568,6 @@ public class AutoHandsValveController : MonoBehaviour
 
         rb.constraints = constraints;
 
-        // Disable PlacePoint to prevent re-snapping
-        HandlePlacePointForSubstate();
-
         Debug.Log($"[AutoHandsValveController] LOCKED - position frozen, rotation allowed on {profile.rotationAxis}");
     }
 
@@ -672,7 +580,7 @@ public class AutoHandsValveController : MonoBehaviour
     }
 
     /// <summary>
-    /// Unlock valve - force remove from PlacePoint and keep floating until grabbed
+    /// Unlock valve - remove from socket and keep floating until grabbed
     /// </summary>
     private void UnlockValve()
     {
@@ -682,163 +590,19 @@ public class AutoHandsValveController : MonoBehaviour
         unlockedPosition = transform.position;
         isUnlockedAndConstrained = true;
 
-        // CRITICAL: Force remove from PlacePoint to break parent-child relationship
-        // This prevents snap-back on release (PlacePoint.OnDisable doesn't call Remove!)
-        ForceRemoveFromPlacePoint();
+        // Tell socket to remove this valve
+        if (currentSocket != null)
+        {
+            currentSocket.RemoveObject();
+        }
 
         // Keep kinematic temporarily - valve floats at position until grabbed
         rb.isKinematic = true;
         rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
 
-        Debug.Log($"[AutoHandsValveController] UNLOCKED - removed from PlacePoint, floating until grabbed (will track distance for re-enable at {REMOVAL_DISTANCE_THRESHOLD}m)");
+        Debug.Log($"[AutoHandsValveController] UNLOCKED - removed from socket, floating until grabbed (will track distance for re-enable at {REMOVAL_DISTANCE_THRESHOLD}m)");
     }
 
-    /// <summary>
-    /// Handle PlacePoint enable/disable based on substate (mirrors XRI socket handling)
-    /// </summary>
-    private void HandlePlacePointForSubstate()
-    {
-        switch (currentSubstate)
-        {
-            case ValveSubstate.Loose:
-                if (readyForSocketReEnable)
-                {
-                    Debug.Log($"[AutoHandsValveController] LOCKED-LOOSE - keeping PlacePoint ENABLED for removal");
-                }
-                else
-                {
-                    DisablePlacePoint();
-                    Debug.Log($"[AutoHandsValveController] LOCKED-LOOSE - PlacePoint disabled (initial snap)");
-                }
-                break;
-
-            case ValveSubstate.Tight:
-                DisablePlacePoint();
-                Debug.Log($"[AutoHandsValveController] LOCKED-TIGHT - PlacePoint disabled");
-                break;
-
-            default:
-                DisablePlacePoint();
-                break;
-        }
-    }
-
-    /// <summary>
-    /// Force remove valve from PlacePoint - breaks parent-child relationship
-    /// This is CRITICAL to prevent snap-back when PlacePoint component is disabled
-    /// </summary>
-    private void ForceRemoveFromPlacePoint()
-    {
-        if (currentPlacePoint == null) return;
-
-        try
-        {
-            // Get Grabbable component
-            var grabbable = GetComponent<Autohand.Grabbable>();
-            if (grabbable == null)
-            {
-                Debug.LogWarning($"[AutoHandsValveController] No Grabbable found on {gameObject.name}");
-                return;
-            }
-
-            // Call PlacePoint.Remove(grabbable) to break parent relationship
-            var removeMethod = currentPlacePoint.GetType().GetMethod("Remove", new[] { typeof(Autohand.Grabbable) });
-            if (removeMethod != null)
-            {
-                removeMethod.Invoke(currentPlacePoint, new object[] { grabbable });
-                Debug.Log($"[AutoHandsValveController] Force removed {gameObject.name} from PlacePoint {currentPlacePoint.gameObject.name}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[AutoHandsValveController] Failed to force remove from PlacePoint: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Disable PlacePoint (AutoHands equivalent of socketActive = false)
-    /// Also disables matchRotation to prevent rotation reset
-    /// </summary>
-    private void DisablePlacePoint()
-    {
-        if (currentPlacePoint == null) return;
-
-        try
-        {
-            // CRITICAL: Disable matchRotation to prevent PlacePoint from resetting valve rotation
-            // PlacePoint.CheckPlaceObjectLoop() continuously resets rotation if matchRotation = true
-            var matchRotationField = currentPlacePoint.GetType().GetField("matchRotation");
-            if (matchRotationField != null)
-            {
-                matchRotationField.SetValue(currentPlacePoint, false);
-                Debug.Log($"[AutoHandsValveController] Disabled matchRotation on PlacePoint {currentPlacePoint.gameObject.name}");
-            }
-
-            // Set PlacePoint.enabled = false to disable snapping
-            var enabledProperty = currentPlacePoint.GetType().GetProperty("enabled");
-            if (enabledProperty != null)
-            {
-                enabledProperty.SetValue(currentPlacePoint, false);
-                Debug.Log($"[AutoHandsValveController] Disabled PlacePoint on {currentPlacePoint.gameObject.name}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[AutoHandsValveController] Failed to disable PlacePoint: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Enable PlacePoint (AutoHands equivalent of socketActive = true)
-    /// Also re-enables matchRotation for future snaps
-    /// </summary>
-    private void EnablePlacePoint()
-    {
-        if (currentPlacePoint == null) return;
-
-        try
-        {
-            // Re-enable matchRotation for future snaps (was disabled during valve lock)
-            var matchRotationField = currentPlacePoint.GetType().GetField("matchRotation");
-            if (matchRotationField != null)
-            {
-                matchRotationField.SetValue(currentPlacePoint, true);
-                Debug.Log($"[AutoHandsValveController] Re-enabled matchRotation on PlacePoint {currentPlacePoint.gameObject.name}");
-            }
-
-            var enabledProperty = currentPlacePoint.GetType().GetProperty("enabled");
-            if (enabledProperty != null)
-            {
-                enabledProperty.SetValue(currentPlacePoint, true);
-                Debug.Log($"[AutoHandsValveController] Enabled PlacePoint on {currentPlacePoint.gameObject.name}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[AutoHandsValveController] Failed to enable PlacePoint: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Check distance from unlock position and re-enable PlacePoint if moved away
-    /// </summary>
-    private void CheckDistanceForConstraintRelease()
-    {
-        if (!isUnlockedAndConstrained) return;
-
-        float distance = Vector3.Distance(transform.position, unlockedPosition);
-
-        if (distance > REMOVAL_DISTANCE_THRESHOLD)
-        {
-            // Valve has been moved away from socket - re-enable PlacePoint for future snaps
-            isUnlockedAndConstrained = false;
-
-            // Re-enable PlacePoint for future snaps
-            EnablePlacePoint();
-
-            Debug.Log($"[AutoHandsValveController] {gameObject.name} moved {distance:F2}m from socket - PlacePoint re-enabled for future snaps");
-        }
-    }
 
     /// <summary>
     /// Apply rotation dampening when not grabbed (mirrors XRI logic)
