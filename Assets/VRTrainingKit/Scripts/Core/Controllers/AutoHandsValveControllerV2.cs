@@ -218,11 +218,13 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
         hingeJoint.autoConfigureConnectedAnchor = true;
         hingeJoint.connectedBody = null; // Connect to world space
 
-        // Configure limits from profile (default: full rotation)
+        // Calculate limits from tighten/loosen thresholds
+        // Min = -loosenThreshold (how far back you can loosen)
+        // Max = +tightenThreshold (how far forward you can tighten)
         hingeJoint.useLimits = true;
         JointLimits limits = new JointLimits();
-        limits.min = profile.hingeMinAngle;
-        limits.max = profile.hingeMaxAngle;
+        limits.min = -profile.loosenThreshold;
+        limits.max = profile.tightenThreshold;
         limits.bounceMinVelocity = 0.2f;
         limits.contactDistance = 0f;
         hingeJoint.limits = limits;
@@ -325,6 +327,90 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
     {
         isGrabbed = false;
         Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} released - State: {currentState}-{currentSubstate}");
+    }
+
+    /// <summary>
+    /// Update - Track rotation when grabbed and locked
+    /// </summary>
+    private void Update()
+    {
+        if (!isGrabbed || currentState != ValveState.Locked || hingeJoint == null) return;
+
+        // Track rotation from HingeJoint
+        TrackRotation();
+    }
+
+    /// <summary>
+    /// Track rotation from HingeJoint.angle and check thresholds
+    /// </summary>
+    private void TrackRotation()
+    {
+        if (profile == null || hingeJoint == null) return;
+
+        // Read angle from HingeJoint (relative to starting position)
+        currentRotationAngle = hingeJoint.angle;
+
+        // Check if thresholds are reached based on substate
+        CheckRotationThresholds();
+    }
+
+    /// <summary>
+    /// Check if rotation thresholds met for state transitions
+    /// </summary>
+    private void CheckRotationThresholds()
+    {
+        if (profile == null) return;
+
+        switch (currentSubstate)
+        {
+            case ValveSubstate.Loose:
+                // Check if tightened enough (positive rotation)
+                if (currentRotationAngle >= profile.tightenThreshold - profile.angleTolerance)
+                {
+                    Debug.Log($"[AutoHandsValveControllerV2] ✅ TIGHTENED! Angle: {currentRotationAngle:F1}° (threshold: {profile.tightenThreshold}°)");
+                    TransitionToTight();
+                }
+                break;
+
+            case ValveSubstate.Tight:
+                // Check if loosened enough (negative rotation from tight position)
+                // After tight, angle goes back towards 0, then negative
+                if (currentRotationAngle <= -(profile.loosenThreshold - profile.angleTolerance))
+                {
+                    Debug.Log($"[AutoHandsValveControllerV2] ✅ LOOSENED! Angle: {currentRotationAngle:F1}° (threshold: -{profile.loosenThreshold}°)");
+                    TransitionToUnlocked();
+                }
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Transition from Loose to Tight substate
+    /// </summary>
+    private void TransitionToTight()
+    {
+        SetState(ValveState.Locked, ValveSubstate.Tight);
+        OnValveTightened?.Invoke();
+    }
+
+    /// <summary>
+    /// Transition from Tight to Unlocked (after loosening)
+    /// Remove HingeJoint to allow removal from socket
+    /// </summary>
+    private void TransitionToUnlocked()
+    {
+        // Remove HingeJoint - valve can now be removed from socket
+        if (hingeJoint != null)
+        {
+            Destroy(hingeJoint);
+            hingeJoint = null;
+            Debug.Log($"[AutoHandsValveControllerV2] ✅ Removed HingeJoint - valve can now be removed from socket");
+        }
+
+        SetState(ValveState.Unlocked, ValveSubstate.None);
+        OnValveLoosened?.Invoke();
+
+        Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} is now UNLOCKED and removable from socket");
     }
 
     /// <summary>

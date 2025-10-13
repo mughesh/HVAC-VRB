@@ -27,15 +27,6 @@ public class ValveProfile : InteractionProfile
     [Range(1f, 15f)]
     public float angleTolerance = 5f;
 
-    [Header("HingeJoint Limits (for AutoHands)")]
-    [Tooltip("Minimum rotation angle limit for HingeJoint (degrees)")]
-    [Range(-180f, 0f)]
-    public float hingeMinAngle = -180f;
-
-    [Tooltip("Maximum rotation angle limit for HingeJoint (degrees)")]
-    [Range(0f, 180f)]
-    public float hingeMaxAngle = 180f;
-
     [Header("Socket Compatibility")]
     [Tooltip("Tags of sockets this valve can work with")]
     public string[] compatibleSocketTags = {"valve_socket"};
