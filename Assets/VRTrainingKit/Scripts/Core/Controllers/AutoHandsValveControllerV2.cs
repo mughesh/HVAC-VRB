@@ -30,7 +30,6 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
 
     // State tracking
     private bool isGrabbed = false;
-    private bool isReadyForRemoval = false; // Set when loosening complete, cleared on release
 
     // Events
     public event Action OnValveSnapped;
@@ -337,16 +336,7 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
         isGrabbed = false;
         Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} released - State: {currentState}-{currentSubstate}");
 
-        // If valve was loosened and ready for removal, remove HingeJoint on release
-        if (isReadyForRemoval && currentState == ValveState.Locked)
-        {
-            RemoveHingeJoint();
-            SetState(ValveState.Unlocked, ValveSubstate.None);
-            OnValveLoosened?.Invoke();
-            Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} is now UNLOCKED and removable from socket");
-
-            isReadyForRemoval = false;
-        }
+        // No removal logic needed here - HingeJoint is removed immediately when loosened (in CheckRotationThresholds)
     }
 
     /// <summary>
@@ -398,8 +388,13 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
                 if (currentRotationAngle <= -(profile.loosenThreshold - profile.angleTolerance))
                 {
                     Debug.Log($"[AutoHandsValveControllerV2] ✅ LOOSENED! Angle: {currentRotationAngle:F1}° (threshold: -{profile.loosenThreshold}°)");
-                    Debug.Log($"[AutoHandsValveControllerV2] Waiting for grab release to remove HingeJoint...");
-                    isReadyForRemoval = true;
+                    Debug.Log($"[AutoHandsValveControllerV2] Removing HingeJoint immediately - valve comes free in hand");
+
+                    // Remove HingeJoint immediately while grabbed (realistic behavior)
+                    RemoveHingeJoint();
+                    SetState(ValveState.Unlocked, ValveSubstate.None);
+                    OnValveLoosened?.Invoke();
+                    Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} is now UNLOCKED - valve will come free with hand");
                 }
                 break;
         }
