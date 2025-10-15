@@ -30,10 +30,10 @@ public class ValveProfile : InteractionProfile
     [Header("Socket Compatibility")]
     [Tooltip("Tags of sockets this valve can work with")]
     public string[] compatibleSocketTags = {"valve_socket"};
-    
+
     [Tooltip("Specific socket objects this valve works with")]
     public GameObjectReference[] specificCompatibleSockets;
-    
+
     [Tooltip("Use specific socket objects instead of tag-based matching")]
     public bool requireSpecificSockets = false;
 
@@ -46,14 +46,41 @@ public class ValveProfile : InteractionProfile
     [Header("Physics Settings")]
     public float throwVelocityScale = 1.5f;
     public float throwAngularVelocityScale = 1.0f;
-    
+
     [Tooltip("Angular drag applied when valve is released to stop spinning")]
     [Range(0f, 10f)]
     public float rotationDampening = 5f;
-    
+
     [Tooltip("How quickly to apply dampening (higher = more responsive)")]
     [Range(1f, 20f)]
     public float dampeningSpeed = 10f;
+
+    [Header("HingeJoint Settings (AutoHands)")]
+    [Tooltip("Auto configure connected anchor (recommended)")]
+    public bool autoConfigureConnectedAnchor = true;
+
+    [Tooltip("Use spring for smooth rotation resistance")]
+    public bool useSpring = false;
+
+    [Tooltip("Spring force value (only used if useSpring is true)")]
+    [Range(0f, 1000f)]
+    public float springValue = 0f;
+
+    [Tooltip("Spring damper for smooth motion (friction/resistance)")]
+    [Range(0f, 100f)]
+    public float springDamper = 0.1f;
+
+    [Tooltip("Target position for spring (rotation angle)")]
+    [Range(-180f, 180f)]
+    public float springTargetPosition = 0f;
+
+    [Tooltip("Bounce minimum velocity for joint limits")]
+    [Range(0f, 10f)]
+    public float bounceMinVelocity = 0.2f;
+
+    [Tooltip("Contact distance for joint limits")]
+    [Range(0f, 1f)]
+    public float contactDistance = 0f;
 
     [Header("Socket Positioning")]
     [Tooltip("Maximum distance from socket center to consider positioning complete")]
