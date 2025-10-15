@@ -2,6 +2,7 @@
 // Handles valve interaction steps in training sequences using AutoHands framework
 using UnityEngine;
 using System.Collections.Generic;
+using System.Reflection;
 
 // NO NAMESPACE - Follows existing project pattern
 
@@ -145,27 +146,89 @@ public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
 
     /// <summary>
     /// Apply parameter overrides from InteractionStep to valve controller
+    /// Creates runtime profile with step-specific parameters (profile values are fallback)
     /// </summary>
     void ApplyStepParameterOverrides(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
-        // Note: InteractionStep has these fields (from TrainingSequence.cs):
-        // - tightenThreshold
-        // - loosenThreshold
-        // - valveAngleTolerance
-        // - rotationAxis
-        // - rotationDampening
+        LogDebug($"🔧 PARAMS: Applying parameter overrides for step {step.stepName}");
 
-        // For now, AutoHandsValveControllerV2 uses profile-configured values
-        // If step-level overrides are needed, we'd need to add methods to ValveController
-        // to accept runtime parameter changes
+        // Get current valve profile
+        var currentProfile = GetValveProfile(valveController);
+        if (currentProfile == null)
+        {
+            LogWarning($"🔧 PARAMS: No valve profile found for {valveController.gameObject.name}");
+            return;
+        }
 
-        LogDebug($"🔧 Parameter overrides for step '{step.stepName}':");
-        LogDebug($"   - Tighten Threshold: {step.tightenThreshold}° (from step)");
-        LogDebug($"   - Loosen Threshold: {step.loosenThreshold}° (from step)");
-        LogDebug($"   - Angle Tolerance: {step.valveAngleTolerance}° (from step)");
+        // Check if we need to apply any overrides
+        bool needsOverride = false;
 
-        // TODO: If dynamic parameter override is needed, add methods to AutoHandsValveControllerV2
-        // like: valveController.SetTightenThreshold(step.tightenThreshold);
+        if (step.rotationAxis != currentProfile.rotationAxis) needsOverride = true;
+        if (step.tightenThreshold != currentProfile.tightenThreshold) needsOverride = true;
+        if (step.loosenThreshold != currentProfile.loosenThreshold) needsOverride = true;
+        if (step.valveAngleTolerance != currentProfile.angleTolerance) needsOverride = true;
+        if (step.rotationDampening != currentProfile.rotationDampening) needsOverride = true;
+
+        LogDebug($"🔧 PARAMS: Override check - Step tighten: {step.tightenThreshold}, Profile tighten: {currentProfile.tightenThreshold}");
+        LogDebug($"🔧 PARAMS: Override check - Step loosen: {step.loosenThreshold}, Profile loosen: {currentProfile.loosenThreshold}");
+
+        if (!needsOverride)
+        {
+            LogDebug($"🔧 PARAMS: No parameter overrides needed for {step.stepName}");
+            return;
+        }
+
+        // Create runtime profile with overrides
+        var runtimeProfile = ScriptableObject.CreateInstance<ValveProfile>();
+
+        // Copy base settings from original profile
+        runtimeProfile.profileName = $"{currentProfile.profileName}_Runtime_{step.type}";
+        runtimeProfile.rotationAxis = step.rotationAxis != currentProfile.rotationAxis ? step.rotationAxis : currentProfile.rotationAxis;
+
+        // Start with current profile values
+        runtimeProfile.tightenThreshold = currentProfile.tightenThreshold;
+        runtimeProfile.loosenThreshold = currentProfile.loosenThreshold;
+
+        // Apply overrides based on step type to prevent cross-contamination
+        if (IsTightenStep(step.type))
+        {
+            // Only override tighten threshold for tighten steps
+            if (step.tightenThreshold != currentProfile.tightenThreshold)
+            {
+                runtimeProfile.tightenThreshold = step.tightenThreshold;
+                LogDebug($"🔧 PARAMS: Applied TIGHTEN override: {step.tightenThreshold}°");
+            }
+        }
+
+        if (IsLoosenStep(step.type))
+        {
+            // Only override loosen threshold for loosen steps
+            if (step.loosenThreshold != currentProfile.loosenThreshold)
+            {
+                runtimeProfile.loosenThreshold = step.loosenThreshold;
+                LogDebug($"🔧 PARAMS: Applied LOOSEN override: {step.loosenThreshold}°");
+            }
+        }
+
+        runtimeProfile.angleTolerance = step.valveAngleTolerance != currentProfile.angleTolerance ? step.valveAngleTolerance : currentProfile.angleTolerance;
+        runtimeProfile.rotationDampening = step.rotationDampening != currentProfile.rotationDampening ? step.rotationDampening : currentProfile.rotationDampening;
+
+        // Copy other essential settings
+        runtimeProfile.compatibleSocketTags = currentProfile.compatibleSocketTags;
+        runtimeProfile.requireSpecificSockets = currentProfile.requireSpecificSockets;
+        runtimeProfile.specificCompatibleSockets = currentProfile.specificCompatibleSockets;
+
+        // Apply the modified profile to the controller
+        valveController.Configure(runtimeProfile);
+
+        // Update HingeJoint limits if valve is already snapped (for mid-sequence parameter changes)
+        UpdateHingeJointLimits(valveController, runtimeProfile);
+
+        LogInfo($"🔧 PARAMS: Applied parameter overrides to {valveController.gameObject.name}:");
+        LogInfo($"🔧   - Rotation Axis: {runtimeProfile.rotationAxis}");
+        LogInfo($"🔧   - Tighten Threshold: {runtimeProfile.tightenThreshold}°");
+        LogInfo($"🔧   - Loosen Threshold: {runtimeProfile.loosenThreshold}°");
+        LogInfo($"🔧   - Angle Tolerance: {runtimeProfile.angleTolerance}°");
     }
 
     /// <summary>
@@ -300,5 +363,66 @@ public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
 
         LogDebug($"🔧 Valve removed from socket! Completing step: {step.stepName}");
         CompleteStep(step, $"Valve {valveController.name} removed from socket with AutoHands");
+    }
+
+    /// <summary>
+    /// Get valve profile using reflection (helper method)
+    /// </summary>
+    ValveProfile GetValveProfile(AutoHandsValveControllerV2 valveController)
+    {
+        var profileField = typeof(AutoHandsValveControllerV2).GetField("profile",
+            BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (profileField != null)
+        {
+            return (ValveProfile)profileField.GetValue(valveController);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Update HingeJoint limits if valve is already snapped (for mid-sequence parameter changes)
+    /// Uses reflection to access private hingeJoint field
+    /// </summary>
+    void UpdateHingeJointLimits(AutoHandsValveControllerV2 valveController, ValveProfile profile)
+    {
+        // Use reflection to get private hingeJoint field
+        var hingeJointField = typeof(AutoHandsValveControllerV2).GetField("hingeJoint",
+            BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (hingeJointField != null)
+        {
+            HingeJoint hingeJoint = (HingeJoint)hingeJointField.GetValue(valveController);
+
+            if (hingeJoint != null)
+            {
+                // Update limits based on new profile parameters
+                JointLimits limits = hingeJoint.limits;
+                limits.min = -profile.loosenThreshold;
+                limits.max = profile.tightenThreshold;
+                hingeJoint.limits = limits;
+
+                LogDebug($"🔧 PARAMS: Updated HingeJoint limits - Min: {limits.min}°, Max: {limits.max}°");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Helper method to check if a step type requires tighten threshold
+    /// </summary>
+    bool IsTightenStep(InteractionStep.StepType stepType)
+    {
+        return stepType == InteractionStep.StepType.TightenValve ||
+               stepType == InteractionStep.StepType.InstallValve;
+    }
+
+    /// <summary>
+    /// Helper method to check if a step type requires loosen threshold
+    /// </summary>
+    bool IsLoosenStep(InteractionStep.StepType stepType)
+    {
+        return stepType == InteractionStep.StepType.LoosenValve ||
+               stepType == InteractionStep.StepType.RemoveValve;
     }
 }

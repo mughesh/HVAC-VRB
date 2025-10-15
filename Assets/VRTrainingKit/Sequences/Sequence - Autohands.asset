@@ -26,7 +26,7 @@ MonoBehaviour:
           type: 0
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 117848
+            _instanceID: 65952
             _gameObjectName: valve Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -58,7 +58,7 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 117848
+            _instanceID: 65952
             _gameObjectName: valve Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -76,7 +76,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 118910
+            _instanceID: 67016
             _gameObjectName: Socket (1)
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -90,7 +90,7 @@ MonoBehaviour:
           type: 6
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 117848
+            _instanceID: 65952
             _gameObjectName: valve Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -108,7 +108,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 118910
+            _instanceID: 67016
             _gameObjectName: Socket (1)
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
