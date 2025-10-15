@@ -215,8 +215,21 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
         }
 
         hingeJoint.axis = axis;
-        hingeJoint.autoConfigureConnectedAnchor = true;
+        hingeJoint.anchor = Vector3.zero; // CRITICAL: Set anchor to center of object (not edge)
+        hingeJoint.autoConfigureConnectedAnchor = profile.autoConfigureConnectedAnchor;
         hingeJoint.connectedBody = null; // Connect to world space
+
+        // Configure spring (for friction/resistance)
+        hingeJoint.useSpring = profile.useSpring;
+        if (profile.useSpring)
+        {
+            JointSpring spring = new JointSpring();
+            spring.spring = profile.springValue;
+            spring.damper = profile.springDamper;
+            spring.targetPosition = profile.springTargetPosition;
+            hingeJoint.spring = spring;
+            Debug.Log($"  - Spring: value={spring.spring}, damper={spring.damper}, targetPos={spring.targetPosition}");
+        }
 
         // Calculate limits from tighten/loosen thresholds
         // Min = -loosenThreshold (how far back you can loosen)
@@ -225,15 +238,17 @@ public class AutoHandsValveControllerV2 : MonoBehaviour
         JointLimits limits = new JointLimits();
         limits.min = -profile.loosenThreshold;
         limits.max = profile.tightenThreshold;
-        limits.bounceMinVelocity = 0.2f;
-        limits.contactDistance = 0f;
+        limits.bounceMinVelocity = profile.bounceMinVelocity;
+        limits.contactDistance = profile.contactDistance;
         hingeJoint.limits = limits;
 
         hingeJoint.enablePreprocessing = true;
 
         Debug.Log($"[AutoHandsValveControllerV2] ✅ Added HingeJoint to {gameObject.name}");
         Debug.Log($"  - Axis: {axis}");
+        Debug.Log($"  - Anchor: {hingeJoint.anchor} (centered at object origin)");
         Debug.Log($"  - Limits: [{limits.min}° to {limits.max}°]");
+        Debug.Log($"  - Spring Enabled: {profile.useSpring}");
 
         // Disable PlacePoint's matchRotation to prevent rotation reset
         DisableMatchRotation();

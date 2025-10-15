@@ -63,6 +63,33 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     [Range(1f, 20f)]
     public float dampeningSpeed = 10f;
 
+    [Header("HingeJoint Settings")]
+    [Tooltip("Auto configure connected anchor (recommended)")]
+    public bool autoConfigureConnectedAnchor = true;
+
+    [Tooltip("Use spring for smooth rotation resistance")]
+    public bool useSpring = false;
+
+    [Tooltip("Spring force value (only used if useSpring is true)")]
+    [Range(0f, 1000f)]
+    public float springValue = 0f;
+
+    [Tooltip("Spring damper for smooth motion (friction/resistance)")]
+    [Range(0f, 100f)]
+    public float springDamper = 0.1f;
+
+    [Tooltip("Target position for spring (rotation angle)")]
+    [Range(-180f, 180f)]
+    public float springTargetPosition = 0f;
+
+    [Tooltip("Bounce minimum velocity for joint limits")]
+    [Range(0f, 10f)]
+    public float bounceMinVelocity = 0.2f;
+
+    [Tooltip("Contact distance for joint limits")]
+    [Range(0f, 1f)]
+    public float contactDistance = 0f;
+
     [Header("Socket Positioning")]
     [Tooltip("Maximum distance from socket center to consider positioning complete")]
     [Range(0.001f, 0.1f)]
@@ -202,6 +229,15 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
         tempProfile.tightMaterial = tightMaterial;
         tempProfile.showProgressIndicator = showProgressIndicator;
         tempProfile.colliderType = colliderType;
+
+        // Copy HingeJoint settings
+        tempProfile.autoConfigureConnectedAnchor = autoConfigureConnectedAnchor;
+        tempProfile.useSpring = useSpring;
+        tempProfile.springValue = springValue;
+        tempProfile.springDamper = springDamper;
+        tempProfile.springTargetPosition = springTargetPosition;
+        tempProfile.bounceMinVelocity = bounceMinVelocity;
+        tempProfile.contactDistance = contactDistance;
 
         // Configure AutoHandsValveControllerV2 with the temp profile
         valveController.Configure(tempProfile);
