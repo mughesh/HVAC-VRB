@@ -1718,9 +1718,41 @@ public class VRInteractionSetupWindow : EditorWindow
         
         EditorGUILayout.LabelField("Description");
         taskGroup.description = EditorGUILayout.TextArea(taskGroup.description, GUILayout.Height(60));
-        
+
         EditorGUILayout.Space(10);
-        
+
+        // PHASE 1: Sequential Flow Control
+        EditorGUILayout.LabelField("Sequential Flow Control", EditorStyles.boldLabel);
+
+        taskGroup.enforceSequentialFlow = EditorGUILayout.Toggle(
+            new GUIContent("Enforce Sequential Flow",
+                "PHASE 1: Enable socket-only restrictions. Only current step's socket is enabled, others disabled."),
+            taskGroup.enforceSequentialFlow
+        );
+
+        if (taskGroup.enforceSequentialFlow)
+        {
+            EditorGUILayout.HelpBox(
+                "🔒 PHASE 1: Socket Restrictions Enabled\n\n" +
+                "• Only current step's socket/placepoint is enabled\n" +
+                "• All other sockets are disabled\n" +
+                "• Prevents wrong object placement\n" +
+                "• Grabbable objects remain active (no grab restrictions yet)\n" +
+                "• Check console for [SequenceFlowRestriction] logs",
+                MessageType.Info
+            );
+        }
+        else
+        {
+            EditorGUILayout.HelpBox(
+                "🌐 Free Exploration Mode\n\n" +
+                "All sockets and grabbable objects are always enabled.",
+                MessageType.None
+            );
+        }
+
+        EditorGUILayout.Space(10);
+
         // Statistics
         EditorGUILayout.LabelField("Statistics", EditorStyles.boldLabel);
         int stepCount = taskGroup.steps?.Count ?? 0;

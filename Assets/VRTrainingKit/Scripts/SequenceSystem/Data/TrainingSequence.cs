@@ -234,7 +234,11 @@ public class TaskGroup
     
     [Header("Interaction Steps")]
     public List<InteractionStep> steps = new List<InteractionStep>();
-    
+
+    [Header("Execution Control")]
+    [Tooltip("PHASE 1: Enable socket-only restrictions. Only current step's socket is enabled, others disabled. Prevents wrong socket interactions.")]
+    public bool enforceSequentialFlow = false;
+
     [Header("UI State")]
     public bool isExpanded = true; // For editor tree view
     

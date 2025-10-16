@@ -26,7 +26,7 @@ MonoBehaviour:
           type: 0
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 190926
+            _instanceID: 57888
             _gameObjectName: valve Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -58,7 +58,7 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 190926
+            _instanceID: 57888
             _gameObjectName: valve Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -76,48 +76,17 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 191990
-            _gameObjectName: Socket (1)
-            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
-            _isValid: 1
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          isCompleted: 1
-        - stepName: New Step
-          type: 6
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 190926
-            _gameObjectName: valve Cube
-            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
             _scenePath: 
             _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 74
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 191990
-            _gameObjectName: Socket (1)
-            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
-            _isValid: 1
           rotationDampening: 0
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
           isCompleted: 1
+        enforceSequentialFlow: 0
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1

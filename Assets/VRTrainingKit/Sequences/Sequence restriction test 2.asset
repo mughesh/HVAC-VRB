@@ -1,0 +1,199 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5288bdac7d20d1b4bb582fa20543d397, type: 3}
+  m_Name: Sequence restriction test 2
+  m_EditorClassIdentifier: 
+  program:
+    programName: New Training Program
+    description: 
+    modules:
+    - moduleName: New Module
+      description: 
+      taskGroups:
+      - groupName: Large socket
+        description: 
+        steps:
+        - stepName: New Step
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 110566
+            _gameObjectName: valve Cube _Large
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 111664
+            _gameObjectName: Socket large
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: 
+          isCompleted: 0
+        - stepName: New Step
+          type: 5
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 110566
+            _gameObjectName: valve Cube _Large
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 111664
+            _gameObjectName: Socket large
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        enforceSequentialFlow: 1
+        isExpanded: 1
+      - groupName: Small socket
+        description: Task group description
+        steps:
+        - stepName: New Step
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 111702
+            _gameObjectName: valve Cube_SMALL
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 110664
+            _gameObjectName: Socket_Small
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        - stepName: New Step
+          type: 5
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 111702
+            _gameObjectName: valve Cube_SMALL
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 110664
+            _gameObjectName: Socket_Small
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        enforceSequentialFlow: 1
+        isExpanded: 1
+      - groupName: dummy
+        description: Task group description
+        steps:
+        - stepName: New Step
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 111856
+            _gameObjectName: Cube
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 110852
+            _gameObjectName: GameObject (1)
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        enforceSequentialFlow: 1
+        isExpanded: 1
+      isExpanded: 1
+    isExpanded: 1
+  assetDescription: Custom training sequence

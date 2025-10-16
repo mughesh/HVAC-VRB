@@ -5,7 +5,8 @@
       "WebFetch(domain:earnest-robot.gitbook.io)",
       "Read(//c/Users/SKILLVERI DEV/OneDrive/Desktop/**)",
       "Read(//c/Users/SKILLVERI DEV/OneDrive/Pictures/Screenshots/**)",
-      "Read(//c/Users/Mugesh/Pictures/Screenshots/**)"
+      "Read(//c/Users/Mugesh/Pictures/Screenshots/**)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
