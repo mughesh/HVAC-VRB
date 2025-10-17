@@ -1,6 +1,6 @@
 // SequenceFlowRestrictionManager.cs
-// Phase 1: Simple socket-only restriction system for training sequences
-// Manages socket enable/disable to enforce sequential step completion
+// Simple socket-only restriction system for training sequences
+// Manages socket enable/disable at the task group level
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +8,19 @@ using System.Linq;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// PHASE 1: Socket Restriction Manager
-/// Simple, focused manager that controls socket/placepoint components only
-/// When enforceSequentialFlow is enabled, only the current step's socket is active
+/// Socket Restriction Manager - Task Group Level
+/// Controls socket/placepoint components at the task group level
+/// When enforceSequentialFlow is enabled:
+/// - All sockets in CURRENT task group are enabled
+/// - All sockets in OTHER task groups are disabled
 /// </summary>
 public class SequenceFlowRestrictionManager : MonoBehaviour
 {
     // State tracking
     private TaskGroup currentTaskGroup;
-    private InteractionStep currentActiveStep;
     private List<InteractionStep> allSteps = new List<InteractionStep>();
+    private List<InteractionStep> activeSteps = new List<InteractionStep>();
+    private List<InteractionStep> completedSteps = new List<InteractionStep>();
 
     // Component caches for performance
     private Dictionary<GameObject, Component> socketComponents = new Dictionary<GameObject, Component>();
@@ -43,7 +46,8 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
 
         currentTaskGroup = taskGroup;
         allSteps.Clear();
-        currentActiveStep = null;
+        activeSteps.Clear();
+        completedSteps.Clear();
 
         // Store all steps for reference
         if (currentTaskGroup.steps != null)
@@ -58,29 +62,31 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
         DisableAllSockets();
 
         LogInfo($"   ✓ Cached {socketComponents.Count} socket components");
-        LogInfo($"   ✓ All sockets disabled - waiting for first step activation");
+        LogInfo($"   ✓ All sockets disabled - ready for task group activation");
     }
 
     /// <summary>
     /// Called when a step becomes active
-    /// PHASE 1: Enable only this step's destination socket
+    /// Tracks active steps and updates socket states
     /// </summary>
     public void OnStepBecameActive(InteractionStep step)
     {
         if (step == null) return;
 
-        currentActiveStep = step;
-        LogInfo($"🟢 Step activated: {step.stepName}");
+        // Add to active steps list
+        if (!activeSteps.Contains(step))
+        {
+            activeSteps.Add(step);
+            LogDebug($"🟢 Step activated: {step.stepName}");
+        }
 
-        // PHASE 1 LOGIC: Simple one-step-at-a-time
-        DisableAllSockets();
-        EnableSocketForStep(step);
-
-        LogInfo($"   ✓ Enabled socket for current step only");
+        // Update socket states for task group
+        UpdateSocketStates();
     }
 
     /// <summary>
     /// Called when a step completes
+    /// Updates tracking and socket states
     /// </summary>
     public void OnStepCompleted(InteractionStep step)
     {
@@ -88,13 +94,15 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
 
         LogInfo($"✅ Step completed: {step.stepName}");
 
-        // Socket will be re-enabled by next step's OnStepBecameActive
-        // For now, just log the completion
-
-        if (currentActiveStep == step)
+        // Move from active to completed
+        activeSteps.Remove(step);
+        if (!completedSteps.Contains(step))
         {
-            currentActiveStep = null;
+            completedSteps.Add(step);
         }
+
+        // Update socket states
+        UpdateSocketStates();
     }
 
     /// <summary>
@@ -108,9 +116,35 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
         EnableAllSockets();
 
         currentTaskGroup = null;
-        currentActiveStep = null;
+        activeSteps.Clear();
+        completedSteps.Clear();
         allSteps.Clear();
         socketComponents.Clear();
+    }
+
+    #endregion
+
+    #region Socket State Management
+
+    /// <summary>
+    /// Update socket states - enable all active step sockets, disable others
+    /// Simple task-group level restriction (no lookahead needed)
+    /// </summary>
+    private void UpdateSocketStates()
+    {
+        LogInfo("🔄 Updating socket states...");
+
+        // Step 1: Disable all sockets
+        DisableAllSockets();
+
+        // Step 2: Enable sockets for all active steps in current task group
+        foreach (var step in activeSteps)
+        {
+            EnableSocketForStep(step);
+            LogDebug($"   ✓ Enabled socket for active step: {step.stepName}");
+        }
+
+        LogInfo($"   ✓ Enabled {activeSteps.Count} step sockets in current task group");
     }
 
     #endregion

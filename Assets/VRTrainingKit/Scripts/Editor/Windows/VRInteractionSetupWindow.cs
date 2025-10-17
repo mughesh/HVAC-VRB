@@ -1726,18 +1726,19 @@ public class VRInteractionSetupWindow : EditorWindow
 
         taskGroup.enforceSequentialFlow = EditorGUILayout.Toggle(
             new GUIContent("Enforce Sequential Flow",
-                "PHASE 1: Enable socket-only restrictions. Only current step's socket is enabled, others disabled."),
+                "Task group level socket restrictions. Current task group sockets enabled, others disabled."),
             taskGroup.enforceSequentialFlow
         );
 
         if (taskGroup.enforceSequentialFlow)
         {
             EditorGUILayout.HelpBox(
-                "🔒 PHASE 1: Socket Restrictions Enabled\n\n" +
-                "• Only current step's socket/placepoint is enabled\n" +
-                "• All other sockets are disabled\n" +
-                "• Prevents wrong object placement\n" +
-                "• Grabbable objects remain active (no grab restrictions yet)\n" +
+                "🔒 Task Group Socket Restrictions\n\n" +
+                "• All sockets in CURRENT task group are enabled\n" +
+                "• All sockets in OTHER task groups are disabled\n" +
+                "• Steps within task group can be done in any order\n" +
+                "• Prevents placing objects in wrong task group sockets\n" +
+                "• Grabbable objects remain active (no grab restrictions)\n" +
                 "• Check console for [SequenceFlowRestriction] logs",
                 MessageType.Info
             );
