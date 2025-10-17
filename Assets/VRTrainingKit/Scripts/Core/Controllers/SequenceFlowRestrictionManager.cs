@@ -389,6 +389,117 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
 
     #endregion
 
+    #region Editor/Debug API
+
+    /// <summary>
+    /// Get current socket states for debugging/editor display
+    /// </summary>
+    public List<SocketStateInfo> GetSocketStates()
+    {
+        var states = new List<SocketStateInfo>();
+
+        foreach (var kvp in socketComponents)
+        {
+            var socketObj = kvp.Key;
+            if (socketObj == null) continue;
+
+            var component = kvp.Value;
+
+            bool isEnabled = GetSocketEnabledState(socketObj);
+            bool isInCurrentGroup = IsSocketInCurrentTaskGroup(socketObj);
+            bool isOccupied = IsSocketOccupied(socketObj);
+
+            states.Add(new SocketStateInfo
+            {
+                socketName = socketObj.name,
+                isEnabled = isEnabled,
+                isInCurrentTaskGroup = isInCurrentGroup,
+                isOccupied = isOccupied,
+                disabledReason = GetDisabledReason(isInCurrentGroup, isOccupied)
+            });
+        }
+
+        return states;
+    }
+
+    /// <summary>
+    /// Get the enabled state of a socket component
+    /// </summary>
+    private bool GetSocketEnabledState(GameObject socketObj)
+    {
+        if (socketObj == null) return false;
+
+        // Check XRI Socket
+        var xriSocket = socketObj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor>();
+        if (xriSocket != null)
+        {
+            return xriSocket.enabled;
+        }
+
+        // Check AutoHands PlacePoint
+        var allComps = socketObj.GetComponents<MonoBehaviour>();
+        foreach (var comp in allComps)
+        {
+            if (comp != null && comp.GetType().Name.Contains("PlacePoint"))
+            {
+                return comp.enabled;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Check if a socket belongs to the current task group
+    /// </summary>
+    private bool IsSocketInCurrentTaskGroup(GameObject socketObj)
+    {
+        if (socketObj == null || activeSteps == null) return false;
+
+        foreach (var step in activeSteps)
+        {
+            // Check destination socket
+            if (step.destination != null && step.destination.GameObject == socketObj)
+                return true;
+
+            // Check target socket
+            if (step.targetSocket != null && step.targetSocket.GameObject == socketObj)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Get the reason why a socket is disabled
+    /// </summary>
+    private string GetDisabledReason(bool isInCurrentGroup, bool isOccupied)
+    {
+        if (isInCurrentGroup)
+            return "Current Task Group";
+        if (isOccupied)
+            return "Occupied (Not Disabled)";
+        return "Wrong Task Group";
+    }
+
+    /// <summary>
+    /// Get current task group name for display
+    /// </summary>
+    public string GetCurrentTaskGroupName()
+    {
+        return currentTaskGroup != null ? currentTaskGroup.groupName : "None";
+    }
+
+    /// <summary>
+    /// Get active/completed step counts
+    /// </summary>
+    public (int active, int completed, int total) GetStepCounts()
+    {
+        return (activeSteps.Count, completedSteps.Count, allSteps.Count);
+    }
+
+    #endregion
+
     #region Logging
 
     private void LogInfo(string message)
@@ -410,4 +521,17 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
     }
 
     #endregion
+}
+
+/// <summary>
+/// Socket state information for editor/debug display
+/// </summary>
+[System.Serializable]
+public class SocketStateInfo
+{
+    public string socketName;
+    public bool isEnabled;
+    public bool isInCurrentTaskGroup;
+    public bool isOccupied;
+    public string disabledReason;
 }

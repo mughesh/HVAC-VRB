@@ -22,17 +22,17 @@ MonoBehaviour:
       - groupName: Large socket
         description: 
         steps:
-        - stepName: New Step
+        - stepName: grab & snap large cube
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 110566
+            _instanceID: 57898
             _gameObjectName: valve Cube _Large
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 111664
+            _instanceID: 58996
             _gameObjectName: Socket large
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -53,12 +53,12 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: 
-          isCompleted: 0
-        - stepName: New Step
+          isCompleted: 1
+        - stepName: Tighten L cube
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 110566
+            _instanceID: 57898
             _gameObjectName: valve Cube _Large
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -76,7 +76,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 111664
+            _instanceID: 58996
             _gameObjectName: Socket large
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -85,23 +85,23 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
+          isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
       - groupName: Small socket
         description: Task group description
         steps:
-        - stepName: New Step
+        - stepName: Grab & snap S cube
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 111702
+            _instanceID: 59034
             _gameObjectName: valve Cube_SMALL
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 110664
+            _instanceID: 57996
             _gameObjectName: Socket_Small
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -122,12 +122,12 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
-        - stepName: New Step
+          isCompleted: 1
+        - stepName: Tighten S cube
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 111702
+            _instanceID: 59034
             _gameObjectName: valve Cube_SMALL
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -145,7 +145,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 110664
+            _instanceID: 57996
             _gameObjectName: Socket_Small
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -154,23 +154,23 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
+          isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
       - groupName: dummy
         description: Task group description
         steps:
-        - stepName: New Step
+        - stepName: Dummy
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 111856
+            _instanceID: 59188
             _gameObjectName: Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 110852
+            _instanceID: 58184
             _gameObjectName: GameObject (1)
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -191,7 +191,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
+          isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
       isExpanded: 1

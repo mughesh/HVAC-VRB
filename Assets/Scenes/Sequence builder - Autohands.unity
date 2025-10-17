@@ -7942,9 +7942,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff69ed256991bab48929e233a2d15e7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trainingAsset: {fileID: 11400000, guid: 1b47b00965118c84b8dc0eac60324441, type: 2}
+  trainingAsset: {fileID: 11400000, guid: 6b414a68896c77047bb9ab1a97fe7db2, type: 2}
   enableDebugLogging: 0
   showStepCompletions: 1
+  restrictionManager: {fileID: 0}
   currentProgram:
     programName: New Training Program
     description: 
