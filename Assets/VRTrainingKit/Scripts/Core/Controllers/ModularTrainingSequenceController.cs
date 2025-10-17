@@ -29,6 +29,9 @@ public class ModularTrainingSequenceController : MonoBehaviour
     private List<IStepHandler> stepHandlers = new List<IStepHandler>();
     private Dictionary<InteractionStep, IStepHandler> activeStepHandlers = new Dictionary<InteractionStep, IStepHandler>();
 
+    // PHASE 1: Socket restriction manager
+    private SequenceFlowRestrictionManager restrictionManager;
+
     // Runtime state
     public TrainingProgram currentProgram;
     private List<InteractionStep> activeSteps = new List<InteractionStep>();
@@ -44,11 +47,21 @@ public class ModularTrainingSequenceController : MonoBehaviour
 
     void Start()
     {
+        // Initialize restriction manager for sequential flow enforcement
+        restrictionManager = gameObject.AddComponent<SequenceFlowRestrictionManager>();
+
         InitializeSequence();
     }
 
     void OnDestroy()
     {
+        // Cleanup restriction manager
+        if (restrictionManager != null)
+        {
+            restrictionManager.Reset();
+            Destroy(restrictionManager);
+        }
+
         CleanupHandlers();
     }
 
@@ -229,6 +242,13 @@ public class ModularTrainingSequenceController : MonoBehaviour
             LogInfo($"✅ Step completed: {step.stepName} - {reason}");
         }
 
+        // PHASE 1: Notify restriction manager that this step completed
+        var currentTaskGroup = GetCurrentTaskGroup();
+        if (currentTaskGroup != null && currentTaskGroup.enforceSequentialFlow && restrictionManager != null)
+        {
+            restrictionManager.OnStepCompleted(step);
+        }
+
         // Remove from active handlers
         if (activeStepHandlers.ContainsKey(step))
         {
@@ -262,6 +282,17 @@ public class ModularTrainingSequenceController : MonoBehaviour
 
         // Clear previous active steps
         StopAllActiveSteps();
+
+        // PHASE 1: Initialize restriction manager if sequential flow is enabled
+        if (currentTaskGroup.enforceSequentialFlow && restrictionManager != null)
+        {
+            restrictionManager.StartTaskGroup(currentTaskGroup);
+            LogInfo($"🔒 Sequential flow enforcement ENABLED for this task group");
+        }
+        else
+        {
+            LogInfo($"🌐 Free exploration mode - all components available");
+        }
 
         // Add all steps from current task group to active steps
         foreach (var step in currentTaskGroup.steps)
@@ -305,6 +336,13 @@ public class ModularTrainingSequenceController : MonoBehaviour
         {
             LogWarning($"⚠️ No handler found for step: {step.stepName} [{step.type}]");
             return;
+        }
+
+        // PHASE 1: Notify restriction manager that this step is becoming active
+        var currentTaskGroup = GetCurrentTaskGroup();
+        if (currentTaskGroup != null && currentTaskGroup.enforceSequentialFlow && restrictionManager != null)
+        {
+            restrictionManager.OnStepBecameActive(step);
         }
 
         // Start handling the step
