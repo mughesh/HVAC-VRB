@@ -479,7 +479,7 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
             return "Current Task Group";
         if (isOccupied)
             return "Occupied (Not Disabled)";
-        return "Wrong Task Group";
+        return "Other Task Group (Available Later)";
     }
 
     /// <summary>

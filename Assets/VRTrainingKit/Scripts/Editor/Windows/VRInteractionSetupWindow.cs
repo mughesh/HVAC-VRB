@@ -2253,11 +2253,102 @@ public class VRInteractionSetupWindow : EditorWindow
         // Begin scrollable area
         EditorGUILayout.BeginVertical();
 
-        // ===== SEQUENCE STATUS SECTION =====
-        EditorGUILayout.LabelField("Sequence Status", subHeaderStyle);
+        var progress = controller.GetProgress();
+
+        // ===== PROGRAM OVERVIEW SECTION =====
+        EditorGUILayout.LabelField("Program Overview", subHeaderStyle);
         EditorGUILayout.Space(3);
 
-        var progress = controller.GetProgress();
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        if (controller.currentProgram != null)
+        {
+            EditorGUILayout.LabelField($"📋 Program: {controller.currentProgram.programName}", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+
+            // Show all modules and their task groups
+            for (int moduleIdx = 0; moduleIdx < controller.currentProgram.modules.Count; moduleIdx++)
+            {
+                var module = controller.currentProgram.modules[moduleIdx];
+                bool isCurrentModule = moduleIdx == progress.currentModuleIndex;
+                bool isCompletedModule = moduleIdx < progress.currentModuleIndex;
+
+                // Module header
+                string moduleIcon = isCompletedModule ? "✅" : (isCurrentModule ? "🟢" : "⏸️");
+                GUIStyle moduleStyle = new GUIStyle(EditorStyles.label);
+                if (isCurrentModule)
+                {
+                    moduleStyle.fontStyle = FontStyle.Bold;
+                    moduleStyle.normal.textColor = new Color(0.2f, 0.8f, 1f);
+                }
+                else if (isCompletedModule)
+                {
+                    moduleStyle.normal.textColor = new Color(0.3f, 0.7f, 0.3f);
+                }
+                else
+                {
+                    moduleStyle.normal.textColor = Color.gray;
+                }
+
+                EditorGUILayout.LabelField($"{moduleIcon} Module: {module.moduleName}", moduleStyle);
+
+                // Show task groups for current or adjacent modules only (for cleaner UI)
+                if (moduleIdx >= progress.currentModuleIndex - 1 && moduleIdx <= progress.currentModuleIndex + 1)
+                {
+                    for (int tgIdx = 0; tgIdx < module.taskGroups.Count; tgIdx++)
+                    {
+                        var taskGroup = module.taskGroups[tgIdx];
+                        bool isCurrentTaskGroup = isCurrentModule && tgIdx == progress.currentTaskGroupIndex;
+                        bool isCompletedTaskGroup = isCurrentModule ? (tgIdx < progress.currentTaskGroupIndex) : isCompletedModule;
+                        bool isUpcomingTaskGroup = !isCurrentTaskGroup && !isCompletedTaskGroup;
+
+                        string tgIcon = isCompletedTaskGroup ? "✅" : (isCurrentTaskGroup ? "🟢" : "⏸️");
+                        GUIStyle tgStyle = new GUIStyle(EditorStyles.label);
+
+                        if (isCurrentTaskGroup)
+                        {
+                            tgStyle.fontStyle = FontStyle.Bold;
+                            tgStyle.normal.textColor = new Color(0.2f, 0.6f, 1f);
+                        }
+                        else if (isCompletedTaskGroup)
+                        {
+                            tgStyle.normal.textColor = new Color(0.4f, 0.7f, 0.4f);
+                        }
+                        else
+                        {
+                            tgStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
+                        }
+
+                        string stepInfo = "";
+                        if (isCurrentTaskGroup)
+                        {
+                            stepInfo = $" ({progress.completedSteps}/{progress.totalSteps} steps)";
+                        }
+
+                        EditorGUILayout.LabelField($"   {tgIcon} {taskGroup.groupName}{stepInfo}", tgStyle);
+                    }
+                }
+                else
+                {
+                    // Show count only for distant modules
+                    EditorGUILayout.LabelField($"   ... {module.taskGroups.Count} task groups", EditorStyles.miniLabel);
+                }
+
+                EditorGUILayout.Space(3);
+            }
+        }
+        else
+        {
+            EditorGUILayout.LabelField("No program loaded", EditorStyles.centeredGreyMiniLabel);
+        }
+
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.Space(10);
+
+        // ===== SEQUENCE STATUS SECTION =====
+        EditorGUILayout.LabelField("Current Status", subHeaderStyle);
+        EditorGUILayout.Space(3);
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
