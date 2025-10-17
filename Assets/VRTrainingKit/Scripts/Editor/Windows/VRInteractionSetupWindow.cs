@@ -615,8 +615,20 @@ public class VRInteractionSetupWindow : EditorWindow
             currentTab = Tab.Configure;
         if (GUILayout.Toggle(currentTab == Tab.Sequence, "Sequence", "Button"))
             currentTab = Tab.Sequence;
-        if (GUILayout.Toggle(currentTab == Tab.RuntimeMonitor, "Runtime Monitor", "Button"))
-            currentTab = Tab.RuntimeMonitor;
+
+        // Runtime Monitor tab - only show if RuntimeMonitorSettings exists and is enabled
+        if (IsRuntimeMonitorTabEnabled())
+        {
+            if (GUILayout.Toggle(currentTab == Tab.RuntimeMonitor, "Runtime Monitor", "Button"))
+                currentTab = Tab.RuntimeMonitor;
+        }
+        else
+        {
+            // If Runtime Monitor was selected but settings are now disabled, switch to Setup tab
+            if (currentTab == Tab.RuntimeMonitor)
+                currentTab = Tab.Setup;
+        }
+
         if (GUILayout.Toggle(currentTab == Tab.Validate, "Validate", "Button"))
             currentTab = Tab.Validate;
         GUILayout.EndHorizontal();
@@ -2939,6 +2951,16 @@ public class VRInteractionSetupWindow : EditorWindow
         }
 
         EditorGUILayout.EndVertical();
+    }
+
+    /// <summary>
+    /// Check if Runtime Monitor tab should be visible
+    /// Requires RuntimeMonitorSettings component in scene with showRuntimeMonitorTab enabled
+    /// </summary>
+    private bool IsRuntimeMonitorTabEnabled()
+    {
+        // Check if RuntimeMonitorSettings exists in scene and is enabled
+        return RuntimeMonitorSettings.IsRuntimeMonitorEnabled();
     }
 }
 #endif
