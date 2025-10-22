@@ -29,8 +29,8 @@ public class ModularTrainingSequenceController : MonoBehaviour
     private List<IStepHandler> stepHandlers = new List<IStepHandler>();
     private Dictionary<InteractionStep, IStepHandler> activeStepHandlers = new Dictionary<InteractionStep, IStepHandler>();
 
-    // PHASE 1: Socket restriction manager
-    private SequenceFlowRestrictionManager restrictionManager;
+    // PHASE 1: Socket restriction manager (public for editor access in Phase 3)
+    public SequenceFlowRestrictionManager restrictionManager;
 
     // Runtime state
     public TrainingProgram currentProgram;

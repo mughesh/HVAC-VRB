@@ -7223,12 +7223,12 @@ GameObject:
   - component: {fileID: 833375174}
   - component: {fileID: 833375175}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: runtime
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &833375174
 Transform:
   m_ObjectHideFlags: 0
@@ -7253,15 +7253,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 833375172}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72af1bf9f179a8e44b9e65dd6f0a1711, type: 3}
+  m_Script: {fileID: 11500000, guid: 1b184cc91c7476d4e964e74128c4680c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testGrabbableObject: {fileID: 1892110665}
-  enableDetailedLogging: 1
-  checkHandlerRegistration: 1
-  validateTestObject: 1
-  testGrabEvents: 1
-  checkSequenceController: 1
+  showRuntimeMonitorTab: 0
+  info: The Runtime Monitor tab will be visible in the VR Training Setup Assistant
+    window only when this component exists in the scene and 'showRuntimeMonitorTab'
+    is enabled.
 --- !u!1 &846137111
 GameObject:
   m_ObjectHideFlags: 0
@@ -7942,9 +7940,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff69ed256991bab48929e233a2d15e7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trainingAsset: {fileID: 11400000, guid: 1b47b00965118c84b8dc0eac60324441, type: 2}
+  trainingAsset: {fileID: 11400000, guid: 6b414a68896c77047bb9ab1a97fe7db2, type: 2}
   enableDebugLogging: 0
   showStepCompletions: 1
+  restrictionManager: {fileID: 0}
   currentProgram:
     programName: New Training Program
     description: 
@@ -18233,6 +18232,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 444798387}
+  - {fileID: 833375174}
   - {fileID: 1699003278}
   - {fileID: 310559332}
   - {fileID: 1230820369}
@@ -18250,5 +18250,4 @@ SceneRoots:
   - {fileID: 966966447}
   - {fileID: 1064883871}
   - {fileID: 1892110671}
-  - {fileID: 833375174}
   - {fileID: 459816537}
