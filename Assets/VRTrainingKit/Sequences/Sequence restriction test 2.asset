@@ -26,13 +26,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57898
+            _instanceID: 57902
             _gameObjectName: valve Cube _Large
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 58996
+            _instanceID: 59000
             _gameObjectName: Socket large
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -53,12 +53,12 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: 
-          isCompleted: 1
+          isCompleted: 0
         - stepName: Tighten L cube
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57898
+            _instanceID: 57902
             _gameObjectName: valve Cube _Large
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -76,7 +76,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 58996
+            _instanceID: 59000
             _gameObjectName: Socket large
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -85,7 +85,7 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 1
+          isCompleted: 0
         enforceSequentialFlow: 1
         isExpanded: 1
       - groupName: Small socket
@@ -95,13 +95,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 59034
+            _instanceID: 59038
             _gameObjectName: valve Cube_SMALL
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57996
+            _instanceID: 58000
             _gameObjectName: Socket_Small
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -127,7 +127,7 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 59034
+            _instanceID: 59038
             _gameObjectName: valve Cube_SMALL
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -145,7 +145,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 57996
+            _instanceID: 58000
             _gameObjectName: Socket_Small
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
@@ -164,13 +164,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 59188
+            _instanceID: 59192
             _gameObjectName: Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 58184
+            _instanceID: 58188
             _gameObjectName: GameObject (1)
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
             _isValid: 1
