@@ -30,6 +30,7 @@ MonoBehaviour:
   placeNames:
   - grab
   - valve
+  - turn
   blacklistNames: []
   makePlacedKinematic: 1
   disableRigidbodyOnPlace: 0

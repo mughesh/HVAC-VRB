@@ -15,6 +15,7 @@ TagManager:
   - snap
   - tool
   - valve
+  - turn
   layers:
   - Default
   - TransparentFX

@@ -16,9 +16,10 @@ public class InteractionSetupService
             public List<GameObject> snapObjects = new List<GameObject>();
             public List<GameObject> toolObjects = new List<GameObject>();
             public List<GameObject> valveObjects = new List<GameObject>();
+            public List<GameObject> turnObjects = new List<GameObject>();
             public List<GameObject> untaggedObjects = new List<GameObject>();
-            
-            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count + toolObjects.Count + valveObjects.Count;
+
+            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count + toolObjects.Count + valveObjects.Count + turnObjects.Count;
         }
         
         /// <summary>
@@ -59,6 +60,11 @@ public class InteractionSetupService
                     analysis.valveObjects.Add(obj);
                     Debug.Log($"[InteractionSetupService] Found valve object: {obj.name} (Tag: {obj.tag})");
                 }
+                else if (obj.CompareTag("turn"))
+                {
+                    analysis.turnObjects.Add(obj);
+                    Debug.Log($"[InteractionSetupService] Found turn object: {obj.name} (Tag: {obj.tag})");
+                }
             }
             
             Debug.Log($"Scene Analysis Complete: {analysis.TotalInteractables} interactables found");
@@ -67,6 +73,7 @@ public class InteractionSetupService
             Debug.Log($"  - Snap Points: {analysis.snapObjects.Count}");
             Debug.Log($"  - Tool Objects: {analysis.toolObjects.Count}");
             Debug.Log($"  - Valve Objects: {analysis.valveObjects.Count}");
+            Debug.Log($"  - Turn Objects: {analysis.turnObjects.Count}");
             
             return analysis;
         }
@@ -351,6 +358,21 @@ public class InteractionSetupService
                 }
             }
 
+            // Validate turn objects (turn tools use Grabbable + physics)
+            foreach (var obj in analysis.turnObjects)
+            {
+                if (!HasAutoHandsComponent(obj, "Grabbable"))
+                {
+                    issues.Add($"AutoHands: Turn object '{obj.name}' missing Grabbable component");
+                }
+
+                // Check for physics components (Rigidbody required for turn objects)
+                if (obj.GetComponent<Rigidbody>() == null)
+                {
+                    issues.Add($"AutoHands: Turn object '{obj.name}' missing Rigidbody for physics interaction");
+                }
+            }
+
             Debug.Log($"[InteractionSetupService] AutoHands validation complete: {issues.Count} issues found");
         }
 
@@ -444,7 +466,14 @@ public class InteractionSetupService
                 if (RemoveInteractionComponents(obj))
                     cleanedCount++;
             }
-            
+
+            // Clean turn objects
+            foreach (var obj in analysis.turnObjects)
+            {
+                if (RemoveInteractionComponents(obj))
+                    cleanedCount++;
+            }
+
             Debug.Log($"Cleanup complete: {cleanedCount} objects cleaned");
         }
         

@@ -34,6 +34,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private InteractionProfile selectedSnapProfile;
     private InteractionProfile selectedToolProfile;
     private InteractionProfile selectedValveProfile;
+    private InteractionProfile selectedTurnProfile;
     private Vector2 configScrollPos;
 
     // Cache available profiles to avoid performance issues
@@ -42,6 +43,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private List<InteractionProfile> cachedSnapProfiles;
     private List<InteractionProfile> cachedToolProfiles;
     private List<InteractionProfile> cachedValveProfiles;
+    private List<InteractionProfile> cachedTurnProfiles;
     
     // Sequence tab - Legacy state-based system
     private LegacySequenceController sequenceController;
@@ -391,6 +393,7 @@ public class VRInteractionSetupWindow : EditorWindow
         RefreshSnapProfileCache();
         RefreshToolProfileCache();
         RefreshValveProfileCache();
+        RefreshTurnProfileCache();
     }
 
     private void RefreshGrabProfileCache()
@@ -526,6 +529,23 @@ public class VRInteractionSetupWindow : EditorWindow
             if (profile != null && IsValveProfile(profile))
             {
                 cachedValveProfiles.Add(profile);
+            }
+        }
+    }
+
+    private void RefreshTurnProfileCache()
+    {
+        cachedTurnProfiles = new List<InteractionProfile>();
+
+        // Find AutoHands TurnByCountProfile (only AutoHands version exists)
+        string[] autoHandsTurnGuids = AssetDatabase.FindAssets("t:AutoHandsTurnByCountProfile");
+        foreach (string guid in autoHandsTurnGuids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
+            if (profile != null && IsTurnProfile(profile))
+            {
+                cachedTurnProfiles.Add(profile);
             }
         }
     }
@@ -696,7 +716,11 @@ public class VRInteractionSetupWindow : EditorWindow
             
             // Valve objects
             DrawObjectGroup("Valve Objects", sceneAnalysis.valveObjects, "valve", selectedValveProfile);
-            
+            EditorGUILayout.Space(10);
+
+            // Turn objects
+            DrawObjectGroup("Turn Objects", sceneAnalysis.turnObjects, "turn", selectedTurnProfile);
+
             EditorGUILayout.EndScrollView();
             
             EditorGUILayout.Space(10);
@@ -784,7 +808,7 @@ public class VRInteractionSetupWindow : EditorWindow
                 if (currentFramework == VRFramework.XRI)
                 {
                     // XRI validation
-                    if (tag == "grab" || tag == "knob" || tag == "tool" || tag == "valve")
+                    if (tag == "grab" || tag == "knob" || tag == "tool" || tag == "valve" || tag == "turn")
                     {
                         interactable = obj.GetComponent<XRGrabInteractable>();
                         isConfigured = interactable != null;
@@ -798,7 +822,7 @@ public class VRInteractionSetupWindow : EditorWindow
                 else if (currentFramework == VRFramework.AutoHands)
                 {
                     // AutoHands validation - check for Grabbable component
-                    if (tag == "grab" || tag == "knob" || tag == "tool" || tag == "valve")
+                    if (tag == "grab" || tag == "knob" || tag == "tool" || tag == "valve" || tag == "turn")
                     {
                         var grabbable = obj.GetComponent<Autohand.Grabbable>();
                         isConfigured = grabbable != null;
@@ -1262,7 +1286,73 @@ public class VRInteractionSetupWindow : EditorWindow
             }
         }
         EditorGUILayout.EndVertical();
-        
+
+        EditorGUILayout.Space(10);
+
+        // Turn By Count Profile
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("Turn By Count Profile", subHeaderStyle);
+        var turnProfileTemp = EditorGUILayout.ObjectField(
+            "Profile Asset", selectedTurnProfile, typeof(InteractionProfile), false) as InteractionProfile;
+
+        // Framework-aware ObjectField - accepts AutoHands turn profiles
+        if (turnProfileTemp != null && IsTurnProfile(turnProfileTemp))
+        {
+            selectedTurnProfile = turnProfileTemp;
+        }
+        else if (turnProfileTemp != null)
+        {
+            EditorUtility.DisplayDialog("Invalid Profile Type",
+                $"The selected profile '{turnProfileTemp.name}' is not a turn-by-count-type profile.", "OK");
+        }
+
+        if (selectedTurnProfile == null)
+        {
+            // Use cached profiles for performance
+            if (cachedTurnProfiles != null && cachedTurnProfiles.Count > 0)
+            {
+                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
+                foreach (var profile in cachedTurnProfiles)
+                {
+                    if (profile != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        string frameworkType = "[AutoHands]";
+                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
+                        if (GUILayout.Button("Select", GUILayout.Width(50)))
+                        {
+                            selectedTurnProfile = profile;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("No turn-by-count profiles found. Create one below.", EditorStyles.miniLabel);
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Create New Turn By Count Profile"))
+            {
+                CreateNewProfile<AutoHandsTurnByCountProfile>("TurnByCountProfile");
+                RefreshTurnProfileCache();
+            }
+            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
+            {
+                RefreshTurnProfileCache();
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        else
+        {
+            if (GUILayout.Button("Edit Profile"))
+            {
+                Selection.activeObject = selectedTurnProfile;
+            }
+        }
+        EditorGUILayout.EndVertical();
+
         EditorGUILayout.EndScrollView();
         
         EditorGUILayout.Space(10);
@@ -2901,6 +2991,11 @@ public class VRInteractionSetupWindow : EditorWindow
     {
         return profile is ValveProfile ||
                (profile != null && profile.GetType().Name.Contains("Valve"));
+    }
+
+    private bool IsTurnProfile(InteractionProfile profile)
+    {
+        return profile != null && profile.GetType().Name.Contains("Turn");
     }
 
     /// <summary>
