@@ -14,19 +14,23 @@ using UnityEngine;
 public class AutoHandsTurnByCountProfile : AutoHandsInteractionProfile
 {
     [Header("Turn Requirements")]
-    [Tooltip("Number of full 360° turns required (e.g., 0.5 = 180°, 1.0 = 360°, 2.5 = 900°)")]
-    [Range(0.1f, 10f)]
-    public float requiredTurnCount = 0.5f;
+    [Tooltip("Degrees of rotation that count as one 'turn' (e.g., 30° per turn, 45° per turn, etc.)")]
+    [Range(5f, 360f)]
+    public float degreesPerTurn = 30f;
+
+    [Tooltip("Number of turns required (will be multiplied by degreesPerTurn)")]
+    [Range(1, 100)]
+    public int requiredTurnCount = 6;
 
     [Tooltip("Axis around which object rotates (e.g., Vector3.forward for Z-axis)")]
     public Vector3 rotationAxis = Vector3.forward;
 
     [Tooltip("Tolerance in degrees for completion (±)")]
     [Range(1f, 45f)]
-    public float angleTolerance = 10f;
+    public float angleTolerance = 5f;
 
     [Tooltip("Direction of rotation required")]
-    public RotationDirection rotationDirection = RotationDirection.Clockwise;
+    public TurnByCountProfile.RotationDirection rotationDirection = TurnByCountProfile.RotationDirection.Clockwise;
 
     [Header("Socket Compatibility")]
     [Tooltip("Tags of sockets this tool can work with")]
@@ -108,18 +112,7 @@ public class AutoHandsTurnByCountProfile : AutoHandsInteractionProfile
     public ColliderType colliderType = ColliderType.Box;
 
     /// <summary>
-    /// Rotation direction options
-    /// </summary>
-    public enum RotationDirection
-    {
-        Clockwise,
-        CounterClockwise,
-        Either
-    }
-
-    /// <summary>
-    /// Apply AutoHands Grabbable component for turn-by-count interaction
-    /// Note: The controller component (AutoHandsTurnByCountController) will be added in Phase 2
+    /// Apply AutoHands Grabbable + AutoHandsTurnByCountController for turn-by-count interaction
     /// </summary>
     public override void ApplyToGameObject(GameObject target)
     {
@@ -156,11 +149,19 @@ public class AutoHandsTurnByCountProfile : AutoHandsInteractionProfile
             AddCollider(target, colliderType);
         }
 
-        // NOTE: AutoHandsTurnByCountController will be added in Phase 2
-        // For now, we just configure the basic grabbable object
+        // 4. Add AutoHandsTurnByCountController (HingeJoint-based turn tracker)
+        AutoHandsTurnByCountController turnController = target.GetComponent<AutoHandsTurnByCountController>();
+        if (turnController == null)
+        {
+            turnController = target.AddComponent<AutoHandsTurnByCountController>();
+            LogDebug($"✅ Added AutoHandsTurnByCountController to {target.name}");
+        }
+
+        // Configure AutoHandsTurnByCountController with this profile
+        ConfigureTurnController(turnController);
 
         LogDebug($"✅ Successfully configured AutoHands turn-by-count object on {target.name}");
-        LogDebug($"✅ {target.name} is ready for grab→snap→turn workflow (controller to be added in Phase 2)");
+        LogDebug($"✅ {target.name} is ready for grab→snap→turn workflow");
     }
 
     /// <summary>
@@ -183,6 +184,50 @@ public class AutoHandsTurnByCountProfile : AutoHandsInteractionProfile
         SetPropertySafely(grabbable, "instantGrab", false);
 
         LogDebug($"✅ Configured Grabbable: grabType={grabType}, handType={handType}");
+    }
+
+    /// <summary>
+    /// Configure AutoHandsTurnByCountController with a temporary TurnByCountProfile
+    /// We create a TurnByCountProfile ScriptableObject at runtime to pass settings to the controller
+    /// </summary>
+    private void ConfigureTurnController(AutoHandsTurnByCountController turnController)
+    {
+        // Create a temporary TurnByCountProfile to pass to the controller
+        TurnByCountProfile tempProfile = ScriptableObject.CreateInstance<TurnByCountProfile>();
+
+        // Copy settings from AutoHandsTurnByCountProfile to TurnByCountProfile
+        tempProfile.degreesPerTurn = degreesPerTurn;
+        tempProfile.requiredTurnCount = requiredTurnCount;
+        tempProfile.rotationAxis = rotationAxis;
+        tempProfile.angleTolerance = angleTolerance;
+        tempProfile.rotationDirection = rotationDirection;
+        tempProfile.compatibleSocketTags = compatibleSocketTags;
+        tempProfile.specificCompatibleSockets = specificCompatibleSockets;
+        tempProfile.requireSpecificSockets = requireSpecificSockets;
+        tempProfile.rotationDampening = rotationDampening;
+        tempProfile.autoConfigureConnectedAnchor = autoConfigureConnectedAnchor;
+        tempProfile.useSpring = useSpring;
+        tempProfile.springValue = springValue;
+        tempProfile.springDamper = springDamper;
+        tempProfile.bounceMinVelocity = bounceMinVelocity;
+        tempProfile.contactDistance = contactDistance;
+        tempProfile.positionTolerance = positionTolerance;
+        tempProfile.velocityThreshold = velocityThreshold;
+        tempProfile.positioningTimeout = positioningTimeout;
+        tempProfile.hapticIntensity = hapticIntensity;
+        tempProfile.showProgressIndicator = showProgressIndicator;
+        tempProfile.colliderType = colliderType;
+
+        // Configure AutoHandsTurnByCountController with the temp profile
+        turnController.Configure(tempProfile);
+
+        LogDebug($"✅ Configured AutoHandsTurnByCountController with settings");
+        LogDebug($"   - Degrees Per Turn: {degreesPerTurn}°");
+        LogDebug($"   - Required Turn Count: {requiredTurnCount} turns");
+        LogDebug($"   - Total Degrees Required: {degreesPerTurn * requiredTurnCount}°");
+        LogDebug($"   - Rotation Axis: {rotationAxis}");
+        LogDebug($"   - Direction: {rotationDirection}");
+        LogDebug($"   - Angle Tolerance: {angleTolerance}°");
     }
 
     /// <summary>
@@ -301,14 +346,15 @@ public class AutoHandsTurnByCountProfile : AutoHandsInteractionProfile
     #if UNITY_EDITOR
     private void OnValidate()
     {
-        // Ensure turn count is reasonable
-        requiredTurnCount = Mathf.Clamp(requiredTurnCount, 0.1f, 10f);
+        // Ensure values are reasonable
+        degreesPerTurn = Mathf.Clamp(degreesPerTurn, 5f, 360f);
+        requiredTurnCount = Mathf.Clamp(requiredTurnCount, 1, 100);
         angleTolerance = Mathf.Clamp(angleTolerance, 1f, 45f);
 
         // Ensure tolerance is reasonable compared to turn requirements
-        float totalDegrees = requiredTurnCount * 360f;
+        float totalDegrees = degreesPerTurn * requiredTurnCount;
         if (angleTolerance >= totalDegrees * 0.5f)
-            angleTolerance = totalDegrees * 0.2f;
+            angleTolerance = Mathf.Max(1f, totalDegrees * 0.2f);
     }
     #endif
 }

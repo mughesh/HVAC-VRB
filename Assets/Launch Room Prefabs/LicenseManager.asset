@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16ca44f8774870c4ea2d751be6cffa93, type: 3}
+  m_Name: LicenseManager
+  m_EditorClassIdentifier: 
+  licenseSet: []
+  isLicensed: 0
+  license_key: -1
+  OnLicensed:
+    m_PersistentCalls:
+      m_Calls: []
+  OnChange:
+    m_PersistentCalls:
+      m_Calls: []
+  OnBadConnection:
+    m_PersistentCalls:
+      m_Calls: []
+  OnUnlicensed:
+    m_PersistentCalls:
+      m_Calls: []
+  connectionParams:
+    custID: 0
+    restLink: 
+    licKey: 0
+    mcName: 
+    status: -99
+    message: 
+    next: 
+    current: 
+    userMessage: 
+    custom: 
+    commonRest: 
+    language: 
+  machineStatus: 2
