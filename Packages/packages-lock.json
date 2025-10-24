@@ -1,12 +1,5 @@
 {
   "dependencies": {
-    "co.mindport.vrbuilder.core": {
-      "version": "https://github.com/MindPort-GmbH/VR-Builder.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "c277bdf69de97dab1a4b6a3649c7318c6eb7ec20"
-    },
     "com.coplaydev.unity-mcp": {
       "version": "https://github.com/CoplayDev/unity-mcp.git?path=/UnityMcpBridge",
       "depth": 0,
