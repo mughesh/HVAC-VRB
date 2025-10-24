@@ -1424,38 +1424,50 @@ public class VRInteractionSetupWindow : EditorWindow
     private void DrawTreeViewContent()
     {
         EditorGUILayout.BeginVertical("box");
-        
-        // Header
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Hierarchy", subHeaderStyle);
-        
-        // Add menu button
-        if (GUILayout.Button("+", GUILayout.Width(25), GUILayout.Height(20)))
+
+        try
         {
-            ShowAddMenu();
-        }
-        
-        EditorGUILayout.EndHorizontal();
-        EditorGUILayout.Space(5);
-        
-        // Tree view with scrolling
-        treeViewScrollPos = EditorGUILayout.BeginScrollView(treeViewScrollPos, GUILayout.ExpandHeight(true));
-        
-        // Draw program header
-        DrawProgramTreeItem();
-        
-        // Draw modules
-        if (currentProgram != null && currentProgram.modules != null)
-        {
-            for (int moduleIndex = 0; moduleIndex < currentProgram.modules.Count; moduleIndex++)
+            // Header
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Hierarchy", subHeaderStyle);
+
+            // Add menu button
+            if (GUILayout.Button("+", GUILayout.Width(25), GUILayout.Height(20)))
             {
-                DrawModuleTreeItem(currentProgram.modules[moduleIndex], moduleIndex);
+                ShowAddMenu();
             }
+
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space(5);
+
+            // Tree view with scrolling
+            treeViewScrollPos = EditorGUILayout.BeginScrollView(treeViewScrollPos, GUILayout.ExpandHeight(true));
+
+            try
+            {
+                // Draw program header
+                DrawProgramTreeItem();
+
+                // Draw modules
+                if (currentProgram != null && currentProgram.modules != null)
+                {
+                    for (int moduleIndex = 0; moduleIndex < currentProgram.modules.Count; moduleIndex++)
+                    {
+                        DrawModuleTreeItem(currentProgram.modules[moduleIndex], moduleIndex);
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                EditorGUILayout.HelpBox($"Error drawing tree: {e.Message}", MessageType.Error);
+            }
+
+            EditorGUILayout.EndScrollView();
         }
-        
-        EditorGUILayout.EndScrollView();
-        
-        EditorGUILayout.EndVertical();
+        finally
+        {
+            EditorGUILayout.EndVertical();
+        }
     }
     
     /// <summary>
@@ -1464,26 +1476,38 @@ public class VRInteractionSetupWindow : EditorWindow
     private void DrawDetailsContent()
     {
         EditorGUILayout.BeginVertical("box");
-        
-        // Header
-        EditorGUILayout.LabelField("Properties", subHeaderStyle);
-        EditorGUILayout.Space(5);
-        
-        // Content based on selection
-        detailsPanelScrollPos = EditorGUILayout.BeginScrollView(detailsPanelScrollPos, GUILayout.ExpandHeight(true));
-        
-        if (selectedHierarchyItem == null)
+
+        try
         {
-            EditorGUILayout.HelpBox("Select an item from the hierarchy to edit its properties.", MessageType.Info);
+            // Header
+            EditorGUILayout.LabelField("Properties", subHeaderStyle);
+            EditorGUILayout.Space(5);
+
+            // Content based on selection
+            detailsPanelScrollPos = EditorGUILayout.BeginScrollView(detailsPanelScrollPos, GUILayout.ExpandHeight(true));
+
+            try
+            {
+                if (selectedHierarchyItem == null)
+                {
+                    EditorGUILayout.HelpBox("Select an item from the hierarchy to edit its properties.", MessageType.Info);
+                }
+                else
+                {
+                    DrawSelectedItemProperties();
+                }
+            }
+            catch (System.Exception e)
+            {
+                EditorGUILayout.HelpBox($"Error drawing properties: {e.Message}", MessageType.Error);
+            }
+
+            EditorGUILayout.EndScrollView();
         }
-        else
+        finally
         {
-            DrawSelectedItemProperties();
+            EditorGUILayout.EndVertical();
         }
-        
-        EditorGUILayout.EndScrollView();
-        
-        EditorGUILayout.EndVertical();
     }
     
     
@@ -1492,17 +1516,19 @@ public class VRInteractionSetupWindow : EditorWindow
     /// </summary>
     private void DrawProgramTreeItem()
     {
+        if (currentProgram == null) return;
+
         EditorGUILayout.BeginHorizontal();
-        
+
         // Selection highlighting
         Color backgroundColor = selectedItemType == "program" ? Color.blue * 0.3f : Color.clear;
         if (backgroundColor != Color.clear)
         {
             GUI.backgroundColor = backgroundColor;
         }
-        
+
         // Foldout and name
-        currentProgram.isExpanded = EditorGUILayout.Foldout(currentProgram.isExpanded, 
+        currentProgram.isExpanded = EditorGUILayout.Foldout(currentProgram.isExpanded,
             $"📋 {currentProgram.programName}", true);
         
         GUI.backgroundColor = Color.white;

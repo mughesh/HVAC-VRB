@@ -26,13 +26,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 173722
+            _instanceID: 92292
             _gameObjectName: suction valve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 173118
+            _instanceID: 88220
             _gameObjectName: S valve_socket_drop
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -49,7 +49,7 @@ MonoBehaviour:
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
-          allowParallel: 1
+          allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
@@ -58,13 +58,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 173204
+            _instanceID: 88836
             _gameObjectName: GasValve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 173066
+            _instanceID: 87790
             _gameObjectName: G valve_socket_drop
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -81,7 +81,7 @@ MonoBehaviour:
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
-          allowParallel: 1
+          allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
@@ -91,17 +91,49 @@ MonoBehaviour:
       - groupName: GSV allen key
         description: Task group description
         steps:
-        - stepName: Allen key snap
+        - stepName: Allen key snap - LSV
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 172800
+            _instanceID: 86586
             _gameObjectName: AlanKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 174176
+            _instanceID: 96240
+            _gameObjectName: S valve_socket_pick
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 1
+        - stepName: Allenkey snap - GSV
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 86586
+            _gameObjectName: AllenKey
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 95612
             _gameObjectName: G valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -129,19 +161,19 @@ MonoBehaviour:
         description: Task group description
         steps:
         - stepName: 'Yellow male '
-          type: 5
+          type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 173854
+            _instanceID: 93448
             _gameObjectName: 'Yellow Hose Male '
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _instanceID: 86562
+            _gameObjectName: Yellow male snap
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
           targetAngle: 0
           angleTolerance: 5
           rotationAxis: {x: 0, y: 0, z: 1}
@@ -150,30 +182,30 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 172792
+            _instanceID: 86562
             _gameObjectName: Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
-          rotationDampening: 0
+          rotationDampening: 1
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
           isCompleted: 1
         - stepName: Yellow female
-          type: 5
+          type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 172888
+            _instanceID: 86844
             _gameObjectName: Yellow hose female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _instanceID: 84706
+            _gameObjectName: Yellow female snap
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
           targetAngle: 0
           angleTolerance: 5
           rotationAxis: {x: 0, y: 1, z: 0}
@@ -182,11 +214,11 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 172428
+            _instanceID: 84706
             _gameObjectName: Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
-          rotationDampening: 0
+          rotationDampening: 1
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
@@ -196,14 +228,142 @@ MonoBehaviour:
         isExpanded: 1
       - groupName: Blue Hose
         description: Task group description
-        steps: []
+        steps:
+        - stepName: Blue male
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 90084
+            _gameObjectName: Blue hose male
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 95612
+            _gameObjectName: GSV valve_socket_pick
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 1
+        - stepName: Blue female
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: -149972
+            _gameObjectName: Blue Hose Female
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: -141416
+            _gameObjectName: Blue female snap
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
       - groupName: Red hose
         description: Task group description
-        steps: []
+        steps:
+        - stepName: Red male
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 88752
+            _gameObjectName: Red Hose Male
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 96240
+            _gameObjectName: LSV valve_socket_pick
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 1
+        - stepName: Red Female
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 95030
+            _gameObjectName: Red_Hose_Female
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: -142770
+            _gameObjectName: Red female snap
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
         enforceSequentialFlow: 1
-        isExpanded: 0
+        isExpanded: 1
       isExpanded: 1
     isExpanded: 1
   assetDescription: Training sequence asset created with VR Training Kit
