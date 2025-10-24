@@ -10,25 +10,94 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5288bdac7d20d1b4bb582fa20543d397, type: 3}
-  m_Name: Sequence - Autohands
+  m_Name: BlendedRefrigerant - Phase 1
   m_EditorClassIdentifier: 
   program:
-    programName: Blended Refrigerant
+    programName: BlendedRefrigerant
     description: 
     modules:
-    - moduleName: Phase 1
-      description: 
+    - moduleName: Phase 1 - Hose connections
+      description: Module description
       taskGroups:
-      - groupName: Cap removal
-        description: 
+      - groupName: Cap Removal
+        description: Task group description
+        steps:
+        - stepName: LSV cap
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 95238
+            _gameObjectName: suction valve
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 94654
+            _gameObjectName: S valve_socket_drop
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        - stepName: GSV Cap
+          type: 1
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 94736
+            _gameObjectName: GasValve
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 94604
+            _gameObjectName: G valve_socket_drop
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        enforceSequentialFlow: 0
+        isExpanded: 1
+      - groupName: GSV allen key
+        description: Task group description
         steps:
         - stepName: New Step
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57888
-            _gameObjectName: valve Cube
-            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
             _isValid: 0
           destination:
             _gameObject: {fileID: 0}
@@ -52,42 +121,10 @@ MonoBehaviour:
           allowParallel: 0
           isOptional: 0
           waitForSteps: 
-          hint: 
-          isCompleted: 1
-        - stepName: New Step
-          type: 5
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 82
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 1
-        enforceSequentialFlow: 1
+          isCompleted: 0
+        enforceSequentialFlow: 0
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1
-  assetDescription: Custom training sequence
+  assetDescription: Training sequence asset created with VR Training Kit
