@@ -25,6 +25,10 @@ public class ModularTrainingSequenceController : MonoBehaviour
     [Tooltip("Show step completion messages")]
     public bool showStepCompletions = true;
 
+    [Header("PHASE 1: Rigidbody Freezing")]
+    [Tooltip("Enable Rigidbody discovery and caching (Phase 1 testing)")]
+    public bool enableRigidbodyFreezing = true;
+
     // Handler system
     private List<IStepHandler> stepHandlers = new List<IStepHandler>();
     private Dictionary<InteractionStep, IStepHandler> activeStepHandlers = new Dictionary<InteractionStep, IStepHandler>();
@@ -49,6 +53,9 @@ public class ModularTrainingSequenceController : MonoBehaviour
     {
         // Initialize restriction manager for sequential flow enforcement
         restrictionManager = gameObject.AddComponent<SequenceFlowRestrictionManager>();
+
+        // PHASE 1: Pass Rigidbody freezing flag to restriction manager
+        restrictionManager.enableRigidbodyFreezing = enableRigidbodyFreezing;
 
         InitializeSequence();
     }
@@ -84,6 +91,13 @@ public class ModularTrainingSequenceController : MonoBehaviour
         }
 
         LogInfo($"🚀 Starting modular training sequence: {currentProgram.programName}");
+
+        // PHASE 1: Initialize restriction manager with entire program
+        // This caches ALL Rigidbodies from ALL modules/task groups at once
+        if (restrictionManager != null && enableRigidbodyFreezing)
+        {
+            restrictionManager.InitializeWithProgram(currentProgram);
+        }
 
         // Initialize handler system
         InitializeHandlers();

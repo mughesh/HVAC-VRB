@@ -1,6 +1,6 @@
 // SequenceFlowRestrictionManager.cs
-// Simple socket-only restriction system for training sequences
-// Manages socket enable/disable at the task group level
+// PHASE 1: Enhanced restriction system with Rigidbody freezing
+// Manages socket enable/disable AND Rigidbody freeze/unfreeze at task group level
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +8,13 @@ using System.Linq;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// Socket Restriction Manager - Task Group Level
-/// Controls socket/placepoint components at the task group level
+/// Enhanced Restriction Manager - Socket + Rigidbody Control
+/// PHASE 1: Infrastructure for Rigidbody freezing (not yet integrated)
+/// Controls socket/placepoint components AND Rigidbody constraints
 /// When enforceSequentialFlow is enabled:
 /// - All sockets in CURRENT task group are enabled
 /// - All sockets in OTHER task groups are disabled
+/// - All objects can be frozen/unfrozen to prevent physics interactions
 /// </summary>
 public class SequenceFlowRestrictionManager : MonoBehaviour
 {
@@ -25,11 +27,49 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
     // Component caches for performance
     private Dictionary<GameObject, Component> socketComponents = new Dictionary<GameObject, Component>();
 
+    // PHASE 1: Rigidbody management
+    private Dictionary<GameObject, Rigidbody> rigidbodyComponents = new Dictionary<GameObject, Rigidbody>();
+    private Dictionary<GameObject, RigidbodyConstraints> originalConstraints = new Dictionary<GameObject, RigidbodyConstraints>();
+    private TrainingProgram cachedProgram; // Store reference to entire program for global caching
+
     // Debug logging
     [Header("Debug Settings")]
     public bool enableDebugLogs = true;
 
+    [Header("Phase 1 - Rigidbody Freezing (Infrastructure Only)")]
+    [Tooltip("Enable Rigidbody freeze/unfreeze feature (Phase 1: Testing only, not integrated)")]
+    public bool enableRigidbodyFreezing = false;
+
     #region Public API
+
+    /// <summary>
+    /// Initialize restriction manager with the entire training program
+    /// Called ONCE at sequence start to cache ALL objects from ALL modules/task groups
+    /// </summary>
+    public void InitializeWithProgram(TrainingProgram program)
+    {
+        if (program == null)
+        {
+            LogError("Cannot initialize with null program");
+            return;
+        }
+
+        cachedProgram = program;
+
+        if (!enableRigidbodyFreezing)
+        {
+            LogDebug("Rigidbody freezing disabled - skipping initialization");
+            return;
+        }
+
+        LogInfo($"🚀 PHASE 1: Initializing restriction manager with entire program: {program.programName}");
+
+        // Cache ALL objects from ALL modules and task groups
+        CacheAllRigidbodiesFromProgram(program);
+
+        // PHASE 2 WILL ADD: Freeze all objects here
+        // For now, just cache them
+    }
 
     /// <summary>
     /// Initialize restriction manager for a new task group
@@ -63,6 +103,13 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
 
         LogInfo($"   ✓ Cached {socketComponents.Count} socket components");
         LogInfo($"   ✓ All sockets disabled - ready for task group activation");
+
+        // PHASE 1: Rigidbodies are cached globally in InitializeWithProgram()
+        // No per-task-group caching needed
+        if (enableRigidbodyFreezing && rigidbodyComponents.Count > 0)
+        {
+            LogInfo($"   ✓ Using {rigidbodyComponents.Count} cached Rigidbodies from program initialization");
+        }
     }
 
     /// <summary>
@@ -115,11 +162,18 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
         // Re-enable all sockets before cleanup
         EnableAllSockets();
 
+        // PHASE 1: Unfreeze all objects before cleanup
+        UnfreezeAllObjects();
+
         currentTaskGroup = null;
         activeSteps.Clear();
         completedSteps.Clear();
         allSteps.Clear();
         socketComponents.Clear();
+
+        // PHASE 1: Clear Rigidbody caches
+        rigidbodyComponents.Clear();
+        originalConstraints.Clear();
     }
 
     #endregion
@@ -385,6 +439,483 @@ public class SequenceFlowRestrictionManager : MonoBehaviour
 
         LogDebug($"      IsSocketOccupied '{socketObj.name}': No socket component found, returning false");
         return false;
+    }
+
+    #endregion
+
+    #region PHASE 1: Rigidbody Management (Infrastructure)
+
+    /// <summary>
+    /// PHASE 1: Cache ALL Rigidbody components from ENTIRE training program
+    /// Scans ALL modules, task groups, and steps to find ALL interactive objects
+    /// Called ONCE at sequence initialization
+    /// </summary>
+    private void CacheAllRigidbodiesFromProgram(TrainingProgram program)
+    {
+        if (program == null || program.modules == null)
+        {
+            LogError("Cannot cache Rigidbodies - null program or modules");
+            return;
+        }
+
+        rigidbodyComponents.Clear();
+        originalConstraints.Clear();
+
+        LogInfo("🔍 PHASE 1: Scanning ENTIRE PROGRAM for Rigidbody components...");
+        LogInfo($"   Program: {program.programName}");
+        LogInfo($"   Modules: {program.modules.Count}");
+
+        int foundCount = 0;
+        int skippedSocketCount = 0;
+        int skippedHingeJointCount = 0;
+        int notFoundCount = 0;
+        int totalModules = 0;
+        int totalTaskGroups = 0;
+        int totalSteps = 0;
+
+        // Iterate through ALL modules
+        foreach (var module in program.modules)
+        {
+            if (module == null || module.taskGroups == null) continue;
+            totalModules++;
+
+            LogInfo($"   📚 Module: {module.moduleName} ({module.taskGroups.Count} task groups)");
+
+            // Iterate through ALL task groups
+            foreach (var taskGroup in module.taskGroups)
+            {
+                if (taskGroup == null || taskGroup.steps == null) continue;
+                totalTaskGroups++;
+
+                LogDebug($"      📁 Task Group: {taskGroup.groupName} ({taskGroup.steps.Count} steps)");
+
+                // Iterate through ALL steps
+                foreach (var step in taskGroup.steps)
+                {
+                    if (step == null) continue;
+                    totalSteps++;
+
+                    // Process targetObject (the grabbable object)
+                    if (step.targetObject != null && step.targetObject.GameObject != null)
+                    {
+                        GameObject targetObj = step.targetObject.GameObject;
+
+                        // Skip if already cached (same object used in multiple steps)
+                        if (rigidbodyComponents.ContainsKey(targetObj))
+                        {
+                            LogDebug($"         ⏭️ Already cached: {targetObj.name}");
+                            continue;
+                        }
+
+                        // Skip if this is a socket object (destination/targetSocket)
+                        if (IsSocketObjectInProgram(targetObj, program))
+                        {
+                            LogDebug($"         ⏭️ Skipping socket object: {targetObj.name}");
+                            skippedSocketCount++;
+                            continue;
+                        }
+
+                        // Find Rigidbody in hierarchy
+                        Rigidbody rb = FindRigidbodyInHierarchy(targetObj);
+                        if (rb != null)
+                        {
+                            // Check if object has HingeJoint (knobs, valves after snapping)
+                            HingeJoint hingeJoint = rb.GetComponent<HingeJoint>();
+                            if (hingeJoint != null)
+                            {
+                                LogDebug($"         ⚙️ HingeJoint on {targetObj.name} - will skip freezing");
+                                skippedHingeJointCount++;
+                                continue;
+                            }
+
+                            // Cache the Rigidbody and store original constraints
+                            rigidbodyComponents[targetObj] = rb;
+                            originalConstraints[targetObj] = rb.constraints;
+                            foundCount++;
+                            LogDebug($"         + {targetObj.name} (Constraints: {rb.constraints})");
+                        }
+                        else
+                        {
+                            LogDebug($"         ⚠️ No Rigidbody: {targetObj.name}");
+                            notFoundCount++;
+                        }
+                    }
+                }
+            }
+        }
+
+        LogInfo($"📦 PHASE 1: Global Rigidbody cache complete:");
+        LogInfo($"   📊 Scanned: {totalModules} modules, {totalTaskGroups} task groups, {totalSteps} steps");
+        LogInfo($"   ✅ Found: {foundCount} Rigidbodies");
+        LogInfo($"   ⏭️ Skipped: {skippedSocketCount} sockets, {skippedHingeJointCount} HingeJoint objects");
+        if (notFoundCount > 0)
+        {
+            LogInfo($"   ⚠️ Not found: {notFoundCount} objects (may not have physics)");
+        }
+    }
+
+    /// <summary>
+    /// Check if GameObject is a socket anywhere in the program
+    /// </summary>
+    private bool IsSocketObjectInProgram(GameObject obj, TrainingProgram program)
+    {
+        if (obj == null || program == null || program.modules == null) return false;
+
+        foreach (var module in program.modules)
+        {
+            if (module == null || module.taskGroups == null) continue;
+
+            foreach (var taskGroup in module.taskGroups)
+            {
+                if (taskGroup == null || taskGroup.steps == null) continue;
+
+                foreach (var step in taskGroup.steps)
+                {
+                    if (step == null) continue;
+
+                    // Check destination and targetSocket
+                    if (step.destination != null && step.destination.GameObject == obj)
+                        return true;
+
+                    if (step.targetSocket != null && step.targetSocket.GameObject == obj)
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// PHASE 1: Cache all Rigidbody components from task group objects
+    /// (DEPRECATED: Now using CacheAllRigidbodiesFromProgram instead)
+    /// </summary>
+    private void CacheRigidbodyComponents(TaskGroup taskGroup)
+    {
+        if (taskGroup == null || taskGroup.steps == null)
+        {
+            LogError("Cannot cache Rigidbodies - null task group or steps");
+            return;
+        }
+
+        rigidbodyComponents.Clear();
+        originalConstraints.Clear();
+
+        LogInfo("🔍 PHASE 1: Scanning task group for Rigidbody components...");
+
+        int foundCount = 0;
+        int skippedSocketCount = 0;
+        int skippedHingeJointCount = 0;
+        int notFoundCount = 0;
+
+        foreach (var step in taskGroup.steps)
+        {
+            if (step == null) continue;
+
+            // Process targetObject (the grabbable object)
+            if (step.targetObject != null && step.targetObject.GameObject != null)
+            {
+                GameObject targetObj = step.targetObject.GameObject;
+
+                // Skip if this is a socket object (destination/targetSocket)
+                if (IsSocketObject(targetObj))
+                {
+                    LogDebug($"   ⏭️ Skipping socket object: {targetObj.name} (sockets should not be frozen)");
+                    skippedSocketCount++;
+                    continue;
+                }
+
+                // Find Rigidbody in hierarchy
+                Rigidbody rb = FindRigidbodyInHierarchy(targetObj);
+                if (rb != null)
+                {
+                    // Check if object has HingeJoint (knobs, valves after snapping)
+                    HingeJoint hingeJoint = rb.GetComponent<HingeJoint>();
+                    if (hingeJoint != null)
+                    {
+                        LogDebug($"   ⚙️ Found HingeJoint on {targetObj.name} - will skip freezing (already constrained)");
+                        skippedHingeJointCount++;
+                        continue;
+                    }
+
+                    // Cache the Rigidbody and store original constraints
+                    if (!rigidbodyComponents.ContainsKey(targetObj))
+                    {
+                        rigidbodyComponents[targetObj] = rb;
+                        originalConstraints[targetObj] = rb.constraints;
+                        foundCount++;
+                        LogDebug($"   + Found Rigidbody on: {targetObj.name} (Original constraints: {rb.constraints})");
+                    }
+                }
+                else
+                {
+                    LogDebug($"   ⚠️ No Rigidbody found for: {targetObj.name} (Type: {step.type})");
+                    notFoundCount++;
+                }
+            }
+        }
+
+        LogInfo($"📦 PHASE 1: Rigidbody cache complete:");
+        LogInfo($"   ✅ Found: {foundCount} Rigidbodies");
+        LogInfo($"   ⏭️ Skipped: {skippedSocketCount} sockets, {skippedHingeJointCount} HingeJoint objects");
+        if (notFoundCount > 0)
+        {
+            LogInfo($"   ⚠️ Not found: {notFoundCount} objects (may not have physics)");
+        }
+    }
+
+    /// <summary>
+    /// PHASE 1: Find Rigidbody component in GameObject hierarchy
+    /// Checks parent first, then children
+    /// </summary>
+    private Rigidbody FindRigidbodyInHierarchy(GameObject obj)
+    {
+        if (obj == null) return null;
+
+        // Check on the object itself
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            LogDebug($"      → Found Rigidbody on parent: {obj.name}");
+            return rb;
+        }
+
+        // Check children
+        rb = obj.GetComponentInChildren<Rigidbody>();
+        if (rb != null)
+        {
+            LogDebug($"      → Found Rigidbody on child: {rb.gameObject.name} (parent: {obj.name})");
+            return rb;
+        }
+
+        // Check parent (in case the reference is to a child)
+        if (obj.transform.parent != null)
+        {
+            rb = obj.transform.parent.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                LogDebug($"      → Found Rigidbody on parent: {obj.transform.parent.name} (child: {obj.name})");
+                return rb;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// PHASE 1: Check if a GameObject is a socket (destination or targetSocket)
+    /// Socket objects should never be frozen
+    /// </summary>
+    private bool IsSocketObject(GameObject obj)
+    {
+        if (obj == null) return false;
+
+        // Check if this object is referenced as a destination or targetSocket in any step
+        foreach (var step in allSteps)
+        {
+            if (step.destination != null && step.destination.GameObject == obj)
+                return true;
+
+            if (step.targetSocket != null && step.targetSocket.GameObject == obj)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// PHASE 1: Freeze a single object's Rigidbody
+    /// Freezes position and rotation constraints
+    /// </summary>
+    public void FreezeObject(GameObject obj)
+    {
+        if (obj == null)
+        {
+            LogDebug("   ⚠️ FreezeObject called with null GameObject");
+            return;
+        }
+
+        if (!rigidbodyComponents.ContainsKey(obj))
+        {
+            LogDebug($"   ⚠️ FreezeObject: No cached Rigidbody for {obj.name}");
+            return;
+        }
+
+        Rigidbody rb = rigidbodyComponents[obj];
+        if (rb == null)
+        {
+            LogDebug($"   ⚠️ FreezeObject: Rigidbody is null for {obj.name}");
+            return;
+        }
+
+        // Check for HingeJoint before freezing
+        HingeJoint hingeJoint = rb.GetComponent<HingeJoint>();
+        if (hingeJoint != null)
+        {
+            LogDebug($"   ⚙️ Skipping freeze for {obj.name} - HingeJoint detected (already constrained)");
+            return;
+        }
+
+        // Store original constraints if not already stored
+        if (!originalConstraints.ContainsKey(obj))
+        {
+            originalConstraints[obj] = rb.constraints;
+        }
+
+        // Freeze all position and rotation axes
+        rb.constraints = RigidbodyConstraints.FreezeAll;
+
+        LogInfo($"   🧊 FROZEN: {obj.name} (Original: {originalConstraints[obj]} → New: FreezeAll)");
+    }
+
+    /// <summary>
+    /// PHASE 1: Unfreeze a single object's Rigidbody
+    /// Restores original constraints
+    /// </summary>
+    public void UnfreezeObject(GameObject obj)
+    {
+        if (obj == null)
+        {
+            LogDebug("   ⚠️ UnfreezeObject called with null GameObject");
+            return;
+        }
+
+        if (!rigidbodyComponents.ContainsKey(obj))
+        {
+            LogDebug($"   ⚠️ UnfreezeObject: No cached Rigidbody for {obj.name}");
+            return;
+        }
+
+        Rigidbody rb = rigidbodyComponents[obj];
+        if (rb == null)
+        {
+            LogDebug($"   ⚠️ UnfreezeObject: Rigidbody is null for {obj.name}");
+            return;
+        }
+
+        // Restore original constraints
+        if (originalConstraints.ContainsKey(obj))
+        {
+            rb.constraints = originalConstraints[obj];
+            LogInfo($"   🔓 UNFROZEN: {obj.name} (Restored to: {originalConstraints[obj]})");
+        }
+        else
+        {
+            // Fallback: unfreeze everything
+            rb.constraints = RigidbodyConstraints.None;
+            LogInfo($"   🔓 UNFROZEN: {obj.name} (No original constraints stored, set to None)");
+        }
+    }
+
+    /// <summary>
+    /// PHASE 1: Unfreeze all cached objects
+    /// Used during cleanup/reset
+    /// </summary>
+    private void UnfreezeAllObjects()
+    {
+        if (rigidbodyComponents.Count == 0)
+        {
+            LogDebug("   No Rigidbodies to unfreeze");
+            return;
+        }
+
+        LogInfo($"🔓 PHASE 1: Unfreezing all {rigidbodyComponents.Count} objects...");
+
+        int unfrozenCount = 0;
+        foreach (var kvp in rigidbodyComponents)
+        {
+            GameObject obj = kvp.Key;
+            Rigidbody rb = kvp.Value;
+
+            if (obj != null && rb != null)
+            {
+                // Restore original constraints
+                if (originalConstraints.ContainsKey(obj))
+                {
+                    rb.constraints = originalConstraints[obj];
+                    unfrozenCount++;
+                }
+            }
+        }
+
+        LogInfo($"   ✓ Unfrozen {unfrozenCount} objects");
+    }
+
+    /// <summary>
+    /// PHASE 1 TEST METHOD: Manually test freezing a specific object
+    /// Call this from Inspector or console to test freeze functionality
+    /// </summary>
+    public void TestFreezeObject(GameObject obj)
+    {
+        if (obj == null)
+        {
+            LogError("TEST: Cannot freeze null object");
+            return;
+        }
+
+        LogInfo($"🧪 TEST: Manual freeze test for {obj.name}");
+
+        // Find Rigidbody
+        Rigidbody rb = FindRigidbodyInHierarchy(obj);
+        if (rb == null)
+        {
+            LogError($"TEST: No Rigidbody found on {obj.name}");
+            return;
+        }
+
+        // Cache it
+        if (!rigidbodyComponents.ContainsKey(obj))
+        {
+            rigidbodyComponents[obj] = rb;
+            originalConstraints[obj] = rb.constraints;
+        }
+
+        // Freeze it
+        FreezeObject(obj);
+
+        LogInfo($"TEST: {obj.name} should now be frozen. Try moving it with physics.");
+        LogInfo($"TEST: Call TestUnfreezeObject({obj.name}) to restore.");
+    }
+
+    /// <summary>
+    /// PHASE 1 TEST METHOD: Manually test unfreezing a specific object
+    /// </summary>
+    public void TestUnfreezeObject(GameObject obj)
+    {
+        if (obj == null)
+        {
+            LogError("TEST: Cannot unfreeze null object");
+            return;
+        }
+
+        LogInfo($"🧪 TEST: Manual unfreeze test for {obj.name}");
+
+        UnfreezeObject(obj);
+
+        LogInfo($"TEST: {obj.name} should now be unfrozen. Original constraints restored.");
+    }
+
+    /// <summary>
+    /// PHASE 1 TEST METHOD: Cache and display all Rigidbodies in current task group
+    /// Call this to test the caching mechanism
+    /// </summary>
+    public void TestCacheRigidbodies()
+    {
+        if (currentTaskGroup == null)
+        {
+            LogError("TEST: No current task group. Start a sequence first.");
+            return;
+        }
+
+        LogInfo($"🧪 TEST: Caching Rigidbodies for task group: {currentTaskGroup.groupName}");
+
+        CacheRigidbodyComponents(currentTaskGroup);
+
+        LogInfo($"TEST: Found {rigidbodyComponents.Count} Rigidbodies");
+        foreach (var kvp in rigidbodyComponents)
+        {
+            LogInfo($"   - {kvp.Key.name}: {kvp.Value.constraints}");
+        }
     }
 
     #endregion
