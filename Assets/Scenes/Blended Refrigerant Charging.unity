@@ -2020,6 +2020,55 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3343468130277023805, guid: 4b5f258a0a041f6469bf2ef359685504, type: 3}
   m_PrefabInstance: {fileID: 119196753}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &133342160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 1
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!1 &136930023
 GameObject:
   m_ObjectHideFlags: 0
@@ -7090,7 +7139,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7927244700822117575, guid: 46ed827a29b96854d8d1319e32577beb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.087
+      value: -0.247
       objectReference: {fileID: 0}
     - target: {fileID: 7927244700822117575, guid: 46ed827a29b96854d8d1319e32577beb, type: 3}
       propertyPath: m_LocalPosition.y
@@ -10590,7 +10639,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff69ed256991bab48929e233a2d15e7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trainingAsset: {fileID: 11400000, guid: e6141690c4cd29142838b96e2d21fd49, type: 2}
+  trainingAsset: {fileID: 11400000, guid: 0b37af8b2f34b784aa201fef0e26b347, type: 2}
   enableDebugLogging: 0
   showStepCompletions: 1
   restrictionManager: {fileID: 0}
@@ -10941,9 +10990,10 @@ GameObject:
   - component: {fileID: 583893374}
   - component: {fileID: 583893376}
   - component: {fileID: 583893375}
+  - component: {fileID: 583893377}
   m_Layer: 0
   m_Name: Yellow hose female
-  m_TagString: grab
+  m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11058,6 +11108,22 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &583893377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583893373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 2127948378}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
 --- !u!1 &595718027
 GameObject:
   m_ObjectHideFlags: 0
@@ -14101,6 +14167,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1562310481}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &775925157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 1
+  springValue: 1
+  springDamper: 1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!1001 &784900329
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14806,9 +14921,10 @@ GameObject:
   - component: {fileID: 870778575}
   - component: {fileID: 870778577}
   - component: {fileID: 870778576}
+  - component: {fileID: 870778578}
   m_Layer: 0
   m_Name: Red Hose Male
-  m_TagString: grab
+  m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14840,7 +14956,7 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -14885,7 +15001,7 @@ MonoBehaviour:
   heldNoFriction: 1
   ignoreWeight: 0
   allowHeldSwapping: 1
-  throwPower: 1
+  throwPower: 1.5
   jointBreakForce: 3500
   showAdvancedSettings: 1
   makeChildrenGrabbable: 1
@@ -14924,6 +15040,22 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   lockHandOnGrab: 0
+--- !u!114 &870778578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 870778574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 1453593700}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
 --- !u!1 &874425199 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4650585233922203725, guid: 790d29666b4ace245808ea65a200e9ff, type: 3}
@@ -17736,9 +17868,10 @@ GameObject:
   - component: {fileID: 1042882850}
   - component: {fileID: 1042882852}
   - component: {fileID: 1042882851}
+  - component: {fileID: 1042882853}
   m_Layer: 0
   m_Name: Blue hose male
-  m_TagString: grab
+  m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -17770,7 +17903,7 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -17815,7 +17948,7 @@ MonoBehaviour:
   heldNoFriction: 1
   ignoreWeight: 0
   allowHeldSwapping: 1
-  throwPower: 1
+  throwPower: 1.5
   jointBreakForce: 3500
   showAdvancedSettings: 1
   makeChildrenGrabbable: 1
@@ -17854,6 +17987,22 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   lockHandOnGrab: 0
+--- !u!114 &1042882853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042882849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 1629959085}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
 --- !u!1 &1044474805
 GameObject:
   m_ObjectHideFlags: 0
@@ -21375,7 +21524,7 @@ MonoBehaviour:
   heldNoFriction: 1
   ignoreWeight: 0
   allowHeldSwapping: 1
-  throwPower: 1
+  throwPower: 1.5
   jointBreakForce: 3500
   showAdvancedSettings: 1
   makeChildrenGrabbable: 1
@@ -21424,7 +21573,7 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -22129,6 +22278,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1453593700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 1
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!1001 &1459241282
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27503,9 +27701,10 @@ GameObject:
   - component: {fileID: 1526925842}
   - component: {fileID: 1526925844}
   - component: {fileID: 1526925843}
+  - component: {fileID: 1526925845}
   m_Layer: 0
   m_Name: 'Yellow Hose Male '
-  m_TagString: grab
+  m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -27621,6 +27820,22 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   lockHandOnGrab: 0
+--- !u!114 &1526925845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1526925841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 775925157}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
 --- !u!1 &1529397029
 GameObject:
   m_ObjectHideFlags: 0
@@ -34184,6 +34399,55 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.015242625, y: 0.019934647, z: 0.015873725}
   m_Center: {x: -0.00000005980463, y: -0.0011026259, z: 0.000000014635468}
+--- !u!114 &1629959085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 1
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!1001 &1631197117
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35744,9 +36008,10 @@ GameObject:
   - component: {fileID: 1743360068}
   - component: {fileID: 1743360069}
   - component: {fileID: 1743360070}
+  - component: {fileID: 1743360071}
   m_Layer: 0
   m_Name: Red_Hose_Female
-  m_TagString: grab
+  m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -35777,7 +36042,7 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -35822,7 +36087,7 @@ MonoBehaviour:
   heldNoFriction: 1
   ignoreWeight: 0
   allowHeldSwapping: 1
-  throwPower: 1
+  throwPower: 1.5
   jointBreakForce: 3500
   showAdvancedSettings: 1
   makeChildrenGrabbable: 0
@@ -35861,6 +36126,22 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   lockHandOnGrab: 0
+--- !u!114 &1743360071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1743360067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 1856730974}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
 --- !u!1 &1747613599
 GameObject:
   m_ObjectHideFlags: 0
@@ -37907,6 +38188,55 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1841188604}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1856730974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 1
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!1 &1860013010
 GameObject:
   m_ObjectHideFlags: 0
@@ -38497,9 +38827,10 @@ GameObject:
   - component: {fileID: 1921032117}
   - component: {fileID: 1921032119}
   - component: {fileID: 1921032118}
+  - component: {fileID: 1921032120}
   m_Layer: 0
   m_Name: Blue Hose Female
-  m_TagString: grab
+  m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38530,7 +38861,7 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -38575,7 +38906,7 @@ MonoBehaviour:
   heldNoFriction: 1
   ignoreWeight: 0
   allowHeldSwapping: 1
-  throwPower: 1
+  throwPower: 1.5
   jointBreakForce: 3500
   showAdvancedSettings: 1
   makeChildrenGrabbable: 1
@@ -38614,6 +38945,22 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   lockHandOnGrab: 0
+--- !u!114 &1921032120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921032116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 133342160}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
 --- !u!1 &1921999056
 GameObject:
   m_ObjectHideFlags: 0
@@ -38841,7 +39188,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
@@ -42098,6 +42445,55 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 7078632329721667668, guid: dbe1d97b539860f419cfc981b17ecfed, type: 3}
+--- !u!114 &2127948378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 1
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!1 &2140871211
 GameObject:
   m_ObjectHideFlags: 0
@@ -48299,8 +48695,8 @@ Transform:
   m_GameObject: {fileID: 7083945923590700460}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 1.3552529e-20, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.82, z: 0}
-  m_LocalScale: {x: 1.49, y: 1.6742784, z: 1.49}
+  m_LocalPosition: {x: 0, y: 0.8103, z: 0}
+  m_LocalScale: {x: 1.2, y: 1.3484122, z: 1.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4013215435951388820}
@@ -50411,8 +50807,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.03753462
-  m_Center: {x: 0.00000000372529, y: -0.010190758, z: 0.000000109896064}
+  m_Radius: 0.05
+  m_Center: {x: 0.00000000372529, y: -0.001, z: 0.000000109896064}
 --- !u!1 &7697656964266645970
 GameObject:
   m_ObjectHideFlags: 0

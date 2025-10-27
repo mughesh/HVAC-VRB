@@ -32,8 +32,8 @@ MonoBehaviour:
   dampeningSpeed: 10
   autoConfigureConnectedAnchor: 1
   useSpring: 1
-  springValue: 0
-  springDamper: 0.1
+  springValue: 1
+  springDamper: 1
   springTargetPosition: 0
   bounceMinVelocity: 0.2
   contactDistance: 0
