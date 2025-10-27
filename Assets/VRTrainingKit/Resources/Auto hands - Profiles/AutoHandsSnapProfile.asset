@@ -16,7 +16,7 @@ MonoBehaviour:
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   enableAutoHandsDebugLogging: 0
   shapeType: 0
-  placeRadius: 0.15
+  placeRadius: 0.02
   placeSize: {x: 0.15, y: 0.15, z: 0.15}
   shapeOffset: {x: 0, y: 0, z: 0}
   grabbablePlacePoint: 1

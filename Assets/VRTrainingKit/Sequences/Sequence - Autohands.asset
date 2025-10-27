@@ -13,23 +13,23 @@ MonoBehaviour:
   m_Name: Sequence - Autohands
   m_EditorClassIdentifier: 
   program:
-    programName: New Training Program
+    programName: Blended Refrigerant
     description: 
     modules:
-    - moduleName: New Module
+    - moduleName: Phase 1
       description: 
       taskGroups:
-      - groupName: New Task Group
+      - groupName: Cap removal
         description: 
         steps:
         - stepName: New Step
-          type: 0
+          type: 1
           targetObject:
             _gameObject: {fileID: 0}
             _instanceID: 57888
             _gameObjectName: valve Cube
             _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -58,10 +58,10 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57888
-            _gameObjectName: valve Cube
-            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
-            _isValid: 1
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -86,7 +86,7 @@ MonoBehaviour:
           waitForSteps: 
           hint: Step instruction goes here
           isCompleted: 1
-        enforceSequentialFlow: 0
+        enforceSequentialFlow: 1
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1

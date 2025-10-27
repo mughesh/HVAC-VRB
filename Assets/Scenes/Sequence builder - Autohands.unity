@@ -1391,39 +1391,6 @@ Transform:
   - {fileID: 372972727}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &164899813
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66bd5b2fda06baa41850eb4bdee2966d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  requiredTurnCount: 0.15
-  rotationAxis: {x: 0, y: 0, z: 1}
-  angleTolerance: 10
-  rotationDirection: 0
-  compatibleSocketTags:
-  - turn_socket
-  specificCompatibleSockets: []
-  requireSpecificSockets: 0
-  rotationDampening: 5
-  autoConfigureConnectedAnchor: 1
-  useSpring: 0
-  springValue: 0
-  springDamper: 0.1
-  bounceMinVelocity: 0.2
-  contactDistance: 0
-  positionTolerance: 0.01
-  velocityThreshold: 0.05
-  positioningTimeout: 3
-  hapticIntensity: 0.3
-  showProgressIndicator: 1
-  colliderType: 0
 --- !u!1 &172383977
 GameObject:
   m_ObjectHideFlags: 0
@@ -6907,6 +6874,40 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7953c99a688646a4c92ecb71728d01c7, type: 3}
   m_PrefabInstance: {fileID: 814808644}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &817212200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66bd5b2fda06baa41850eb4bdee2966d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  degreesPerTurn: 30
+  requiredTurnCount: 2
+  rotationAxis: {x: 0, y: 0, z: 1}
+  angleTolerance: 10
+  rotationDirection: 0
+  compatibleSocketTags:
+  - turn_socket
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  rotationDampening: 5
+  autoConfigureConnectedAnchor: 1
+  useSpring: 0
+  springValue: 0
+  springDamper: 0.1
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  hapticIntensity: 0.3
+  showProgressIndicator: 1
+  colliderType: 0
 --- !u!1 &818077215
 GameObject:
   m_ObjectHideFlags: 0
@@ -14909,7 +14910,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1824670202
 Transform:
   m_ObjectHideFlags: 0
@@ -15579,7 +15580,7 @@ Transform:
   m_GameObject: {fileID: 1892110665}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.32, y: 1.024, z: 0.752}
+  m_LocalPosition: {x: -0.5064, y: 1.024, z: 0.752}
   m_LocalScale: {x: 0.07, y: 0.07, z: 0.07}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -15691,7 +15692,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64dde5fc841df7748b79b492bb61253e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profile: {fileID: 164899813}
+  profile: {fileID: 817212200}
   currentState: 0
   currentRotationAngle: 0
   currentTurnCount: 0
