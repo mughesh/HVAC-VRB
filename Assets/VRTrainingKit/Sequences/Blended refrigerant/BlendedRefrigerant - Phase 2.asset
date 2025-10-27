@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5288bdac7d20d1b4bb582fa20543d397, type: 3}
-  m_Name: BlendedRefrigerant - Phase 1
+  m_Name: BlendedRefrigerant - Phase 2
   m_EditorClassIdentifier: 
   program:
     programName: BlendedRefrigerant
@@ -182,7 +182,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 55672
+            _instanceID: 787378
             _gameObjectName: Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -214,7 +214,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 55310
+            _instanceID: 785524
             _gameObjectName: Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -361,8 +361,17 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
+          isCompleted: 1
         enforceSequentialFlow: 1
+        isExpanded: 1
+      isExpanded: 1
+    - moduleName: New Module
+      description: Module description
+      taskGroups:
+      - groupName: New Task Group
+        description: Task group description
+        steps: []
+        enforceSequentialFlow: 0
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1
