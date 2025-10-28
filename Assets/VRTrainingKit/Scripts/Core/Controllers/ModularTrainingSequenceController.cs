@@ -204,12 +204,32 @@ public class ModularTrainingSequenceController : MonoBehaviour
     }
 
     /// <summary>
-    /// Create default AutoHands handlers (placeholder for Phase 2)
+    /// Create default AutoHands handlers
     /// </summary>
     void CreateDefaultAutoHandsHandlers()
     {
-        LogWarning("🏗️ AutoHands default handlers not yet implemented - will be added in Phase 2");
-        // TODO: Create AutoHands handlers in Phase 2
+        LogInfo("🏗️ Creating default AutoHands handlers...");
+
+        // Create AutoHands handler GameObjects
+        var grabHandler = new GameObject("AutoHandsGrabStepHandler").AddComponent<AutoHandsGrabStepHandler>();
+        var snapHandler = new GameObject("AutoHandsSnapStepHandler").AddComponent<AutoHandsSnapStepHandler>();
+        var knobHandler = new GameObject("AutoHandsKnobStepHandler").AddComponent<AutoHandsKnobStepHandler>();
+        var valveHandler = new GameObject("AutoHandsValveStepHandler").AddComponent<AutoHandsValveStepHandler>();
+        var waitForScriptConditionHandler = new GameObject("AutoHandsWaitForScriptConditionHandler").AddComponent<AutoHandsWaitForScriptConditionHandler>();
+
+        // Set as children of this controller for organization
+        grabHandler.transform.SetParent(transform);
+        snapHandler.transform.SetParent(transform);
+        knobHandler.transform.SetParent(transform);
+        valveHandler.transform.SetParent(transform);
+        waitForScriptConditionHandler.transform.SetParent(transform);
+
+        // Register the handlers
+        RegisterHandler(grabHandler);
+        RegisterHandler(snapHandler);
+        RegisterHandler(knobHandler);
+        RegisterHandler(valveHandler);
+        RegisterHandler(waitForScriptConditionHandler);
     }
 
     /// <summary>

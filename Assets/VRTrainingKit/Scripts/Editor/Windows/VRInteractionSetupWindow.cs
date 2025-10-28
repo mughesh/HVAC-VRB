@@ -1719,6 +1719,11 @@ public class VRInteractionSetupWindow : EditorWindow
             case InteractionStep.StepType.TurnKnob: return "🔄";
             case InteractionStep.StepType.WaitForCondition: return "⏳";
             case InteractionStep.StepType.ShowInstruction: return "💬";
+            case InteractionStep.StepType.TightenValve: return "🔧";
+            case InteractionStep.StepType.LoosenValve: return "🔓";
+            case InteractionStep.StepType.InstallValve: return "🔩";
+            case InteractionStep.StepType.RemoveValve: return "🔧";
+            case InteractionStep.StepType.WaitForScriptCondition: return "⚙️";
             default: return "❓";
         }
     }
@@ -1924,9 +1929,10 @@ public class VRInteractionSetupWindow : EditorWindow
         EditorGUILayout.Space(10);
         
         // Target objects based on type
-        if (step.type == InteractionStep.StepType.Grab || 
-            step.type == InteractionStep.StepType.GrabAndSnap || 
-            step.type == InteractionStep.StepType.TurnKnob)
+        if (step.type == InteractionStep.StepType.Grab ||
+            step.type == InteractionStep.StepType.GrabAndSnap ||
+            step.type == InteractionStep.StepType.TurnKnob ||
+            step.type == InteractionStep.StepType.WaitForScriptCondition)
         {
             EditorGUILayout.LabelField("Target Objects", EditorStyles.boldLabel);
             
@@ -1960,7 +1966,20 @@ public class VRInteractionSetupWindow : EditorWindow
                 EditorGUILayout.EndHorizontal();
             }
         }
-        
+
+        // WaitForScriptCondition-specific info
+        if (step.type == InteractionStep.StepType.WaitForScriptCondition)
+        {
+            EditorGUILayout.Space(5);
+            EditorGUILayout.HelpBox(
+                "Target Object must have a component that implements ISequenceCondition interface.\n\n" +
+                "Available condition types:\n" +
+                "• DummyCondition (for testing)\n" +
+                "• ButtonPressCondition\n" +
+                "• Custom conditions (inherit from BaseSequenceCondition)",
+                MessageType.Info);
+        }
+
         // Knob-specific settings
         if (step.type == InteractionStep.StepType.TurnKnob)
         {
@@ -2111,6 +2130,7 @@ public class VRInteractionSetupWindow : EditorWindow
         
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
+        menu.AddItem(new GUIContent("Wait For Script Condition"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForScriptCondition));
         menu.AddItem(new GUIContent("Show Instruction Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.ShowInstruction));
         menu.ShowAsContext();
     }

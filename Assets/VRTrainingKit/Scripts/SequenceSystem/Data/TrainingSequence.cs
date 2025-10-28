@@ -272,12 +272,15 @@ public class InteractionStep
         TurnKnob,          // Rotate knob to specific angle
         WaitForCondition,  // Wait for previous steps
         ShowInstruction,   // Display instruction to user
-        
+
         // Valve operation step types
         TightenValve,      // Forward flow: grab → snap → tighten
         LoosenValve,       // Reverse flow: loosen → remove
         InstallValve,      // Complete forward flow (grab → snap → tighten)
-        RemoveValve        // Complete reverse flow (loosen → remove)
+        RemoveValve,       // Complete reverse flow (loosen → remove)
+
+        // Script-based condition step type
+        WaitForScriptCondition  // Wait for custom condition script (ISequenceCondition)
     }
     
     [Header("Step Information")]
@@ -383,10 +386,13 @@ public class InteractionStep
                 
             case StepType.WaitForCondition:
                 return waitForSteps.Count > 0;
-                
+
             case StepType.ShowInstruction:
                 return !string.IsNullOrEmpty(hint);
-                
+
+            case StepType.WaitForScriptCondition:
+                return targetObject != null && targetObject.IsValid;
+
             default:
                 return false;
         }
@@ -458,11 +464,16 @@ public class InteractionStep
                 
             case StepType.WaitForCondition:
                 return "No steps specified to wait for";
-                
+
             case StepType.ShowInstruction:
                 return "Missing instruction text";
+
+            case StepType.WaitForScriptCondition:
+                if (targetObject == null || !targetObject.IsValid)
+                    return "Missing or invalid target object with ISequenceCondition component";
+                break;
         }
-        
+
         return "Unknown validation error";
     }
     
