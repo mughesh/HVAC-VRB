@@ -87,7 +87,7 @@ MonoBehaviour:
           hint: Step instruction goes here
           isCompleted: 1
         enforceSequentialFlow: 1
-        isExpanded: 1
+        isExpanded: 0
       - groupName: GSV allen key
         description: Task group description
         steps:
@@ -101,8 +101,8 @@ MonoBehaviour:
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57218
-            _gameObjectName: Image
+            _instanceID: 57182
+            _gameObjectName: LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
@@ -156,16 +156,16 @@ MonoBehaviour:
           hint: Step instruction goes here
           isCompleted: 1
         enforceSequentialFlow: 1
-        isExpanded: 1
+        isExpanded: 0
       - groupName: Yellow Hose
         description: Task group description
         steps:
         - stepName: 'Yellow male '
-          type: 1
+          type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56762
-            _gameObjectName: pipe
+            _instanceID: 56722
+            _gameObjectName: 'Yellow Hose Male '
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
@@ -182,7 +182,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 787378
+            _instanceID: 55624
             _gameObjectName: Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -193,11 +193,11 @@ MonoBehaviour:
           hint: Step instruction goes here
           isCompleted: 1
         - stepName: Yellow female
-          type: 1
+          type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55768
-            _gameObjectName: ZeroSwitch
+            _instanceID: 55722
+            _gameObjectName: Yellow hose female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
@@ -214,7 +214,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 785524
+            _instanceID: 55250
             _gameObjectName: Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -230,7 +230,7 @@ MonoBehaviour:
         description: Task group description
         steps:
         - stepName: Blue male
-          type: 1
+          type: 5
           targetObject:
             _gameObject: {fileID: 0}
             _instanceID: 56296
@@ -251,10 +251,10 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _instanceID: 57074
+            _gameObjectName: GSV valve_socket_pick
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
           rotationDampening: 0
           allowParallel: 0
           isOptional: 0
@@ -262,11 +262,11 @@ MonoBehaviour:
           hint: Step instruction goes here
           isCompleted: 1
         - stepName: Blue female
-          type: 1
+          type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57210
-            _gameObjectName: Image
+            _instanceID: 57174
+            _gameObjectName: Blue Hose Female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
@@ -283,10 +283,10 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _instanceID: 56972
+            _gameObjectName: Blue female snap
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
           rotationDampening: 0
           allowParallel: 0
           isOptional: 0
@@ -299,7 +299,7 @@ MonoBehaviour:
         description: Task group description
         steps:
         - stepName: Red male
-          type: 1
+          type: 5
           targetObject:
             _gameObject: {fileID: 0}
             _instanceID: 56058
@@ -320,10 +320,10 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _instanceID: 57182
+            _gameObjectName: LSV valve_socket_pick
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
           rotationDampening: 0
           allowParallel: 0
           isOptional: 0
@@ -331,7 +331,7 @@ MonoBehaviour:
           hint: Step instruction goes here
           isCompleted: 1
         - stepName: Red Female
-          type: 1
+          type: 5
           targetObject:
             _gameObject: {fileID: 0}
             _instanceID: 56964
@@ -352,10 +352,10 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
+            _instanceID: 55930
+            _gameObjectName: Red female snap
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
           rotationDampening: 0
           allowParallel: 0
           isOptional: 0
@@ -364,7 +364,7 @@ MonoBehaviour:
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
-      isExpanded: 0
+      isExpanded: 1
     - moduleName: Phase 2 - Purging
       description: Module description
       taskGroups:
