@@ -26,13 +26,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56630
+            _instanceID: 56590
             _gameObjectName: suction valve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 56030
+            _instanceID: 55982
             _gameObjectName: LSV valve_socket_drop
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -58,13 +58,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56120
+            _instanceID: 56072
             _gameObjectName: GasValve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55962
+            _instanceID: 55916
             _gameObjectName: GSV valve_socket_drop
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -95,14 +95,14 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55680
+            _instanceID: 55632
             _gameObjectName: AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 57218
-            _gameObjectName: LSV valve_socket_pick
+            _gameObjectName: Image
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
@@ -127,13 +127,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55680
+            _instanceID: 55632
             _gameObjectName: AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57110
+            _instanceID: 57074
             _gameObjectName: GSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -165,13 +165,13 @@ MonoBehaviour:
           targetObject:
             _gameObject: {fileID: 0}
             _instanceID: 56762
-            _gameObjectName: 'Yellow Hose Male '
+            _gameObjectName: pipe
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 55672
-            _gameObjectName: Yellow male snap
+            _gameObjectName: Sequence Manager
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
@@ -197,12 +197,12 @@ MonoBehaviour:
           targetObject:
             _gameObject: {fileID: 0}
             _instanceID: 55768
-            _gameObjectName: Yellow hose female
+            _gameObjectName: ZeroSwitch
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55310
+            _instanceID: 55250
             _gameObjectName: Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -233,13 +233,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56334
+            _instanceID: 56296
             _gameObjectName: Blue hose male
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57110
+            _instanceID: 57074
             _gameObjectName: GSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -266,12 +266,12 @@ MonoBehaviour:
           targetObject:
             _gameObject: {fileID: 0}
             _instanceID: 57210
-            _gameObjectName: Blue Hose Female
+            _gameObjectName: Image
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57012
+            _instanceID: 56972
             _gameObjectName: Blue female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -302,14 +302,14 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56106
+            _instanceID: 56058
             _gameObjectName: Red Hose Male
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 57218
-            _gameObjectName: LSV valve_socket_pick
+            _gameObjectName: Image
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
@@ -334,13 +334,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57004
+            _instanceID: 56964
             _gameObjectName: Red_Hose_Female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55978
+            _instanceID: 55930
             _gameObjectName: Red female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -364,11 +364,223 @@ MonoBehaviour:
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
-      isExpanded: 1
-    - moduleName: New Module
+      isExpanded: 0
+    - moduleName: Phase 2 - Purging
       description: Module description
       taskGroups:
-      - groupName: New Task Group
+      - groupName: Turn cylinder knob
+        description: Task group description
+        steps:
+        - stepName: New Step
+          type: 2
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        enforceSequentialFlow: 0
+        isExpanded: 1
+      - groupName: Loose yellow valve at GM
+        description: Task group description
+        steps:
+        - stepName: Loose yellow valve
+          type: 6
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        - stepName: Mist effect
+          type: 9
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        - stepName: Tight yellow valve
+          type: 5
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        enforceSequentialFlow: 0
+        isExpanded: 1
+      - groupName: Turn on switches
+        description: Task group description
+        steps:
+        - stepName: AC switch
+          type: 9
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        - stepName: Weigh machine switch
+          type: 9
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 0
+        enforceSequentialFlow: 0
+        isExpanded: 1
+      - groupName: weigh machine TARE
+        description: Task group description
+        steps: []
+        enforceSequentialFlow: 0
+        isExpanded: 1
+      - groupName: Clamp meter
         description: Task group description
         steps: []
         enforceSequentialFlow: 0
