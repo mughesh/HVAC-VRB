@@ -21,40 +21,8 @@ MonoBehaviour:
       taskGroups:
       - groupName: New Task Group
         description: Task group description
-        steps:
-        - stepName: New Step
-          type: 2
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 56730
-            _gameObjectName: Highside_Blue_Hand
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 50
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          isCompleted: 1
-        enforceSequentialFlow: 0
+        steps: []
+        enforceSequentialFlow: 1
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1
