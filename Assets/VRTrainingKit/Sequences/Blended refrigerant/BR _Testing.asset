@@ -23,11 +23,11 @@ MonoBehaviour:
         description: 
         steps:
         - stepName: Switch - Step
-          type: 0
+          type: 9
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56750
-            _gameObjectName: 'Yellow Hose Male '
+            _instanceID: 56192
+            _gameObjectName: onSwitch
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
@@ -58,7 +58,7 @@ MonoBehaviour:
           type: 9
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55366
+            _instanceID: 55390
             _gameObjectName: NitroGas
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -85,13 +85,13 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          isCompleted: 0
+          isCompleted: 1
         - stepName: Grab
-          type: 0
+          type: 9
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57620
-            _gameObjectName: Clamp_Meter
+            _instanceID: 55808
+            _gameObjectName: ZeroSwitch
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:

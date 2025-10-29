@@ -1,6 +1,7 @@
 // InteractableButtonCondition.cs
 // Button/switch condition with trigger detection and animation support
 using UnityEngine;
+using UnityEngine.Events;
 
 // NO NAMESPACE - Follows existing project pattern
 
@@ -54,6 +55,10 @@ public class InteractableButtonCondition : BaseSequenceCondition
     [Header("Audio (Optional)")]
     [Tooltip("Play audio from AudioSource component when pressed")]
     public bool playAudioOnPress = true;
+
+    [Header("Callbacks (Optional)")]
+    [Tooltip("Event fired when button state changes (passes new state as string: 'On' or 'Off')")]
+    public UnityEvent<string> OnButtonStateChanged;
 
     // State tracking
     private SwitchState currentState;
@@ -209,6 +214,11 @@ public class InteractableButtonCondition : BaseSequenceCondition
         {
             StartCoroutine(AnimatePushButton());
         }
+
+        // Invoke callback event
+        string stateString = newState.ToString();
+        LogDebug($"Invoking OnButtonStateChanged with state: {stateString}");
+        OnButtonStateChanged?.Invoke(stateString);
 
         // Mark condition as met if button is ON
         if (newState == SwitchState.On)
