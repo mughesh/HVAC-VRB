@@ -23,7 +23,7 @@ MonoBehaviour:
   useSpring: 1
   springValue: 0
   damper: 0.1
-  targetPosition: 0
+  targetPosition: 45
   bounceMinVelocity: 0.2
   contactDistance: 0
   grabType: 0

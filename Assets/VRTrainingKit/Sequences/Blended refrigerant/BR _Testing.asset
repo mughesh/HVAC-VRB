@@ -23,11 +23,11 @@ MonoBehaviour:
         description: 
         steps:
         - stepName: Switch - Step
-          type: 9
+          type: 0
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56140
-            _gameObjectName: onSwitch
+            _instanceID: 56750
+            _gameObjectName: 'Yellow Hose Male '
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
@@ -54,12 +54,12 @@ MonoBehaviour:
           waitForSteps: 
           hint: 
           isCompleted: 1
-        - stepName: Grab
-          type: 0
+        - stepName: Mist
+          type: 9
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57586
-            _gameObjectName: Clamp_Meter
+            _instanceID: 55366
+            _gameObjectName: NitroGas
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
@@ -86,6 +86,38 @@ MonoBehaviour:
           waitForSteps: 
           hint: Step instruction goes here
           isCompleted: 0
+        - stepName: Grab
+          type: 0
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 57620
+            _gameObjectName: Clamp_Meter
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          isCompleted: 1
         enforceSequentialFlow: 0
         isExpanded: 1
       isExpanded: 1
