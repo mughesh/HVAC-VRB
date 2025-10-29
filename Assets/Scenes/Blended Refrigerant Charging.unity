@@ -10821,7 +10821,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff69ed256991bab48929e233a2d15e7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trainingAsset: {fileID: 11400000, guid: e1141decf338fbe4bb3ecdd9b51f4228, type: 2}
+  trainingAsset: {fileID: 11400000, guid: e03421372e690f04d9f5469bb2b9e274, type: 2}
   enableDebugLogging: 0
   showStepCompletions: 1
   restrictionManager: {fileID: 0}

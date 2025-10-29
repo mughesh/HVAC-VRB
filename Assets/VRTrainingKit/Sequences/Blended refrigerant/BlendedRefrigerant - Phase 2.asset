@@ -649,6 +649,6 @@ MonoBehaviour:
           isCompleted: 0
         enforceSequentialFlow: 0
         isExpanded: 1
-      isExpanded: 0
+      isExpanded: 1
     isExpanded: 1
   assetDescription: Training sequence asset created with VR Training Kit
