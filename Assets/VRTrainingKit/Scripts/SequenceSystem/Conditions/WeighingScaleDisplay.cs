@@ -103,6 +103,32 @@ public class WeighingScaleDisplay : MonoBehaviour
     }
 
     /// <summary>
+    /// Update weight based on knob rotation (0.0 to 1.0)
+    /// Called from AutoHandsKnobController.OnKnobRotated UnityEvent
+    /// </summary>
+    /// <param name="normalizedValue">Knob rotation from 0.0 (start) to 1.0 (fully open)</param>
+    public void UpdateWeightFromKnob(float normalizedValue)
+    {
+        // Weight goes from 0 to 950 grams
+        float exactWeight = normalizedValue * 950f;
+
+        // Round to nearest 100g for readability (0, 100, 200, ..., 900, 950)
+        int roundedWeight;
+        if (exactWeight >= 900f)
+        {
+            // Final range: round to nearest 50 to show 900, 950
+            roundedWeight = Mathf.RoundToInt(exactWeight / 50f) * 50;
+        }
+        else
+        {
+            // Earlier range: round to nearest 100
+            roundedWeight = Mathf.RoundToInt(exactWeight / 100f) * 100;
+        }
+
+        ShowWeight(roundedWeight);
+    }
+
+    /// <summary>
     /// Enable or disable the display
     /// </summary>
     public void SetDisplayActive(bool active)

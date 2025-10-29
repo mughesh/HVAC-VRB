@@ -19,15 +19,15 @@ MonoBehaviour:
     - moduleName: New Module
       description: 
       taskGroups:
-      - groupName: Switch group
-        description: 
+      - groupName: New Task Group
+        description: Task group description
         steps:
-        - stepName: Switch - Step
-          type: 9
+        - stepName: New Step
+          type: 2
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56192
-            _gameObjectName: onSwitch
+            _instanceID: 56730
+            _gameObjectName: Highside_Blue_Hand
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
@@ -36,71 +36,7 @@ MonoBehaviour:
             _gameObjectName: 
             _scenePath: 
             _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: 
-          isCompleted: 1
-        - stepName: Mist
-          type: 9
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 55390
-            _gameObjectName: NitroGas
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          isCompleted: 1
-        - stepName: Grab
-          type: 9
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 55808
-            _gameObjectName: ZeroSwitch
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
+          targetAngle: 50
           angleTolerance: 5
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50

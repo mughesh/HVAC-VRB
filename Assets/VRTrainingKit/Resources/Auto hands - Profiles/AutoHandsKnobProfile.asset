@@ -17,7 +17,7 @@ MonoBehaviour:
   enableAutoHandsDebugLogging: 0
   rotationAxis: 1
   minAngle: 0
-  maxAngle: 180
+  maxAngle: 90
   useLimits: 1
   autoConfigureConnectedAnchor: 1
   useSpring: 1
