@@ -291,6 +291,27 @@ public class ModularTrainingSequenceController : MonoBehaviour
         // Hide all guidance arrows for this step
         HandleStepArrowsOnComplete(step);
 
+        // In sequential mode, show arrow for the next incomplete step
+        if (currentTaskGroup != null && currentTaskGroup.enforceSequentialFlow)
+        {
+            // Find next incomplete step
+            InteractionStep nextIncompleteStep = null;
+            foreach (var s in currentTaskGroup.steps)
+            {
+                if (!s.isCompleted)
+                {
+                    nextIncompleteStep = s;
+                    break;
+                }
+            }
+
+            // Show arrow for next step
+            if (nextIncompleteStep != null)
+            {
+                HandleStepArrowsOnStart(nextIncompleteStep);
+            }
+        }
+
         // Fire external event
         OnStepCompleted?.Invoke(step);
 
@@ -318,6 +339,9 @@ public class ModularTrainingSequenceController : MonoBehaviour
 
         // Clear previous active steps
         StopAllActiveSteps();
+
+        // Hide all arrows from previous task group
+        HideAllArrows();
 
         // PHASE 1: Initialize restriction manager if sequential flow is enabled
         if (currentTaskGroup.enforceSequentialFlow && restrictionManager != null)
@@ -723,8 +747,28 @@ public class ModularTrainingSequenceController : MonoBehaviour
     /// </summary>
     void HandleStepArrowsOnStart(InteractionStep step)
     {
-        // Hide all previous arrows first - only show current step's arrow
-        HideAllArrows();
+        // In sequential mode, only show arrow if this is the first incomplete step
+        var currentTaskGroup = GetCurrentTaskGroup();
+        if (currentTaskGroup != null && currentTaskGroup.enforceSequentialFlow)
+        {
+            // Find first incomplete step in the task group
+            InteractionStep firstIncompleteStep = null;
+            foreach (var s in currentTaskGroup.steps)
+            {
+                if (!s.isCompleted)
+                {
+                    firstIncompleteStep = s;
+                    break;
+                }
+            }
+
+            // Only show arrow if this is the first incomplete step
+            if (step != firstIncompleteStep)
+            {
+                LogDebug($"🔽 Skipping arrow for step '{step.stepName}' - not the current active step in sequential mode");
+                return;
+            }
+        }
 
         var arrowState = new ArrowState { step = step };
 

@@ -302,7 +302,7 @@ MonoBehaviour:
             _scenePath: 
             _isValid: 0
           showDestinationAfterGrab: 1
-          isCompleted: 0
+          isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
       isExpanded: 1
