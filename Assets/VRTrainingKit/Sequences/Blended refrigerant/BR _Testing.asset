@@ -23,159 +23,16 @@ MonoBehaviour:
         description: Task group description
         steps:
         - stepName: New Step
-          type: 0
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 56686
-            _gameObjectName: suction valve
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 56028
-            _gameObjectName: LSV valve_socket_drop
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          targetArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: -21290
-            _gameObjectName: GuidanceArrow
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          hideTargetArrowAfterGrab: 0
-          destinationArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          showDestinationAfterGrab: 1
-          isCompleted: 0
-        - stepName: New Step
-          type: 0
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 56122
-            _gameObjectName: GasValve
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 55962
-            _gameObjectName: GSV valve_socket_drop
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          targetArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: -31720
-            _gameObjectName: GuidanceArrow (1)
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          hideTargetArrowAfterGrab: 1
-          destinationArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          showDestinationAfterGrab: 1
-          isCompleted: 0
-        enforceSequentialFlow: 1
-        isExpanded: 1
-      - groupName: New Task Group
-        description: Task group description
-        steps:
-        - stepName: New Step
-          type: 9
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 56192
-            _gameObjectName: onSwitch
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          targetArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: -56600
-            _gameObjectName: GuidanceArrow (4)
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          hideTargetArrowAfterGrab: 1
-          destinationArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          showDestinationAfterGrab: 1
-          isCompleted: 1
-        - stepName: New Step
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55670
+            _instanceID: 56854
             _gameObjectName: AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57340
+            _instanceID: 58560
             _gameObjectName: LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -198,102 +55,10 @@ MonoBehaviour:
           hint: Step instruction goes here
           targetArrow:
             _gameObject: {fileID: 0}
-            _instanceID: -36140
-            _gameObjectName: GuidanceArrow (2)
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          hideTargetArrowAfterGrab: 1
-          destinationArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: -43658
-            _gameObjectName: GuidanceArrow (3)
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          showDestinationAfterGrab: 1
-          isCompleted: 1
-        - stepName: New Step
-          type: 5
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 56842
-            _gameObjectName: 'Yellow Hose Male '
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
             _scenePath: 
             _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 0, z: 1}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 55662
-            _gameObjectName: Yellow male snap
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          targetArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: -75348
-            _gameObjectName: GuidanceArrow (5)
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          hideTargetArrowAfterGrab: 1
-          destinationArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: -75504
-            _gameObjectName: GuidanceArrow (6)
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          showDestinationAfterGrab: 1
-          isCompleted: 1
-        - stepName: New Step
-          type: 0
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 55760
-            _gameObjectName: Yellow hose female
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          targetArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: -78310
-            _gameObjectName: GuidanceArrow (7)
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
           hideTargetArrowAfterGrab: 1
           destinationArrow:
             _gameObject: {fileID: 0}
@@ -303,7 +68,7 @@ MonoBehaviour:
             _isValid: 0
           showDestinationAfterGrab: 1
           isCompleted: 1
-        enforceSequentialFlow: 1
+        enforceSequentialFlow: 0
         isExpanded: 1
       isExpanded: 1
     isExpanded: 1
