@@ -1987,6 +1987,26 @@ public class VRInteractionSetupWindow : EditorWindow
             EditorGUILayout.LabelField("Knob Settings", EditorStyles.boldLabel);
             step.targetAngle = EditorGUILayout.FloatField("Target Angle", step.targetAngle);
             step.angleTolerance = EditorGUILayout.FloatField("Angle Tolerance", step.angleTolerance);
+
+            // Rotation direction dropdown
+            EditorGUILayout.Space(3);
+            step.knobRotationType = (InteractionStep.KnobRotationType)EditorGUILayout.EnumPopup(
+                new GUIContent("Rotation Direction", "Required rotation direction based on HingeJoint limits"),
+                step.knobRotationType
+            );
+
+            // Help text for rotation direction
+            string directionHelp = step.knobRotationType switch
+            {
+                InteractionStep.KnobRotationType.OpenToMax => "Opening: Rotate toward max limit (increasing angle)",
+                InteractionStep.KnobRotationType.CloseToMin => "Closing: Rotate toward min limit (decreasing angle)",
+                InteractionStep.KnobRotationType.Any => "Any direction is acceptable",
+                _ => ""
+            };
+            if (!string.IsNullOrEmpty(directionHelp))
+            {
+                EditorGUILayout.HelpBox(directionHelp, MessageType.Info);
+            }
         }
         
         // Valve-specific settings

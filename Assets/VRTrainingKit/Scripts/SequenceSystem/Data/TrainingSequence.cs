@@ -294,12 +294,25 @@ public class InteractionStep
     [Tooltip("For GrabAndSnap: The snap point where object should be placed")]
     public GameObjectReference destination = new GameObjectReference();
     
+    /// <summary>
+    /// Direction of knob rotation required for completion
+    /// </summary>
+    public enum KnobRotationType
+    {
+        OpenToMax,      // Rotate toward max limit (e.g., 0° → 90°)
+        CloseToMin,     // Rotate toward min limit (e.g., 90° → 0°)
+        Any             // Any direction is acceptable
+    }
+
     [Header("Knob Settings")]
     [Tooltip("For TurnKnob: Target angle in degrees")]
     public float targetAngle = 0f;
-    
+
     [Tooltip("Degrees of error allowed for knob completion")]
     public float angleTolerance = 5f;
+
+    [Tooltip("For TurnKnob: Required rotation direction (uses HingeJoint limits)")]
+    public KnobRotationType knobRotationType = KnobRotationType.Any;
     
     [Header("Valve Settings")]
     [Tooltip("For valve operations: Rotation axis (X=1,0,0 Y=0,1,0 Z=0,0,1)")]

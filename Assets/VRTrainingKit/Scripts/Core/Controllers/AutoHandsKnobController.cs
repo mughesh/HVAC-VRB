@@ -25,6 +25,13 @@ public class AutoHandsKnobController : MonoBehaviour
     public float NormalizedValue => profile != null && profile.useLimits ?
         (currentAngle - profile.minAngle) / (profile.maxAngle - profile.minAngle) : 0f;
 
+    // HingeJoint-based properties for rotation direction detection
+    public float CurrentHingeAngle => hingeJoint != null ? hingeJoint.angle : GetTransformAngle();
+    public float HingeMinLimit => hingeJoint != null && hingeJoint.useLimits ? hingeJoint.limits.min : (profile?.minAngle ?? 0f);
+    public float HingeMaxLimit => hingeJoint != null && hingeJoint.useLimits ? hingeJoint.limits.max : (profile?.maxAngle ?? 90f);
+    public bool IsAtMaxLimit(float tolerance = 5f) => Mathf.Abs(CurrentHingeAngle - HingeMaxLimit) <= tolerance;
+    public bool IsAtMinLimit(float tolerance = 5f) => Mathf.Abs(CurrentHingeAngle - HingeMinLimit) <= tolerance;
+
     // C# events for code-based subscriptions
     public event Action<float> OnAngleChanged;
     public event Action<float> OnSnapToAngle;
