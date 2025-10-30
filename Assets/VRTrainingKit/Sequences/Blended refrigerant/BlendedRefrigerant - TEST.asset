@@ -1,0 +1,121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5288bdac7d20d1b4bb582fa20543d397, type: 3}
+  m_Name: BlendedRefrigerant - TEST
+  m_EditorClassIdentifier: 
+  program:
+    programName: BlendedRefrigerant
+    description: 
+    modules:
+    - moduleName: Phase 3 - Charging
+      description: Module description
+      taskGroups:
+      - groupName: LP knob
+        description: Task group description
+        steps:
+        - stepName: Knob turn
+          type: 2
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 58976
+            _gameObjectName: Highside_Blue_Hand
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 45
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: -75152
+            _gameObjectName: Arrow_LPknob_ON
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          hideTargetArrowAfterGrab: 0
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          showDestinationAfterGrab: 1
+          isCompleted: 1
+        - stepName: New Step
+          type: 2
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 58976
+            _gameObjectName: Highside_Blue_Hand
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 90
+          angleTolerance: 5
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: -81546
+            _gameObjectName: Arrow_LPknob_OFF
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          hideTargetArrowAfterGrab: 0
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _scenePath: 
+            _isValid: 0
+          showDestinationAfterGrab: 1
+          isCompleted: 1
+        enforceSequentialFlow: 1
+        isExpanded: 1
+      isExpanded: 1
+    isExpanded: 1
+  assetDescription: Training sequence asset created with VR Training Kit
