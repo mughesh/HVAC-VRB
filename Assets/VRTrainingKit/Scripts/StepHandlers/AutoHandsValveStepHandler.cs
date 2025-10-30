@@ -15,14 +15,19 @@ public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
     // Component cache for AutoHands valve controllers
     private Dictionary<GameObject, AutoHandsValveControllerV2> valveControllers = new Dictionary<GameObject, AutoHandsValveControllerV2>();
 
+    // Component cache for Grabbable components (for tool grab detection)
+    private Dictionary<GameObject, Autohand.Grabbable> grabbableComponents = new Dictionary<GameObject, Autohand.Grabbable>();
+
     // Active step tracking with event delegates for proper cleanup
     private Dictionary<AutoHandsValveControllerV2, System.Action> tightenEventDelegates = new Dictionary<AutoHandsValveControllerV2, System.Action>();
     private Dictionary<AutoHandsValveControllerV2, System.Action> loosenEventDelegates = new Dictionary<AutoHandsValveControllerV2, System.Action>();
     private Dictionary<InteractionStep, AutoHandsValveControllerV2> activeStepValves = new Dictionary<InteractionStep, AutoHandsValveControllerV2>();
+    private Dictionary<InteractionStep, Autohand.Grabbable> activeStepGrabbables = new Dictionary<InteractionStep, Autohand.Grabbable>();
 
     void Awake()
     {
         CacheValveControllers();
+        CacheGrabbableComponents();
     }
 
     public override bool CanHandle(InteractionStep.StepType stepType)
@@ -40,6 +45,7 @@ public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
 
         // Refresh cache in case scene changed
         CacheValveControllers();
+        CacheGrabbableComponents();
     }
 
     public override void StartStep(InteractionStep step)
@@ -87,6 +93,15 @@ public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
         // Track this active step
         activeStepValves[step] = valveController;
 
+        // ALSO subscribe to grab events on the target object (tool) for arrow transitions
+        if (targetObject != null && grabbableComponents.ContainsKey(targetObject))
+        {
+            var grabbableComponent = grabbableComponents[targetObject];
+            grabbableComponent.OnGrabEvent += (hand, grabbable) => OnToolGrabbed(step, hand, grabbable);
+            activeStepGrabbables[step] = grabbableComponent;
+            LogDebug($"🔧 Subscribed to grab events on tool: {targetObject.name}");
+        }
+
         LogDebug($"🔧 Subscribed to AutoHands valve events for: {targetObject.name} (State: {valveController.CurrentState}-{valveController.CurrentSubstate})");
     }
 
@@ -105,6 +120,15 @@ public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
             activeStepValves.Remove(step);
 
             LogDebug($"🔧 Unsubscribed from AutoHands valve events for step: {step.stepName}");
+        }
+
+        // Unsubscribe from grab events
+        if (activeStepGrabbables.ContainsKey(step))
+        {
+            var grabbableComponent = activeStepGrabbables[step];
+            grabbableComponent.OnGrabEvent -= (hand, grabbable) => OnToolGrabbed(step, hand, grabbable);
+            activeStepGrabbables.Remove(step);
+            LogDebug($"🔧 Unsubscribed from grab events for step: {step.stepName}");
         }
     }
 
@@ -142,6 +166,48 @@ public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
         }
 
         LogInfo($"🔧 Cached {valveControllers.Count} AutoHands valve controllers");
+    }
+
+    /// <summary>
+    /// Cache all AutoHands Grabbable components in the scene
+    /// </summary>
+    void CacheGrabbableComponents()
+    {
+        LogDebug("🔧 Caching AutoHands Grabbable components...");
+
+        grabbableComponents.Clear();
+
+        var grabbableObjects = FindObjectsOfType<Autohand.Grabbable>();
+        foreach (var grabbable in grabbableObjects)
+        {
+            grabbableComponents[grabbable.gameObject] = grabbable;
+            LogDebug($"🔧 Cached AutoHands Grabbable: {grabbable.name}");
+        }
+
+        LogInfo($"🔧 Cached {grabbableComponents.Count} AutoHands Grabbable components");
+    }
+
+    /// <summary>
+    /// Handle grab event from AutoHands Grabbable component - for arrow transitions
+    /// Event signature: OnGrabbed(Hand hand, Grabbable grab)
+    /// </summary>
+    void OnToolGrabbed(InteractionStep step, Autohand.Hand hand, Autohand.Grabbable grabbable)
+    {
+        var grabbedObject = grabbable.gameObject;
+        var expectedObject = step.targetObject.GameObject;
+
+        LogDebug($"🔧 Tool grabbed: {grabbedObject.name}, expected: {expectedObject?.name}");
+
+        if (grabbedObject == expectedObject)
+        {
+            LogDebug($"🔧 Correct tool grabbed! Notifying controller for arrow transition");
+
+            // Notify controller to trigger arrow transition (hide target, show destination)
+            if (controller != null)
+            {
+                controller.NotifyObjectGrabbed(step);
+            }
+        }
     }
 
     /// <summary>
