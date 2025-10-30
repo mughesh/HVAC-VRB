@@ -2074,7 +2074,62 @@ public class VRInteractionSetupWindow : EditorWindow
         EditorGUILayout.Space(5);
         EditorGUILayout.LabelField("Instruction");
         step.hint = EditorGUILayout.TextArea(step.hint, GUILayout.Height(40));
-        
+
+        // Guidance Arrows
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("Guidance Arrows", EditorStyles.boldLabel);
+
+        EditorGUILayout.HelpBox("Place arrow GameObjects independently in scene, then reference them here. Arrows will show/hide automatically based on step progress.", MessageType.Info);
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        EditorGUILayout.LabelField("Target Arrow", EditorStyles.miniBoldLabel);
+        step.targetArrow.GameObject = (GameObject)EditorGUILayout.ObjectField(
+            "Arrow GameObject",
+            step.targetArrow.GameObject,
+            typeof(GameObject),
+            true
+        );
+
+        if (step.targetArrow.GameObject != null)
+        {
+            EditorGUI.indentLevel++;
+            step.hideTargetArrowAfterGrab = EditorGUILayout.Toggle("Hide After Grab", step.hideTargetArrowAfterGrab);
+            EditorGUI.indentLevel--;
+
+            // Validate arrow has GuidanceArrow component
+            if (step.targetArrow.GameObject.GetComponent<GuidanceArrow>() == null)
+            {
+                EditorGUILayout.HelpBox("Warning: Arrow GameObject needs GuidanceArrow component!", MessageType.Warning);
+            }
+        }
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.Space(5);
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        EditorGUILayout.LabelField("Destination Arrow (Optional)", EditorStyles.miniBoldLabel);
+        EditorGUILayout.LabelField("For GrabAndSnap/Valve steps - shows after object is grabbed", EditorStyles.miniLabel);
+        step.destinationArrow.GameObject = (GameObject)EditorGUILayout.ObjectField(
+            "Arrow GameObject",
+            step.destinationArrow.GameObject,
+            typeof(GameObject),
+            true
+        );
+
+        if (step.destinationArrow.GameObject != null)
+        {
+            EditorGUI.indentLevel++;
+            step.showDestinationAfterGrab = EditorGUILayout.Toggle("Show After Grab", step.showDestinationAfterGrab);
+            EditorGUI.indentLevel--;
+
+            // Validate arrow has GuidanceArrow component
+            if (step.destinationArrow.GameObject.GetComponent<GuidanceArrow>() == null)
+            {
+                EditorGUILayout.HelpBox("Warning: Arrow GameObject needs GuidanceArrow component!", MessageType.Warning);
+            }
+        }
+        EditorGUILayout.EndVertical();
+
         // Validation
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Validation", EditorStyles.boldLabel);

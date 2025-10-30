@@ -340,7 +340,20 @@ public class InteractionStep
     [TextArea(2, 4)]
     [Tooltip("Hint text shown to user")]
     public string hint = "";
-    
+
+    [Header("Guidance Arrows")]
+    [Tooltip("Guidance arrow GameObject to show when step starts (place arrow independently in scene)")]
+    public GameObjectReference targetArrow = new GameObjectReference();
+
+    [Tooltip("Hide target arrow after object is grabbed (true for GrabAndSnap, false for knobs)")]
+    public bool hideTargetArrowAfterGrab = true;
+
+    [Tooltip("Destination arrow GameObject (for GrabAndSnap/valve operations - shows after grab)")]
+    public GameObjectReference destinationArrow = new GameObjectReference();
+
+    [Tooltip("Show destination arrow automatically after object is grabbed")]
+    public bool showDestinationAfterGrab = true;
+
     [Header("Runtime State")]
     [Tooltip("Completion state - managed by runtime controller")]
     public bool isCompleted = false;

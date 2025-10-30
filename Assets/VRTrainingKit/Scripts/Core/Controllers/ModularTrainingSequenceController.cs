@@ -40,10 +40,23 @@ public class ModularTrainingSequenceController : MonoBehaviour
     private bool sequenceComplete = false;
 
     // Events for UI integration
+    public event Action<InteractionStep> OnStepStarted;
     public event Action<InteractionStep> OnStepCompleted;
+    public event Action<InteractionStep> OnObjectGrabbed; // For dual-arrow transitions
     public event Action<TaskGroup> OnTaskGroupCompleted;
     public event Action<TrainingModule> OnModuleCompleted;
     public event Action OnSequenceCompleted;
+
+    // Guidance arrow tracking
+    private class ArrowState
+    {
+        public InteractionStep step;
+        public GuidanceArrow targetArrow;
+        public GuidanceArrow destinationArrow;
+        public bool targetArrowShown;
+        public bool destinationArrowShown;
+    }
+    private Dictionary<InteractionStep, ArrowState> activeArrows = new Dictionary<InteractionStep, ArrowState>();
 
     void Start()
     {
@@ -275,6 +288,9 @@ public class ModularTrainingSequenceController : MonoBehaviour
             activeStepHandlers.Remove(step);
         }
 
+        // Hide all guidance arrows for this step
+        HandleStepArrowsOnComplete(step);
+
         // Fire external event
         OnStepCompleted?.Invoke(step);
 
@@ -368,6 +384,12 @@ public class ModularTrainingSequenceController : MonoBehaviour
         // Start handling the step
         activeStepHandlers[step] = handler;
         handler.StartStep(step);
+
+        // Setup guidance arrows
+        HandleStepArrowsOnStart(step);
+
+        // Fire step started event
+        OnStepStarted?.Invoke(step);
 
         LogDebug($"🎯 Started step: {step.stepName} with handler: {handler.GetType().Name}");
     }
@@ -669,6 +691,146 @@ public class ModularTrainingSequenceController : MonoBehaviour
     {
         Debug.LogError($"[ModularTrainingSequence] {message}");
     }
+
+    #region Guidance Arrow Management
+
+    /// <summary>
+    /// Hide all currently visible arrows (from all previous steps)
+    /// </summary>
+    void HideAllArrows()
+    {
+        foreach (var arrowState in activeArrows.Values.ToList())
+        {
+            if (arrowState.targetArrow != null && arrowState.targetArrowShown)
+            {
+                arrowState.targetArrow.HideArrow();
+                arrowState.targetArrowShown = false;
+            }
+
+            if (arrowState.destinationArrow != null && arrowState.destinationArrowShown)
+            {
+                arrowState.destinationArrow.HideArrow();
+                arrowState.destinationArrowShown = false;
+            }
+        }
+
+        activeArrows.Clear();
+        LogDebug("🔽 Hid all arrows from previous steps");
+    }
+
+    /// <summary>
+    /// Setup arrows when step starts
+    /// </summary>
+    void HandleStepArrowsOnStart(InteractionStep step)
+    {
+        // Hide all previous arrows first - only show current step's arrow
+        HideAllArrows();
+
+        var arrowState = new ArrowState { step = step };
+
+        // Show target arrow if assigned
+        if (step.targetArrow != null && step.targetArrow.IsValid)
+        {
+            var targetArrowObj = step.targetArrow.GameObject;
+            var targetArrow = targetArrowObj.GetComponent<GuidanceArrow>();
+
+            if (targetArrow != null)
+            {
+                targetArrow.ShowArrow();
+                arrowState.targetArrow = targetArrow;
+                arrowState.targetArrowShown = true;
+                LogDebug($"🎯 Showed target arrow '{targetArrowObj.name}' for step: {step.stepName}");
+            }
+            else
+            {
+                LogWarning($"⚠️ Step '{step.stepName}' target arrow '{targetArrowObj.name}' has no GuidanceArrow component!");
+            }
+        }
+
+        // Store arrow state
+        if (arrowState.targetArrow != null)
+        {
+            activeArrows[step] = arrowState;
+        }
+    }
+
+    /// <summary>
+    /// Handle arrow transition when object is grabbed (for GrabAndSnap, valves)
+    /// </summary>
+    void HandleStepArrowsOnGrab(InteractionStep step)
+    {
+        if (!activeArrows.ContainsKey(step)) return;
+
+        var arrowState = activeArrows[step];
+
+        // Hide target arrow if configured
+        if (step.hideTargetArrowAfterGrab && arrowState.targetArrow != null && arrowState.targetArrowShown)
+        {
+            arrowState.targetArrow.HideArrow();
+            arrowState.targetArrowShown = false;
+            LogDebug($"🔽 Hid target arrow after grab: {step.stepName}");
+        }
+
+        // Show destination arrow if configured
+        if (step.showDestinationAfterGrab && step.destinationArrow != null && step.destinationArrow.IsValid && !arrowState.destinationArrowShown)
+        {
+            var destArrowObj = step.destinationArrow.GameObject;
+            var destArrow = destArrowObj.GetComponent<GuidanceArrow>();
+
+            if (destArrow != null)
+            {
+                destArrow.ShowArrow();
+                arrowState.destinationArrow = destArrow;
+                arrowState.destinationArrowShown = true;
+                LogDebug($"🎯 Showed destination arrow '{destArrowObj.name}' for step: {step.stepName}");
+            }
+            else
+            {
+                LogWarning($"⚠️ Step '{step.stepName}' destination arrow '{destArrowObj.name}' has no GuidanceArrow component!");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Hide all arrows when step completes
+    /// </summary>
+    void HandleStepArrowsOnComplete(InteractionStep step)
+    {
+        if (!activeArrows.ContainsKey(step)) return;
+
+        var arrowState = activeArrows[step];
+
+        // Hide target arrow
+        if (arrowState.targetArrow != null && arrowState.targetArrowShown)
+        {
+            arrowState.targetArrow.HideArrow();
+            arrowState.targetArrowShown = false;
+        }
+
+        // Hide destination arrow
+        if (arrowState.destinationArrow != null && arrowState.destinationArrowShown)
+        {
+            arrowState.destinationArrow.HideArrow();
+            arrowState.destinationArrowShown = false;
+        }
+
+        // Remove from tracking
+        activeArrows.Remove(step);
+        LogDebug($"🔽 Hid all arrows for completed step: {step.stepName}");
+    }
+
+    /// <summary>
+    /// Public method for handlers to notify when object is grabbed
+    /// Handlers should call this to trigger arrow transitions
+    /// </summary>
+    public void NotifyObjectGrabbed(InteractionStep step)
+    {
+        LogDebug($"🖐️ Object grabbed for step: {step.stepName}");
+        HandleStepArrowsOnGrab(step);
+        OnObjectGrabbed?.Invoke(step);
+    }
+
+    #endregion
 
     /// <summary>
     /// Progress information for UI display (reused from original)

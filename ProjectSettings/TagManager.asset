@@ -16,6 +16,8 @@ TagManager:
   - tool
   - valve
   - turn
+  - Coils
+  - GuidanceArrow
   layers:
   - Default
   - TransparentFX
