@@ -170,7 +170,7 @@ MonoBehaviour:
       - groupName: AllenKey-GSV
         description: Task group description
         steps:
-        - stepName: New Step
+        - stepName: Allen key snap -GSV
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
