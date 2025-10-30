@@ -67,7 +67,7 @@ MonoBehaviour:
             _scenePath: 
             _isValid: 0
           showDestinationAfterGrab: 1
-          isCompleted: 1
+          isCompleted: 0
         - stepName: New Step
           type: 0
           targetObject:
@@ -113,7 +113,7 @@ MonoBehaviour:
             _scenePath: 
             _isValid: 0
           showDestinationAfterGrab: 1
-          isCompleted: 1
+          isCompleted: 0
         enforceSequentialFlow: 1
         isExpanded: 1
       - groupName: New Task Group
