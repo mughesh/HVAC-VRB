@@ -270,7 +270,7 @@ PlayerSettings:
   AndroidTargetArchitectures: 2
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: C:/Users/SKILLVERI DEV/OneDrive/Desktop/skillveriuser.keystore
+  AndroidKeystoreName: X:/Others/Skill Veri/skillveriuser.keystore
   AndroidKeyaliasName: skillveri
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidEnableArm64MTE: 0
