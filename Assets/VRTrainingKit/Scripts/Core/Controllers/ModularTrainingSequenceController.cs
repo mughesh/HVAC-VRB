@@ -18,6 +18,10 @@ public class ModularTrainingSequenceController : MonoBehaviour
     [Tooltip("The training sequence asset to execute")]
     public TrainingSequenceAsset trainingAsset;
 
+    [Header("Arrow Registry")]
+    [Tooltip("Scene-based arrow registry (optional - if not set, will search for one in scene)")]
+    public SequenceArrowRegistry arrowRegistry;
+
     [Header("Debug Settings")]
     [Tooltip("Log detailed debug information")]
     public bool enableDebugLogging = true;
@@ -62,6 +66,21 @@ public class ModularTrainingSequenceController : MonoBehaviour
     {
         // Initialize restriction manager for sequential flow enforcement
         restrictionManager = gameObject.AddComponent<SequenceFlowRestrictionManager>();
+
+        // Find arrow registry if not assigned
+        if (arrowRegistry == null)
+        {
+            arrowRegistry = FindObjectOfType<SequenceArrowRegistry>();
+            if (arrowRegistry == null)
+            {
+                LogWarning("⚠️ No SequenceArrowRegistry found in scene. Arrows will not be displayed. " +
+                    "Add a SequenceArrowRegistry component to a GameObject to enable arrow guidance.");
+            }
+            else
+            {
+                LogInfo($"✓ Found SequenceArrowRegistry: {arrowRegistry.gameObject.name}");
+            }
+        }
 
         InitializeSequence();
     }
@@ -772,10 +791,24 @@ public class ModularTrainingSequenceController : MonoBehaviour
 
         var arrowState = new ArrowState { step = step };
 
-        // Show target arrow if assigned
-        if (step.targetArrow != null && step.targetArrow.IsValid)
+        // Get arrow from registry if available
+        GameObject targetArrowObj = null;
+        if (arrowRegistry != null)
         {
-            var targetArrowObj = step.targetArrow.GameObject;
+            var currentModule = GetCurrentModule();
+            targetArrowObj = arrowRegistry.GetTargetArrow(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+        }
+
+        // Fallback: Try getting from step's direct reference (for backward compatibility)
+        if (targetArrowObj == null && step.targetArrow != null && step.targetArrow.IsValid)
+        {
+            targetArrowObj = step.targetArrow.GameObject;
+            LogDebug($"⚠️ Using arrow from step direct reference (legacy mode). Consider using SequenceArrowRegistry instead.");
+        }
+
+        // Show target arrow if found
+        if (targetArrowObj != null)
+        {
             var targetArrow = targetArrowObj.GetComponent<GuidanceArrow>();
 
             if (targetArrow != null)
@@ -806,19 +839,43 @@ public class ModularTrainingSequenceController : MonoBehaviour
         if (!activeArrows.ContainsKey(step)) return;
 
         var arrowState = activeArrows[step];
+        var currentModule = GetCurrentModule();
+        var currentTaskGroup = GetCurrentTaskGroup();
+
+        // Check hide/show settings from registry or step
+        bool hideTargetAfterGrab = step.hideTargetArrowAfterGrab;
+        bool showDestAfterGrab = step.showDestinationAfterGrab;
+
+        if (arrowRegistry != null)
+        {
+            hideTargetAfterGrab = arrowRegistry.ShouldHideTargetAfterGrab(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+            showDestAfterGrab = arrowRegistry.ShouldShowDestinationAfterGrab(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+        }
 
         // Hide target arrow if configured
-        if (step.hideTargetArrowAfterGrab && arrowState.targetArrow != null && arrowState.targetArrowShown)
+        if (hideTargetAfterGrab && arrowState.targetArrow != null && arrowState.targetArrowShown)
         {
             arrowState.targetArrow.HideArrow();
             arrowState.targetArrowShown = false;
             LogDebug($"🔽 Hid target arrow after grab: {step.stepName}");
         }
 
-        // Show destination arrow if configured
-        if (step.showDestinationAfterGrab && step.destinationArrow != null && step.destinationArrow.IsValid && !arrowState.destinationArrowShown)
+        // Get destination arrow from registry or step
+        GameObject destArrowObj = null;
+        if (arrowRegistry != null)
         {
-            var destArrowObj = step.destinationArrow.GameObject;
+            destArrowObj = arrowRegistry.GetDestinationArrow(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+        }
+
+        // Fallback to step's direct reference
+        if (destArrowObj == null && step.destinationArrow != null && step.destinationArrow.IsValid)
+        {
+            destArrowObj = step.destinationArrow.GameObject;
+        }
+
+        // Show destination arrow if configured
+        if (showDestAfterGrab && destArrowObj != null && !arrowState.destinationArrowShown)
+        {
             var destArrow = destArrowObj.GetComponent<GuidanceArrow>();
 
             if (destArrow != null)

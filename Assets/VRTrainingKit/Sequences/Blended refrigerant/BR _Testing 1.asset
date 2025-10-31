@@ -22,18 +22,20 @@ MonoBehaviour:
       - groupName: New Task Group
         description: Task group description
         steps:
-        - stepName: New Step
+        - stepName: allen key
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 221580
+            _instanceID: 56952
             _gameObjectName: AllenKey
+            _hierarchyPath: AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 231916
+            _instanceID: 58690
             _gameObjectName: LSV valve_socket_pick
+            _hierarchyPath: Valve sockets/LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
@@ -47,6 +49,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -56,21 +59,84 @@ MonoBehaviour:
           hint: Step instruction goes here
           targetArrow:
             _gameObject: {fileID: 0}
-            _instanceID: 232760
+            _instanceID: -10138
             _gameObjectName: Arrow_AllenKey
+            _hierarchyPath: Arrow_AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           hideTargetArrowAfterGrab: 1
           destinationArrow:
             _gameObject: {fileID: 0}
-            _instanceID: 224050
+            _instanceID: -10052
             _gameObjectName: Arrow_LSV_pick
+            _hierarchyPath: Arrow_LSV_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           showDestinationAfterGrab: 1
           isCompleted: 0
         enforceSequentialFlow: 0
         isExpanded: 1
+      isExpanded: 1
+    - moduleName: New Module
+      description: Module description
+      taskGroups:
+      - groupName: New Task Group
+        description: Task group description
+        steps:
+        - stepName: New Step
+          type: 5
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 58178
+            _gameObjectName: 'Yellow Hose Male '
+            _hierarchyPath: 'Hoses/Yellow Hose Male '
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          knobRotationType: 2
+          rotationAxis: {x: 0, y: 0, z: 1}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 56944
+            _gameObjectName: Yellow male snap
+            _hierarchyPath: Valve sockets/Yellow male snap
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: -12798
+            _gameObjectName: Arrow_Yhose_male
+            _hierarchyPath: Arrow_Yhose_male
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: -10092
+            _gameObjectName: Arrow_cylinder_valve_tight
+            _hierarchyPath: Arrow_cylinder_valve_tight
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          showDestinationAfterGrab: 1
+          isCompleted: 0
+        enforceSequentialFlow: 0
+        isExpanded: 0
       isExpanded: 1
     isExpanded: 1
   assetDescription: Custom training sequence

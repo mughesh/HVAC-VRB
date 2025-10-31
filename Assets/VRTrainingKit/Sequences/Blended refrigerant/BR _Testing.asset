@@ -26,14 +26,16 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56934
+            _instanceID: 56938
             _gameObjectName: AllenKey
+            _hierarchyPath: AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 58672
+            _instanceID: 58676
             _gameObjectName: LSV valve_socket_pick
+            _hierarchyPath: Valve sockets/LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
@@ -47,6 +49,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -56,15 +59,17 @@ MonoBehaviour:
           hint: Step instruction goes here
           targetArrow:
             _gameObject: {fileID: 0}
-            _instanceID: -3734
+            _instanceID: -10188
             _gameObjectName: Arrow_AllenKey
+            _hierarchyPath: Arrow_AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           hideTargetArrowAfterGrab: 1
           destinationArrow:
             _gameObject: {fileID: 0}
-            _instanceID: -2026
+            _instanceID: -14500
             _gameObjectName: Arrow_LSV_pick
+            _hierarchyPath: Arrow_LSV_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           showDestinationAfterGrab: 1

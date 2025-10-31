@@ -16,6 +16,7 @@ public class GameObjectReference
     [SerializeField] private GameObject _gameObject;
     [SerializeField] private int _instanceID = 0;
     [SerializeField] private string _gameObjectName = "";
+    [SerializeField] private string _hierarchyPath = ""; // Full hierarchy path for reliable lookup
     [SerializeField] private string _scenePath = "";
     [SerializeField] private bool _isValid = false;
 
@@ -60,14 +61,29 @@ public class GameObjectReference
                 }
             }
 
-            // Fallback: try to find by name only as last resort (for backward compatibility)
+            // Fallback 1: Try hierarchical path search (most reliable for unique objects)
+            if (!string.IsNullOrEmpty(_hierarchyPath))
+            {
+                var found = FindByHierarchyPath(_hierarchyPath);
+                if (found != null)
+                {
+                    _gameObject = found;
+                    _instanceID = found.GetInstanceID();
+                    _gameObjectName = found.name;
+                    _isValid = true;
+                    return found;
+                }
+            }
+
+            // Fallback 2: Try simple name search (for backward compatibility - least reliable)
             if (!string.IsNullOrEmpty(_gameObjectName))
             {
                 var found = GameObject.Find(_gameObjectName);
                 if (found != null)
                 {
                     _gameObject = found;
-                    _instanceID = found.GetInstanceID(); // Cache the instance ID
+                    _instanceID = found.GetInstanceID();
+                    _hierarchyPath = GetHierarchyPath(found); // Update hierarchy path
                     _isValid = true;
                     return found;
                 }
@@ -81,6 +97,7 @@ public class GameObjectReference
             _gameObject = value;
             _instanceID = value != null ? value.GetInstanceID() : 0;
             _gameObjectName = value != null ? value.name : "";
+            _hierarchyPath = value != null ? GetHierarchyPath(value) : "";
             _scenePath = value != null && value.scene.IsValid() ? value.scene.path : "";
             _isValid = value != null;
         }
@@ -105,6 +122,7 @@ public class GameObjectReference
     {
         _gameObject = null;
         _gameObjectName = "";
+        _hierarchyPath = "";
         _scenePath = "";
         _isValid = false;
     }
@@ -139,8 +157,10 @@ public class GameObjectReference
         var current = GameObject;
         if (current != null)
         {
-            // Update cached name in case it changed
+            // Update cached data in case object changed
             _gameObjectName = current.name;
+            _hierarchyPath = GetHierarchyPath(current);
+            _instanceID = current.GetInstanceID();
         }
     }
 
@@ -155,6 +175,62 @@ public class GameObjectReference
         if (!string.IsNullOrEmpty(_gameObjectName))
             return $"{_gameObjectName} (Missing)";
         return "None";
+    }
+
+    /// <summary>
+    /// Gets the full hierarchy path of a GameObject (e.g., "Parent/Child/Object")
+    /// </summary>
+    private static string GetHierarchyPath(GameObject obj)
+    {
+        if (obj == null) return "";
+
+        string path = obj.name;
+        Transform current = obj.transform.parent;
+
+        while (current != null)
+        {
+            path = current.name + "/" + path;
+            current = current.parent;
+        }
+
+        return path;
+    }
+
+    /// <summary>
+    /// Finds a GameObject by its full hierarchy path
+    /// </summary>
+    private static GameObject FindByHierarchyPath(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return null;
+
+        // Split the path into parts
+        string[] parts = path.Split('/');
+        if (parts.Length == 0) return null;
+
+        // Find all root objects with the first name
+        GameObject[] rootObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+        GameObject current = null;
+
+        foreach (var root in rootObjects)
+        {
+            if (root.name == parts[0])
+            {
+                current = root;
+                break;
+            }
+        }
+
+        if (current == null) return null;
+
+        // Traverse down the hierarchy
+        for (int i = 1; i < parts.Length; i++)
+        {
+            Transform child = current.transform.Find(parts[i]);
+            if (child == null) return null;
+            current = child.gameObject;
+        }
+
+        return current;
     }
 }
 
