@@ -52,7 +52,8 @@ public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
     {
         LogDebug($"🔧 Starting AutoHands valve step: {step.stepName} (Type: {step.type})");
 
-        var targetObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var targetObject = controller.GetTargetObjectForStep(step);
         if (targetObject == null)
         {
             LogError($"Target object is null for valve step: {step.stepName}");
@@ -194,7 +195,8 @@ public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
     void OnToolGrabbed(InteractionStep step, Autohand.Hand hand, Autohand.Grabbable grabbable)
     {
         var grabbedObject = grabbable.gameObject;
-        var expectedObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var expectedObject = controller.GetTargetObjectForStep(step);
 
         LogDebug($"🔧 Tool grabbed: {grabbedObject.name}, expected: {expectedObject?.name}");
 

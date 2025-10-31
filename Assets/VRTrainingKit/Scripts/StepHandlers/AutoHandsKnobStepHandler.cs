@@ -45,7 +45,8 @@ public class AutoHandsKnobStepHandler : BaseAutoHandsStepHandler
     {
         Debug.Log($"🔄 [AutoHandsKnobStepHandler] Starting AutoHands knob step: {step.stepName}");
 
-        var targetObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var targetObject = controller.GetTargetObjectForStep(step);
         if (targetObject == null)
         {
             Debug.LogError($"🔄 [AutoHandsKnobStepHandler] Target object is null for knob step: {step.stepName}");

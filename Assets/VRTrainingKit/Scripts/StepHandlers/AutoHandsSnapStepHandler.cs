@@ -52,7 +52,8 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
     {
         LogDebug($"🔗 Starting AutoHands snap step: {step.stepName}");
 
-        var destinationObject = step.destination.GameObject;
+        // Use controller's helper method to get destination from registry (reliable!)
+        var destinationObject = controller.GetDestinationObjectForStep(step);
         if (destinationObject == null)
         {
             LogError($"Destination object is null for step: {step.stepName}");
@@ -75,7 +76,8 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
         activeStepPlacePoints[step] = placePoint;
 
         // ALSO subscribe to grab events on the target object for arrow transitions
-        var targetObject = step.targetObject.GameObject;
+        // Use controller's helper method to get target from registry (reliable!)
+        var targetObject = controller.GetTargetObjectForStep(step);
         if (targetObject != null && grabbableComponents.ContainsKey(targetObject))
         {
             var grabbableComponent = grabbableComponents[targetObject];
@@ -260,7 +262,8 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
     void OnObjectGrabbed(InteractionStep step, Autohand.Hand hand, Autohand.Grabbable grabbable)
     {
         var grabbedObject = grabbable.gameObject;
-        var expectedObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var expectedObject = controller.GetTargetObjectForStep(step);
 
         LogDebug($"🤏 Object grabbed: {grabbedObject.name}, expected: {expectedObject?.name}");
 
@@ -291,9 +294,10 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
         }
 
         var placedObject = grabbable.gameObject;
-        var expectedObject = step.targetObject.GameObject;
+        // Use controller's helper methods to get objects from registry (reliable!)
+        var expectedObject = controller.GetTargetObjectForStep(step);
         var destinationPlacePoint = placePoint.gameObject;
-        var expectedDestination = step.destination.GameObject;
+        var expectedDestination = controller.GetDestinationObjectForStep(step);
 
         LogDebug($"🔗 Object placed: {placedObject.name} to PlacePoint: {destinationPlacePoint.name}");
         LogDebug($"🔗 Expected: {expectedObject?.name} to PlacePoint: {expectedDestination?.name}");

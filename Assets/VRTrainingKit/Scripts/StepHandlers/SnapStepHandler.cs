@@ -42,7 +42,8 @@ public class SnapStepHandler : BaseXRIStepHandler
     {
         LogDebug($"🔗 Starting snap step: {step.stepName}");
 
-        var destinationObject = step.destination.GameObject;
+        // Use controller's helper method to get destination from registry (reliable!)
+        var destinationObject = controller.GetDestinationObjectForStep(step);
         if (destinationObject == null)
         {
             LogError($"Destination object is null for step: {step.stepName}");
@@ -127,9 +128,10 @@ public class SnapStepHandler : BaseXRIStepHandler
         if (step.isCompleted) return;
 
         var snappedObject = args.interactableObject.transform.gameObject;
-        var expectedObject = step.targetObject.GameObject;
+        // Use controller's helper methods to get objects from registry (reliable!)
+        var expectedObject = controller.GetTargetObjectForStep(step);
         var destinationSocket = args.interactorObject.transform.gameObject;
-        var expectedDestination = step.destination.GameObject;
+        var expectedDestination = controller.GetDestinationObjectForStep(step);
 
         LogDebug($"🔗 Object snapped: {snappedObject.name} to socket: {destinationSocket.name}");
         LogDebug($"🔗 Expected: {expectedObject?.name} to socket: {expectedDestination?.name}");

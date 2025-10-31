@@ -931,6 +931,88 @@ public class ModularTrainingSequenceController : MonoBehaviour
         OnObjectGrabbed?.Invoke(step);
     }
 
+    /// <summary>
+    /// Get target object for a step (with registry support)
+    /// HANDLERS SHOULD USE THIS instead of step.targetObject.GameObject
+    /// This ensures references are resolved from registry (reliable) not asset (unreliable)
+    /// </summary>
+    public GameObject GetTargetObjectForStep(InteractionStep step)
+    {
+        GameObject targetObj = null;
+
+        // Try registry first (reliable source)
+        if (arrowRegistry != null)
+        {
+            var currentModule = GetCurrentModule();
+            var currentTaskGroup = GetCurrentTaskGroup();
+            if (currentModule != null && currentTaskGroup != null)
+            {
+                targetObj = arrowRegistry.GetTargetObject(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+            }
+        }
+
+        // Fallback to step's direct reference (unreliable but better than null)
+        if (targetObj == null && step.targetObject != null)
+        {
+            targetObj = step.targetObject.GameObject;
+            if (targetObj != null)
+            {
+                LogDebug($"⚠️ Using target object from step direct reference (not registry): {targetObj.name}");
+            }
+        }
+
+        return targetObj;
+    }
+
+    /// <summary>
+    /// Get destination object for a step (with registry support)
+    /// HANDLERS SHOULD USE THIS instead of step.destination.GameObject
+    /// </summary>
+    public GameObject GetDestinationObjectForStep(InteractionStep step)
+    {
+        GameObject destObj = null;
+
+        // Try registry first (reliable source)
+        if (arrowRegistry != null)
+        {
+            var currentModule = GetCurrentModule();
+            var currentTaskGroup = GetCurrentTaskGroup();
+            if (currentModule != null && currentTaskGroup != null)
+            {
+                destObj = arrowRegistry.GetDestinationObject(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+            }
+        }
+
+        // Fallback to step's direct reference
+        if (destObj == null && step.destination != null)
+        {
+            destObj = step.destination.GameObject;
+            if (destObj != null)
+            {
+                LogDebug($"⚠️ Using destination from step direct reference (not registry): {destObj.name}");
+            }
+        }
+
+        return destObj;
+    }
+
+    /// <summary>
+    /// Get target socket for valve operations (with registry support)
+    /// HANDLERS SHOULD USE THIS instead of step.targetSocket.GameObject
+    /// </summary>
+    public GameObject GetTargetSocketForStep(InteractionStep step)
+    {
+        // For now, sockets can use direct reference (could add to registry later if needed)
+        GameObject socketObj = null;
+
+        if (step.targetSocket != null)
+        {
+            socketObj = step.targetSocket.GameObject;
+        }
+
+        return socketObj;
+    }
+
     #endregion
 
     /// <summary>
