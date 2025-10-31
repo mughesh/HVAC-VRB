@@ -33,7 +33,7 @@ MonoBehaviour:
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 359840
+            _instanceID: 465292
             _gameObjectName: LSV valve_socket_drop
             _hierarchyPath: Valve sockets/LSV valve_socket_drop
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -85,7 +85,7 @@ MonoBehaviour:
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 359368
+            _instanceID: 464820
             _gameObjectName: GSV valve_socket_drop
             _hierarchyPath: Valve sockets/GSV valve_socket_drop
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -322,7 +322,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 182158
+            _instanceID: 358090
             _gameObjectName: Yellow male snap
             _hierarchyPath: Valve sockets/Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -374,7 +374,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 180094
+            _instanceID: 356018
             _gameObjectName: Yellow female snap
             _hierarchyPath: Valve sockets/Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -431,7 +431,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 191784
+            _instanceID: 367720
             _gameObjectName: GSV valve_socket_pick
             _hierarchyPath: Valve sockets/GSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -483,7 +483,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 191178
+            _instanceID: 367114
             _gameObjectName: Blue female snap
             _hierarchyPath: Valve sockets/Blue female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -540,7 +540,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 192440
+            _instanceID: 368376
             _gameObjectName: LSV valve_socket_pick
             _hierarchyPath: Valve sockets/LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -592,7 +592,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 183524
+            _instanceID: 359456
             _gameObjectName: Red female snap
             _hierarchyPath: Valve sockets/Red female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -632,7 +632,7 @@ MonoBehaviour:
           type: 2
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 371154
+            _instanceID: 476606
             _gameObjectName: Knob
             _hierarchyPath: R23_Cylinder/Knob
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -689,7 +689,7 @@ MonoBehaviour:
           type: 6
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 358398
+            _instanceID: 463850
             _gameObjectName: Yellow hose female
             _hierarchyPath: Hoses/Yellow hose female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -710,7 +710,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 356018
+            _instanceID: 461470
             _gameObjectName: Yellow female snap
             _hierarchyPath: Valve sockets/Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -741,7 +741,7 @@ MonoBehaviour:
           type: 9
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 370478
+            _instanceID: 475930
             _gameObjectName: NitroGas
             _hierarchyPath: Environment/4_Way_Gauge_Final/4_Way_Gauge_Final/NitroGas
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -793,7 +793,7 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 358398
+            _instanceID: 463850
             _gameObjectName: Yellow hose female
             _hierarchyPath: Hoses/Yellow hose female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -814,7 +814,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 356018
+            _instanceID: 461470
             _gameObjectName: Yellow female snap
             _hierarchyPath: Valve sockets/Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -850,7 +850,7 @@ MonoBehaviour:
           type: 9
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 363142
+            _instanceID: 468594
             _gameObjectName: Right_Switch2
             _hierarchyPath: SwitchBoard/Right_Switch2
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -902,7 +902,7 @@ MonoBehaviour:
           type: 9
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 361030
+            _instanceID: 466482
             _gameObjectName: onSwitch
             _hierarchyPath: Weigh_Machine_1/onSwitch
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -959,7 +959,7 @@ MonoBehaviour:
           type: 9
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 358686
+            _instanceID: 464138
             _gameObjectName: ZeroSwitch
             _hierarchyPath: Weigh_Machine_1/ZeroSwitch
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -1016,14 +1016,14 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 370264
+            _instanceID: 475716
             _gameObjectName: Clamp_Meter
             _hierarchyPath: Clamp_Meter
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 366566
+            _instanceID: 472018
             _gameObjectName: Brown Wire Socket
             _hierarchyPath: Brown Wire Socket
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -1273,7 +1273,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 182158
+            _instanceID: 358090
             _gameObjectName: Yellow male snap
             _hierarchyPath: Valve sockets/Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -1325,7 +1325,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 180094
+            _instanceID: 356018
             _gameObjectName: Yellow female snap
             _hierarchyPath: Valve sockets/Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -1382,7 +1382,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 192440
+            _instanceID: 368376
             _gameObjectName: LSV valve_socket_pick
             _hierarchyPath: Valve sockets/LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -1434,7 +1434,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 183524
+            _instanceID: 359456
             _gameObjectName: Red female snap
             _hierarchyPath: Valve sockets/Red female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -1491,7 +1491,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 191784
+            _instanceID: 367720
             _gameObjectName: GSV valve_socket_pick
             _hierarchyPath: Valve sockets/GSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -1543,7 +1543,7 @@ MonoBehaviour:
           valveAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 191178
+            _instanceID: 367114
             _gameObjectName: Blue female snap
             _hierarchyPath: Valve sockets/Blue female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
