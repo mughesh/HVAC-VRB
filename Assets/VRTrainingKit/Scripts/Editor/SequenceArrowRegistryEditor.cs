@@ -32,14 +32,16 @@ public class SequenceArrowRegistryEditor : Editor
         if (showHelp)
         {
             EditorGUILayout.HelpBox(
-                "This registry stores arrow references for your sequence.\n\n" +
-                "IMPORTANT: Arrow references are stored HERE (in the scene), not in the ScriptableObject.\n\n" +
-                "Steps:\n" +
-                "1. Assign your Training Sequence Asset\n" +
-                "2. Click 'Generate Mappings from Sequence'\n" +
-                "3. Assign arrow GameObjects for each step\n" +
-                "4. Save the scene (Ctrl+S)\n\n" +
-                "The arrows will now persist in builds!",
+                "AUTOMATED WORKFLOW:\n\n" +
+                "1. Assign your Training Sequence Asset below\n" +
+                "2. Edit references in Sequence Builder UI (Window > VR Training > Setup Assistant > Sequence tab)\n" +
+                "3. Click 'Sync from Sequence Asset' button to transfer ALL references here automatically\n" +
+                "4. Save scene (Ctrl+S)\n\n" +
+                "Benefits:\n" +
+                "✓ Edit in ONE place (Sequence Builder)\n" +
+                "✓ Automatic transfer to registry\n" +
+                "✓ References persist in builds\n" +
+                "✓ No double-entry!",
                 MessageType.Info);
 
             if (GUILayout.Button("Hide Help"))
@@ -69,10 +71,47 @@ public class SequenceArrowRegistryEditor : Editor
 
         EditorGUILayout.Space();
 
+        // BIG SYNC BUTTON
+        GUI.backgroundColor = new Color(0.4f, 1f, 0.4f); // Green
+        if (GUILayout.Button("🔄 SYNC FROM SEQUENCE ASSET", GUILayout.Height(40)))
+        {
+            Undo.RecordObject(registry, "Sync Arrow Mappings");
+            int synced = registry.SyncFromSequenceAsset();
+            EditorUtility.SetDirty(registry);
+            serializedObject.Update();
+
+            if (synced > 0)
+            {
+                EditorUtility.DisplayDialog("Sync Complete",
+                    $"Successfully synced {synced} references from sequence asset!\n\n" +
+                    "Remember to save the scene (Ctrl+S) to persist these references.",
+                    "OK");
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("Sync Warning",
+                    "No references were synced. This usually means:\n\n" +
+                    "1. References aren't set in the Sequence Builder yet, OR\n" +
+                    "2. Unity has already cleared them (editor was restarted)\n\n" +
+                    "Solution: Open the Sequence Builder, assign references, then Sync immediately.",
+                    "OK");
+            }
+        }
+        GUI.backgroundColor = Color.white;
+
+        EditorGUILayout.Space();
+
+        // Sync status display
+        EditorGUILayout.LabelField("Sync Status", EditorStyles.boldLabel);
+        string status = registry.GetSyncStatus();
+        EditorGUILayout.HelpBox(status, MessageType.Info);
+
+        EditorGUILayout.Space();
+
         // Utility buttons
         EditorGUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("Generate Mappings from Sequence", GUILayout.Height(25)))
+        if (GUILayout.Button("Generate Empty Mappings", GUILayout.Height(25)))
         {
             Undo.RecordObject(registry, "Generate Arrow Mappings");
             registry.GenerateMappingsFromSequence();
@@ -141,6 +180,8 @@ public class SequenceArrowRegistryEditor : Editor
         {
             var mappingProp = arrowMappingsProp.GetArrayElementAtIndex(i);
             var stepPathProp = mappingProp.FindPropertyRelative("stepPath");
+            var targetObjProp = mappingProp.FindPropertyRelative("targetObject");
+            var destObjProp = mappingProp.FindPropertyRelative("destinationObject");
             var targetArrowProp = mappingProp.FindPropertyRelative("targetArrow");
             var destArrowProp = mappingProp.FindPropertyRelative("destinationArrow");
             var hideTargetProp = mappingProp.FindPropertyRelative("hideTargetArrowAfterGrab");
@@ -150,21 +191,27 @@ public class SequenceArrowRegistryEditor : Editor
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             // Step path header with colored background
+            bool hasTargetObj = targetObjProp.objectReferenceValue != null;
             bool hasTargetArrow = targetArrowProp.objectReferenceValue != null;
             bool hasDestArrow = destArrowProp.objectReferenceValue != null;
 
             Color headerColor = Color.white;
-            if (!hasTargetArrow && !hasDestArrow)
+            int refCount = 0;
+            if (hasTargetObj) refCount++;
+            if (hasTargetArrow) refCount++;
+            if (hasDestArrow) refCount++;
+
+            if (refCount == 0)
             {
-                headerColor = new Color(1f, 0.8f, 0.8f); // Light red
+                headerColor = new Color(1f, 0.8f, 0.8f); // Light red - nothing set
             }
-            else if (hasTargetArrow && hasDestArrow)
+            else if (refCount >= 2)
             {
-                headerColor = new Color(0.8f, 1f, 0.8f); // Light green
+                headerColor = new Color(0.8f, 1f, 0.8f); // Light green - mostly complete
             }
             else
             {
-                headerColor = new Color(1f, 1f, 0.8f); // Light yellow
+                headerColor = new Color(1f, 1f, 0.8f); // Light yellow - partial
             }
 
             GUI.backgroundColor = headerColor;
@@ -172,6 +219,12 @@ public class SequenceArrowRegistryEditor : Editor
             EditorGUILayout.LabelField(stepPathProp.stringValue, EditorStyles.boldLabel);
             EditorGUILayout.EndVertical();
             GUI.backgroundColor = Color.white;
+
+            // Step objects
+            EditorGUILayout.PropertyField(targetObjProp, new GUIContent("Target Object"));
+            EditorGUILayout.PropertyField(destObjProp, new GUIContent("Destination Object"));
+
+            EditorGUILayout.Space(3);
 
             // Arrow fields
             EditorGUILayout.PropertyField(targetArrowProp, new GUIContent("Target Arrow"));

@@ -390,6 +390,11 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.50000006
   m_Center: {x: 0.0000014305115, y: 0, z: 0}
+--- !u!1 &9074246 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 1447509713}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &13874006
 GameObject:
   m_ObjectHideFlags: 0
@@ -1870,6 +1875,11 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &73783474 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 843866163}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &74433118
 GameObject:
   m_ObjectHideFlags: 0
@@ -2521,155 +2531,216 @@ MonoBehaviour:
   sequenceAsset: {fileID: 11400000, guid: 106f3ce76ca48b44b9df2be8e9d46ceb, type: 2}
   arrowMappings:
   - stepPath: Phase 1 - Hose connections/Cap Removal/LSV cap
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 1368384804}
+    destinationObject: {fileID: 774554441}
+    targetArrow: {fileID: 908418821}
+    destinationArrow: {fileID: 1436212378}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 1 - Hose connections/Cap Removal/GSV Cap
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 880798170}
+    destinationObject: {fileID: 702387191}
+    targetArrow: {fileID: 1945400609}
+    destinationArrow: {fileID: 584786411}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 1 - Hose connections/Allen key-LSV/Allen key snap - LSV
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 566801867}
+    destinationObject: {fileID: 1921999056}
+    targetArrow: {fileID: 1245386180}
+    destinationArrow: {fileID: 420706771}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 1 - Hose connections/AllenKey-GSV/Allen key snap -GSV
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 566801867}
+    destinationObject: {fileID: 1824536627}
+    targetArrow: {fileID: 207869251}
+    destinationArrow: {fileID: 9074246}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 1 - Hose connections/AllenKey-GSV/Allenkey Reset
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 566801867}
+    destinationObject: {fileID: 1363315435}
+    targetArrow: {fileID: 1943025828}
+    destinationArrow: {fileID: 1245386180}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: 'Phase 1 - Hose connections/Yellow Hose/Yellow male '
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 1526925841}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 226941826}
+    destinationArrow: {fileID: 1947532067}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 1 - Hose connections/Yellow Hose/Yellow female
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 583893373}
+    destinationObject: {fileID: 290648503}
+    targetArrow: {fileID: 1439168641}
+    destinationArrow: {fileID: 1622652818}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 1 - Hose connections/Blue Hose/Blue male
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 1042882849}
+    destinationObject: {fileID: 854192028681302235, guid: 19fdb1a6995ae914cb296fdf5283a2e0, type: 3}
+    targetArrow: {fileID: 903029849}
+    destinationArrow: {fileID: 437104940}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 1 - Hose connections/Blue Hose/Blue female
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 1921032116}
+    destinationObject: {fileID: 1747613599}
+    targetArrow: {fileID: 1453202670}
+    destinationArrow: {fileID: 916251179}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 1 - Hose connections/Red hose/Red male
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 870778574}
+    destinationObject: {fileID: 200668229}
+    targetArrow: {fileID: 834390132}
+    destinationArrow: {fileID: 617493126}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 1 - Hose connections/Red hose/Red Female
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 1743360067}
+    destinationObject: {fileID: 707591344719062004, guid: 90a955c206988be4ab4c8d8b7ffebe36, type: 3}
+    targetArrow: {fileID: 1011895283}
+    destinationArrow: {fileID: 1259194945}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 2 - Purging/Turn cylinder knob/Knob turn
-    targetArrow: {fileID: 0}
+    targetObject: {fileID: 7083945923590700460}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 1892854630}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 0
     showDestinationAfterGrab: 1
   - stepPath: Phase 2 - Purging/Loose yellow valve at GM/Loose yellow valve
-    targetArrow: {fileID: 0}
+    targetObject: {fileID: 583893373}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 1207156089}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 0
     showDestinationAfterGrab: 0
   - stepPath: Phase 2 - Purging/Loose yellow valve at GM/Mist effect
+    targetObject: {fileID: 2706067557188137776}
+    destinationObject: {fileID: 0}
     targetArrow: {fileID: 0}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 2 - Purging/Loose yellow valve at GM/Tight yellow valve
-    targetArrow: {fileID: 0}
+    targetObject: {fileID: 583893373}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 1622652818}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 0
     showDestinationAfterGrab: 0
   - stepPath: Phase 2 - Purging/Turn on switches/AC switch
-    targetArrow: {fileID: 0}
+    targetObject: {fileID: 1190323512}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 803239613}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 2 - Purging/Turn on switches/Weigh machine switch
-    targetArrow: {fileID: 0}
+    targetObject: {fileID: 936736287}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 73783474}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 2 - Purging/weigh machine TARE/Weight zero button
-    targetArrow: {fileID: 0}
+    targetObject: {fileID: 626106706}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 1025097785}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 2 - Purging/Clamp meter/clamp meter
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 919132148946960819}
+    destinationObject: {fileID: 1669624875}
+    targetArrow: {fileID: 833779893}
+    destinationArrow: {fileID: 1405872214}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 3 - Charging/LP knob/Knob turn
-    targetArrow: {fileID: 0}
+    targetObject: {fileID: 893372015631994475}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 344310510}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 0
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/Knob Off/Cylinder close
-    targetArrow: {fileID: 0}
+    targetObject: {fileID: 7083945923590700460}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 2132011540}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 0
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/LP Knob close/LP knob close
-    targetArrow: {fileID: 0}
+    targetObject: {fileID: 893372015631994475}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 1176322480}
     destinationArrow: {fileID: 0}
     hideTargetArrowAfterGrab: 0
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/Remove Yellow hose/Yellow male loose
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 1526925841}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 867992146}
+    destinationArrow: {fileID: 226941826}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/Remove Yellow hose/Yellow female loose
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 583893373}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 1207156089}
+    destinationArrow: {fileID: 1439168641}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/Remove Red hose/Red Male loose
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 870778574}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 1602609753}
+    destinationArrow: {fileID: 834390132}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/Remove Red hose/Red Female Loose
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 1743360067}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 1476969597}
+    destinationArrow: {fileID: 1011895283}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/Remove Blue Hose/Blue male loose
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 1042882849}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 1512805462}
+    destinationArrow: {fileID: 903029849}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/Remove Blue Hose/Blue female loose
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
-    hideTargetArrowAfterGrab: 0
+    targetObject: {fileID: 1921032116}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 877042575}
+    destinationArrow: {fileID: 1011895283}
+    hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/Allen key GSV/Allen key GSV close
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 566801867}
+    destinationObject: {fileID: 1824536627}
+    targetArrow: {fileID: 1245386180}
+    destinationArrow: {fileID: 9074246}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
   - stepPath: Phase 4 - Disconnection/Allen key LSV/Allen key LSV close
-    targetArrow: {fileID: 0}
-    destinationArrow: {fileID: 0}
+    targetObject: {fileID: 566801867}
+    destinationObject: {fileID: 1921999056}
+    targetArrow: {fileID: 1943025828}
+    destinationArrow: {fileID: 420706771}
     hideTargetArrowAfterGrab: 1
     showDestinationAfterGrab: 1
+  autoSyncOnPlayMode: 1
   arrowTag: GuidanceArrow
 --- !u!4 &141268339
 Transform:
@@ -3651,6 +3722,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+--- !u!1 &207869251 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 832593711}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &207989889
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3919,6 +3995,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6cc3920503b0d845bf85bbbc57defcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &226941826 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 315787627}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &227807323
 GameObject:
   m_ObjectHideFlags: 0
@@ -6599,6 +6680,11 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.71
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &344310510 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 201402395}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &344493673
 GameObject:
   m_ObjectHideFlags: 0
@@ -8293,6 +8379,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6474471904546882763, guid: 3619071c811102441b62befc92549869, type: 3}
   m_PrefabInstance: {fileID: 416421493}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &420706771 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 99689752}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &433834784
 GameObject:
   m_ObjectHideFlags: 0
@@ -8531,6 +8622,11 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &437104940 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 1099623314}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &441367780
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12189,6 +12285,11 @@ MonoBehaviour:
   currentState: 0
   currentSubstate: 0
   currentRotationAngle: 0
+--- !u!1 &584786411 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 1774940588}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &587708925
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12624,6 +12725,11 @@ PrefabInstance:
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6413114399270893135, guid: c5065ea4f872cff489c782e9cac9b5ac, type: 3}
   m_PrefabInstance: {fileID: 615927388}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &617493126 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 2085940539}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &621603282 stripped
 RectTransform:
@@ -16090,6 +16196,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 687a5056798872444ad18018f1599ddf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &803239613 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 1346364854}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &818862803
 GameObject:
   m_ObjectHideFlags: 0
@@ -16223,6 +16334,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+--- !u!1 &833779893 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 1611676176}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &834390132 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 1775273880}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &834568709
 GameObject:
   m_ObjectHideFlags: 0
@@ -16514,6 +16635,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &867992146 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 1627170156}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &870778574
 GameObject:
   m_ObjectHideFlags: 0
@@ -16699,6 +16825,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 048da62328acd334a8f2358e7ca54ba3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &877042575 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 274471030}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &880798170
 GameObject:
   m_ObjectHideFlags: 0
@@ -17392,6 +17523,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &903029849 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 1260529889}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &904365897
 GameObject:
   m_ObjectHideFlags: 0
@@ -17469,6 +17605,11 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &908418821 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 2014955086}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &911874036
 GameObject:
   m_ObjectHideFlags: 0
@@ -17562,6 +17703,11 @@ MonoBehaviour:
   looseMaterial: {fileID: 0}
   tightMaterial: {fileID: 0}
   showProgressIndicator: 1
+--- !u!1 &916251179 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 1616382708}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &916476506
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19659,6 +19805,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1008910517}
   m_Mesh: {fileID: -1161672480972825223, guid: 58c33274779b2f649a077f0e80522d5c, type: 3}
+--- !u!1 &1011895283 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 587708925}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1016182860
 GameObject:
   m_ObjectHideFlags: 0
@@ -19939,6 +20090,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.023690997, y: 0.043539923, z: 0.02214342}
   m_Center: {x: -0.000000018160792, y: 0.000007607976, z: 0.00000011967819}
+--- !u!1 &1025097785 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 570079934}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1033649205
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21464,6 +21620,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9609643740f876f47a8f87f424eab7cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1176322480 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 1690949618}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1177431764
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22191,6 +22352,11 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!1 &1207156089 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 1951669801}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1212028404
 GameObject:
   m_ObjectHideFlags: 0
@@ -22252,6 +22418,11 @@ MonoBehaviour:
 Transform:
   m_CorrespondingSourceObject: {fileID: 8218128193421637003, guid: c3485102de526b643b3a90046c6457b6, type: 3}
   m_PrefabInstance: {fileID: 1569418340}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1245386180 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 945911311}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1257689703
 GameObject:
@@ -22384,6 +22555,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.014946368, y: 0.031945243, z: 0.02831094}
   m_Center: {x: 0.00000005539594, y: 0.022346105, z: -0.010367304}
+--- !u!1 &1259194945 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 1000163496}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1260529889
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25130,6 +25306,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1404409678}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1405872214 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 1705980334}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1415426189 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5731507362004545116, guid: 90a955c206988be4ab4c8d8b7ffebe36, type: 3}
@@ -25738,6 +25919,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2ad293bc117166d489dec2feb405b79a, type: 3}
+--- !u!1 &1436212378 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 937105934}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1439168641 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 609668049}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1445852010
 GameObject:
   m_ObjectHideFlags: 0
@@ -25846,6 +26037,11 @@ PrefabInstance:
 CapsuleCollider:
   m_CorrespondingSourceObject: {fileID: 7536268278033831029, guid: 46ed827a29b96854d8d1319e32577beb, type: 3}
   m_PrefabInstance: {fileID: 416288365}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1453202670 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 1979553644}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1458161926
 PrefabInstance:
@@ -26122,6 +26318,11 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &1476969597 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 410532110}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1483607523
 GameObject:
   m_ObjectHideFlags: 0
@@ -31263,6 +31464,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1502953613}
   m_CullTransparentMesh: 0
+--- !u!1 &1512805462 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 965796491}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1518096736
 GameObject:
   m_ObjectHideFlags: 0
@@ -37790,6 +37996,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.017155226, y: 0.018603265, z: 0.017230265}
   m_Center: {x: -0.000000059604645, y: -0.003558251, z: -4.6565904e-10}
+--- !u!1 &1602609753 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 776504205}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1609530788
 GameObject:
   m_ObjectHideFlags: 0
@@ -38141,6 +38352,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+--- !u!1 &1622652818 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 1106793898}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1627170156
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -43089,6 +43305,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1889104243}
   m_CullTransparentMesh: 0
+--- !u!1 &1892854630 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 1817295521}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1909206784
 GameObject:
   m_ObjectHideFlags: 0
@@ -44104,6 +44325,21 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.50000006
   m_Center: {x: -0.0000019073486, y: 0, z: 0}
+--- !u!1 &1943025828 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 231680011}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1945400609 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283361589845732484, guid: 7ccbcf0d726d81d4094c6b534925225a, type: 3}
+  m_PrefabInstance: {fileID: 381863812}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1947532067 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 625079437}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1951669801
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -47199,6 +47435,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 7078632329721667668, guid: dbe1d97b539860f419cfc981b17ecfed, type: 3}
+--- !u!1 &2132011540 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 265222732206082510, guid: de807e909013bcc4abb9fc27443d0edb, type: 3}
+  m_PrefabInstance: {fileID: 1458161926}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2140871211
 GameObject:
   m_ObjectHideFlags: 0
