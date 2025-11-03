@@ -18,16 +18,25 @@ MonoBehaviour:
     values:
     - goDatas_byGlobalId:
         keys:
-        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-1445852010-0
-        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-1000460132-0
         - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-582479169-0
-        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-902182905-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-1445852010-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-578548728-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-210578579-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-141268337-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-838426672-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-443514525-0
         values:
+        - colorIndex: 0
+          iconNameOrGuid: 
         - colorIndex: 5
-          iconNameOrGuid: 
-        - colorIndex: 7
-          iconNameOrGuid: 
-        - colorIndex: 3
-          iconNameOrGuid: 
-        - colorIndex: 9
-          iconNameOrGuid: 
+          iconNameOrGuid: Folder Icon
+        - colorIndex: 0
+          iconNameOrGuid: cs Script Icon
+        - colorIndex: 0
+          iconNameOrGuid: cs Script Icon
+        - colorIndex: 0
+          iconNameOrGuid: cs Script Icon
+        - colorIndex: 0
+          iconNameOrGuid: cs Script Icon
+        - colorIndex: 0
+          iconNameOrGuid: cs Script Icon
