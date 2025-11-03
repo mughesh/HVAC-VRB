@@ -16,6 +16,7 @@ public class GameObjectReference
     [SerializeField] private GameObject _gameObject;
     [SerializeField] private int _instanceID = 0;
     [SerializeField] private string _gameObjectName = "";
+    [SerializeField] private string _hierarchyPath = ""; // Full hierarchy path for reliable lookup
     [SerializeField] private string _scenePath = "";
     [SerializeField] private bool _isValid = false;
 
@@ -60,14 +61,29 @@ public class GameObjectReference
                 }
             }
 
-            // Fallback: try to find by name only as last resort (for backward compatibility)
+            // Fallback 1: Try hierarchical path search (most reliable for unique objects)
+            if (!string.IsNullOrEmpty(_hierarchyPath))
+            {
+                var found = FindByHierarchyPath(_hierarchyPath);
+                if (found != null)
+                {
+                    _gameObject = found;
+                    _instanceID = found.GetInstanceID();
+                    _gameObjectName = found.name;
+                    _isValid = true;
+                    return found;
+                }
+            }
+
+            // Fallback 2: Try simple name search (for backward compatibility - least reliable)
             if (!string.IsNullOrEmpty(_gameObjectName))
             {
                 var found = GameObject.Find(_gameObjectName);
                 if (found != null)
                 {
                     _gameObject = found;
-                    _instanceID = found.GetInstanceID(); // Cache the instance ID
+                    _instanceID = found.GetInstanceID();
+                    _hierarchyPath = GetHierarchyPath(found); // Update hierarchy path
                     _isValid = true;
                     return found;
                 }
@@ -81,6 +97,7 @@ public class GameObjectReference
             _gameObject = value;
             _instanceID = value != null ? value.GetInstanceID() : 0;
             _gameObjectName = value != null ? value.name : "";
+            _hierarchyPath = value != null ? GetHierarchyPath(value) : "";
             _scenePath = value != null && value.scene.IsValid() ? value.scene.path : "";
             _isValid = value != null;
         }
@@ -105,6 +122,7 @@ public class GameObjectReference
     {
         _gameObject = null;
         _gameObjectName = "";
+        _hierarchyPath = "";
         _scenePath = "";
         _isValid = false;
     }
@@ -139,8 +157,10 @@ public class GameObjectReference
         var current = GameObject;
         if (current != null)
         {
-            // Update cached name in case it changed
+            // Update cached data in case object changed
             _gameObjectName = current.name;
+            _hierarchyPath = GetHierarchyPath(current);
+            _instanceID = current.GetInstanceID();
         }
     }
 
@@ -155,6 +175,62 @@ public class GameObjectReference
         if (!string.IsNullOrEmpty(_gameObjectName))
             return $"{_gameObjectName} (Missing)";
         return "None";
+    }
+
+    /// <summary>
+    /// Gets the full hierarchy path of a GameObject (e.g., "Parent/Child/Object")
+    /// </summary>
+    private static string GetHierarchyPath(GameObject obj)
+    {
+        if (obj == null) return "";
+
+        string path = obj.name;
+        Transform current = obj.transform.parent;
+
+        while (current != null)
+        {
+            path = current.name + "/" + path;
+            current = current.parent;
+        }
+
+        return path;
+    }
+
+    /// <summary>
+    /// Finds a GameObject by its full hierarchy path
+    /// </summary>
+    private static GameObject FindByHierarchyPath(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return null;
+
+        // Split the path into parts
+        string[] parts = path.Split('/');
+        if (parts.Length == 0) return null;
+
+        // Find all root objects with the first name
+        GameObject[] rootObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+        GameObject current = null;
+
+        foreach (var root in rootObjects)
+        {
+            if (root.name == parts[0])
+            {
+                current = root;
+                break;
+            }
+        }
+
+        if (current == null) return null;
+
+        // Traverse down the hierarchy
+        for (int i = 1; i < parts.Length; i++)
+        {
+            Transform child = current.transform.Find(parts[i]);
+            if (child == null) return null;
+            current = child.gameObject;
+        }
+
+        return current;
     }
 }
 
@@ -272,12 +348,15 @@ public class InteractionStep
         TurnKnob,          // Rotate knob to specific angle
         WaitForCondition,  // Wait for previous steps
         ShowInstruction,   // Display instruction to user
-        
+
         // Valve operation step types
         TightenValve,      // Forward flow: grab → snap → tighten
         LoosenValve,       // Reverse flow: loosen → remove
         InstallValve,      // Complete forward flow (grab → snap → tighten)
-        RemoveValve        // Complete reverse flow (loosen → remove)
+        RemoveValve,       // Complete reverse flow (loosen → remove)
+
+        // Script-based condition step type
+        WaitForScriptCondition  // Wait for custom condition script (ISequenceCondition)
     }
     
     [Header("Step Information")]
@@ -291,12 +370,25 @@ public class InteractionStep
     [Tooltip("For GrabAndSnap: The snap point where object should be placed")]
     public GameObjectReference destination = new GameObjectReference();
     
+    /// <summary>
+    /// Direction of knob rotation required for completion
+    /// </summary>
+    public enum KnobRotationType
+    {
+        OpenToMax,      // Rotate toward max limit (e.g., 0° → 90°)
+        CloseToMin,     // Rotate toward min limit (e.g., 90° → 0°)
+        Any             // Any direction is acceptable
+    }
+
     [Header("Knob Settings")]
     [Tooltip("For TurnKnob: Target angle in degrees")]
     public float targetAngle = 0f;
-    
+
     [Tooltip("Degrees of error allowed for knob completion")]
     public float angleTolerance = 5f;
+
+    [Tooltip("For TurnKnob: Required rotation direction (uses HingeJoint limits)")]
+    public KnobRotationType knobRotationType = KnobRotationType.Any;
     
     [Header("Valve Settings")]
     [Tooltip("For valve operations: Rotation axis (X=1,0,0 Y=0,1,0 Z=0,0,1)")]
@@ -337,7 +429,20 @@ public class InteractionStep
     [TextArea(2, 4)]
     [Tooltip("Hint text shown to user")]
     public string hint = "";
-    
+
+    [Header("Guidance Arrows")]
+    [Tooltip("Guidance arrow GameObject to show when step starts (place arrow independently in scene)")]
+    public GameObjectReference targetArrow = new GameObjectReference();
+
+    [Tooltip("Hide target arrow after object is grabbed (true for GrabAndSnap, false for knobs)")]
+    public bool hideTargetArrowAfterGrab = true;
+
+    [Tooltip("Destination arrow GameObject (for GrabAndSnap/valve operations - shows after grab)")]
+    public GameObjectReference destinationArrow = new GameObjectReference();
+
+    [Tooltip("Show destination arrow automatically after object is grabbed")]
+    public bool showDestinationAfterGrab = true;
+
     [Header("Runtime State")]
     [Tooltip("Completion state - managed by runtime controller")]
     public bool isCompleted = false;
@@ -383,10 +488,13 @@ public class InteractionStep
                 
             case StepType.WaitForCondition:
                 return waitForSteps.Count > 0;
-                
+
             case StepType.ShowInstruction:
                 return !string.IsNullOrEmpty(hint);
-                
+
+            case StepType.WaitForScriptCondition:
+                return targetObject != null && targetObject.IsValid;
+
             default:
                 return false;
         }
@@ -458,11 +566,16 @@ public class InteractionStep
                 
             case StepType.WaitForCondition:
                 return "No steps specified to wait for";
-                
+
             case StepType.ShowInstruction:
                 return "Missing instruction text";
+
+            case StepType.WaitForScriptCondition:
+                if (targetObject == null || !targetObject.IsValid)
+                    return "Missing or invalid target object with ISequenceCondition component";
+                break;
         }
-        
+
         return "Unknown validation error";
     }
     

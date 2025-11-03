@@ -50,7 +50,8 @@ public class ValveStepHandler : BaseXRIStepHandler
     {
         LogDebug($"🔧 Starting valve step: {step.stepName} [{step.type}]");
 
-        var targetObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var targetObject = controller.GetTargetObjectForStep(step);
         if (targetObject == null)
         {
             LogError($"Target object is null for valve step: {step.stepName}");

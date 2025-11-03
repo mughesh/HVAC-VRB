@@ -17,8 +17,12 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
     // Component cache for PlacePoint components (stored as Component to use reflection)
     private Dictionary<GameObject, Component> placePointComponents = new Dictionary<GameObject, Component>();
 
+    // Component cache for Grabbable components (for grab event tracking)
+    private Dictionary<GameObject, Autohand.Grabbable> grabbableComponents = new Dictionary<GameObject, Autohand.Grabbable>();
+
     // Active step tracking
     private Dictionary<InteractionStep, Component> activeStepPlacePoints = new Dictionary<InteractionStep, Component>();
+    private Dictionary<InteractionStep, Autohand.Grabbable> activeStepGrabbables = new Dictionary<InteractionStep, Autohand.Grabbable>();
 
     // Delegate tracking for proper unsubscription (lambdas can't be unsubscribed without keeping reference)
     private Dictionary<InteractionStep, System.Delegate> eventDelegates = new Dictionary<InteractionStep, System.Delegate>();
@@ -26,6 +30,7 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
     void Awake()
     {
         CachePlacePointComponents();
+        CacheGrabbableComponents();
     }
 
     public override bool CanHandle(InteractionStep.StepType stepType)
@@ -40,13 +45,15 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
 
         // Refresh cache in case scene changed
         CachePlacePointComponents();
+        CacheGrabbableComponents();
     }
 
     public override void StartStep(InteractionStep step)
     {
         LogDebug($"🔗 Starting AutoHands snap step: {step.stepName}");
 
-        var destinationObject = step.destination.GameObject;
+        // Use controller's helper method to get destination from registry (reliable!)
+        var destinationObject = controller.GetDestinationObjectForStep(step);
         if (destinationObject == null)
         {
             LogError($"Destination object is null for step: {step.stepName}");
@@ -68,6 +75,17 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
         // Track this active step
         activeStepPlacePoints[step] = placePoint;
 
+        // ALSO subscribe to grab events on the target object for arrow transitions
+        // Use controller's helper method to get target from registry (reliable!)
+        var targetObject = controller.GetTargetObjectForStep(step);
+        if (targetObject != null && grabbableComponents.ContainsKey(targetObject))
+        {
+            var grabbableComponent = grabbableComponents[targetObject];
+            grabbableComponent.OnGrabEvent += (hand, grabbable) => OnObjectGrabbed(step, hand, grabbable);
+            activeStepGrabbables[step] = grabbableComponent;
+            LogDebug($"🔗 Subscribed to grab events on: {targetObject.name}");
+        }
+
         LogDebug($"🔗 Subscribed to AutoHands PlacePoint events for: {destinationObject.name}");
     }
 
@@ -86,6 +104,15 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
             activeStepPlacePoints.Remove(step);
 
             LogDebug($"🔗 Unsubscribed from AutoHands PlacePoint events for step: {step.stepName}");
+        }
+
+        // Unsubscribe from grab events
+        if (activeStepGrabbables.ContainsKey(step))
+        {
+            var grabbableComponent = activeStepGrabbables[step];
+            grabbableComponent.OnGrabEvent -= (hand, grabbable) => OnObjectGrabbed(step, hand, grabbable);
+            activeStepGrabbables.Remove(step);
+            LogDebug($"🔗 Unsubscribed from grab events for step: {step.stepName}");
         }
     }
 
@@ -128,6 +155,25 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
         }
 
         LogInfo($"🔗 Cached {placePointComponents.Count} AutoHands PlacePoint components");
+    }
+
+    /// <summary>
+    /// Cache all AutoHands Grabbable components in the scene
+    /// </summary>
+    void CacheGrabbableComponents()
+    {
+        LogDebug("🔗 Caching AutoHands Grabbable components...");
+
+        grabbableComponents.Clear();
+
+        var grabbableObjects = FindObjectsOfType<Autohand.Grabbable>();
+        foreach (var grabbable in grabbableObjects)
+        {
+            grabbableComponents[grabbable.gameObject] = grabbable;
+            LogDebug($"🔗 Cached AutoHands Grabbable: {grabbable.name}");
+        }
+
+        LogInfo($"🔗 Cached {grabbableComponents.Count} AutoHands Grabbable components");
     }
 
     /// <summary>
@@ -210,6 +256,30 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
     }
 
     /// <summary>
+    /// Handle grab event from AutoHands Grabbable component - for arrow transitions
+    /// Event signature: OnGrabbed(Hand hand, Grabbable grab)
+    /// </summary>
+    void OnObjectGrabbed(InteractionStep step, Autohand.Hand hand, Autohand.Grabbable grabbable)
+    {
+        var grabbedObject = grabbable.gameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var expectedObject = controller.GetTargetObjectForStep(step);
+
+        LogDebug($"🤏 Object grabbed: {grabbedObject.name}, expected: {expectedObject?.name}");
+
+        if (grabbedObject == expectedObject)
+        {
+            LogDebug($"🤏 Correct object grabbed! Notifying controller for arrow transition");
+
+            // Notify controller to trigger arrow transition (hide target, show destination)
+            if (controller != null)
+            {
+                controller.NotifyObjectGrabbed(step);
+            }
+        }
+    }
+
+    /// <summary>
     /// Handle placement event from AutoHands PlacePoint component
     /// Event signature: PlacePointEvent(PlacePoint point, Grabbable grabbable)
     /// </summary>
@@ -224,9 +294,10 @@ public class AutoHandsSnapStepHandler : BaseAutoHandsStepHandler
         }
 
         var placedObject = grabbable.gameObject;
-        var expectedObject = step.targetObject.GameObject;
+        // Use controller's helper methods to get objects from registry (reliable!)
+        var expectedObject = controller.GetTargetObjectForStep(step);
         var destinationPlacePoint = placePoint.gameObject;
-        var expectedDestination = step.destination.GameObject;
+        var expectedDestination = controller.GetDestinationObjectForStep(step);
 
         LogDebug($"🔗 Object placed: {placedObject.name} to PlacePoint: {destinationPlacePoint.name}");
         LogDebug($"🔗 Expected: {expectedObject?.name} to PlacePoint: {expectedDestination?.name}");

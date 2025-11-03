@@ -1,0 +1,226 @@
+=====================================================================
+SEQUENCE ARROW REGISTRY - SETUP GUIDE
+How to Fix Arrow References So They Work in Builds
+=====================================================================
+
+PROBLEM SOLVED:
+Unity cannot save scene GameObject references inside ScriptableObjects.
+This is why arrows disappeared after builds and Unity restarts.
+
+SOLUTION:
+Use a scene-based MonoBehaviour (SequenceArrowRegistry) to store arrow
+references. MonoBehaviours CAN save scene references!
+
+=====================================================================
+SETUP STEPS (DO THIS NOW!)
+=====================================================================
+
+STEP 1: Add the Registry Component to Your Scene
+-------------------------------------------------
+1. Open your training scene
+2. Create a new empty GameObject (or use an existing manager object)
+   - Right-click in Hierarchy → Create Empty
+   - Name it "SequenceArrowRegistry" (or any name you like)
+
+3. Add the SequenceArrowRegistry component:
+   - Select the GameObject
+   - Inspector → Add Component → "SequenceArrowRegistry"
+
+4. Assign your Training Sequence Asset:
+   - In the Inspector, find "Training Sequence Asset" field
+   - Drag your sequence asset (e.g., "BR_Testing.asset") into this field
+
+
+STEP 2: Generate Arrow Mappings
+-------------------------------------------------
+1. With SequenceArrowRegistry selected, look for these buttons:
+   - Click "Generate Mappings from Sequence"
+
+   This will create entries for ALL your steps automatically!
+
+2. You should now see a list of all your steps like:
+   - "Module Name/Task Group Name/Step Name"
+   - Each entry has fields for Target Arrow and Destination Arrow
+
+
+STEP 3: Assign Your Arrows
+-------------------------------------------------
+For each step in the list:
+
+1. Find the step you want to assign arrows to
+2. Drag the arrow GameObject from the scene into:
+   - "Target Arrow" - The arrow to show when step starts
+   - "Destination Arrow" - The arrow to show after grabbing
+
+3. Configure arrow behavior (checkboxes):
+   - "Hide Target After Grab" - Hide first arrow after grabbing object
+   - "Show Dest After Grab" - Show second arrow after grabbing
+
+COLOR CODING:
+- Red background = No arrows assigned yet
+- Yellow background = Only one arrow assigned
+- Green background = Both arrows assigned!
+
+
+STEP 4: Save Everything
+-------------------------------------------------
+*** CRITICAL: YOU MUST SAVE THE SCENE! ***
+
+Press Ctrl+S or File → Save
+
+The arrows are stored IN THE SCENE FILE, not the ScriptableObject.
+If you don't save the scene, your arrow assignments will be lost!
+
+
+STEP 5: Connect to Your Controller
+-------------------------------------------------
+1. Find your ModularTrainingSequenceController in the scene
+2. In Inspector, find the new "Arrow Registry" field
+3. Drag your SequenceArrowRegistry GameObject into this field
+
+(If you don't assign it, the controller will auto-find it at runtime)
+
+
+STEP 6: Test Before Building
+-------------------------------------------------
+1. Play the scene → Arrows should work
+2. Stop play mode
+3. Save scene again (Ctrl+S)
+4. Close Unity completely
+5. Reopen Unity
+6. Play the scene again → Arrows should STILL work!
+
+If arrows work after reopening Unity, they WILL work in builds!
+
+
+=====================================================================
+BUILDING YOUR PROJECT
+=====================================================================
+
+Now you can build safely:
+
+1. File → Build Settings → Build and Run
+2. Test in the build - arrows should now appear correctly!
+
+The arrows will persist because they're stored in the scene,
+not in the ScriptableObject.
+
+
+=====================================================================
+WORKING WITH MULTIPLE SEQUENCES
+=====================================================================
+
+If you have multiple sequence assets in the same scene:
+
+Option A: One Registry Per Sequence
+------------------------------------
+1. Create multiple SequenceArrowRegistry GameObjects
+2. Name them clearly (e.g., "Registry_LeakTest", "Registry_Charging")
+3. Assign different sequence assets to each registry
+4. Manually assign the correct registry to each controller
+
+
+Option B: One Registry, Switch Sequence at Runtime
+---------------------------------------------------
+1. Create one SequenceArrowRegistry
+2. Assign arrows for ONE sequence asset
+3. To switch sequences, you'll need to either:
+   - Clear and reassign arrows via script, or
+   - Create separate registries per scene
+
+
+RECOMMENDED: Use separate scenes for each training module.
+Each scene has its own SequenceArrowRegistry with its own arrows.
+
+
+=====================================================================
+MAINTENANCE TIPS
+=====================================================================
+
+Adding New Steps:
+-----------------
+1. Add steps to your Training Sequence Asset
+2. Select SequenceArrowRegistry in scene
+3. Click "Generate Mappings from Sequence" again
+   (It will only add NEW steps, won't duplicate existing ones)
+4. Assign arrows to the new steps
+5. Save scene!
+
+
+Cleaning Up Old Steps:
+----------------------
+If you deleted steps from your sequence:
+1. Click "Cleanup Stale Mappings"
+2. This removes entries that don't exist in the sequence anymore
+
+
+Clearing Everything:
+--------------------
+1. Click "Clear All Mappings" to start fresh
+2. Then "Generate Mappings from Sequence"
+3. Reassign all arrows
+
+
+=====================================================================
+TROUBLESHOOTING
+=====================================================================
+
+Problem: Arrows still not showing after build
+Solution:
+- Make sure you SAVED THE SCENE (Ctrl+S)
+- Verify arrow GameObjects have GuidanceArrow component
+- Check Console for warnings about missing arrows
+
+
+Problem: Some arrows work, others don't
+Solution:
+- Look for Yellow/Red entries in the registry list
+- Assign the missing arrow GameObjects
+- Save scene!
+
+
+Problem: "No SequenceArrowRegistry found" warning
+Solution:
+- Make sure SequenceArrowRegistry is in the SAME scene as the controller
+- Assign it manually to the controller's "Arrow Registry" field
+
+
+Problem: Wrong arrows showing
+Solution:
+- Double-check the arrow assignments in the registry list
+- Make sure step names match exactly
+- Use "Cleanup Stale Mappings" if you renamed steps
+
+
+=====================================================================
+TECHNICAL EXPLANATION (For Developers)
+=====================================================================
+
+Why This Works:
+
+1. ScriptableObjects are ASSETS - Unity strips scene references when
+   saving to disk (this is by design)
+
+2. MonoBehaviours are SCENE COMPONENTS - Unity fully supports scene
+   references in scene files
+
+3. The registry acts as a "bridge":
+   - ScriptableObject stores step DATA (names, settings)
+   - MonoBehaviour stores scene REFERENCES (arrow GameObjects)
+   - Controller queries registry at runtime using step names
+
+4. This is the proper Unity architecture for this use case.
+
+
+=====================================================================
+QUESTIONS OR ISSUES?
+=====================================================================
+
+If arrows still don't work after following this guide:
+1. Check Unity Console for error messages
+2. Verify all steps are followed correctly
+3. Test in Editor after Unity restart before building
+
+The fix is solid - if it works after Unity restart, it WILL work in builds!
+
+=====================================================================

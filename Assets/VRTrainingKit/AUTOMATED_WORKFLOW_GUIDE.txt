@@ -1,0 +1,365 @@
+=====================================================================
+AUTOMATED ARROW REGISTRY WORKFLOW
+Edit Once, Sync Automatically!
+=====================================================================
+
+PROBLEM SOLVED:
+✓ No more double-entry of references
+✓ Edit everything in ONE place (Sequence Builder UI)
+✓ Automatic transfer to scene registry
+✓ References persist in builds
+✓ Works after Unity restarts
+
+=====================================================================
+HOW IT WORKS
+=====================================================================
+
+CONCEPT: Source → Compiled Build
+
+1. SEQUENCE ASSET = Your "source code" (where you author/edit)
+   - Contains step data, names, instructions
+   - Also stores GameObject references temporarily (in memory only)
+
+2. REGISTRY = The "compiled output" (what actually runs)
+   - Lives in the scene (MonoBehaviour)
+   - Stores references permanently (survives restarts & builds)
+
+3. SYNC PROCESS = "Compile" button
+   - Reads references from Sequence Asset (while in memory)
+   - Transfers them to Registry (permanent storage)
+   - Like compiling code before running!
+
+
+=====================================================================
+QUICK START (3 MINUTES)
+=====================================================================
+
+STEP 1: One-Time Setup (30 seconds)
+------------------------------------
+1. Open your training scene
+2. Create empty GameObject → Name it "ArrowRegistry"
+3. Add Component → "SequenceArrowRegistry"
+4. Drag your sequence asset into "Training Sequence Asset" field
+5. Check "Auto Sync On Play Mode" checkbox (should be on by default)
+
+
+STEP 2: Edit References in Sequence Builder (2 minutes)
+---------------------------------------------------------
+1. Open Sequence Builder:
+   Window → VR Training → Setup Assistant → Sequence tab
+
+2. Select your sequence asset in the Sequence tab
+
+3. Edit your steps - assign ALL references:
+   - Target Object (e.g., valve, hose)
+   - Destination (for GrabAndSnap steps)
+   - Target Arrow (arrow to show on step start)
+   - Destination Arrow (arrow to show after grab)
+
+4. Click "Save" button in Sequence Builder
+
+YOU'RE DONE EDITING! All references are now in ONE place.
+
+
+STEP 3: Sync to Registry (10 seconds)
+--------------------------------------
+Option A - Manual Sync:
+1. Select your ArrowRegistry GameObject in scene
+2. Click the BIG GREEN button: "🔄 SYNC FROM SEQUENCE ASSET"
+3. Check Console - you'll see what was synced
+4. Save scene (Ctrl+S)
+
+Option B - Automatic Sync:
+1. Just press Play!
+2. If "Auto Sync On Play Mode" is enabled, it syncs automatically
+3. Save scene after play mode (Ctrl+S)
+
+THAT'S IT! Your arrows will now work in builds!
+
+
+=====================================================================
+DETAILED WORKFLOW
+=====================================================================
+
+YOUR DAILY WORKFLOW:
+
+1. Open Sequence Builder UI
+   ↓
+2. Edit step references (targets, destinations, arrows)
+   ↓
+3. Save in Sequence Builder
+   ↓
+4. Select ArrowRegistry → Click "Sync from Sequence Asset"
+   ↓
+5. Save Scene (Ctrl+S)
+   ↓
+6. Build & Run → Everything works!
+
+
+WHY SYNC IS NEEDED:
+
+Unity's Limitation:
+- ScriptableObjects CANNOT save scene GameObject references
+- Unity silently deletes them when saving assets
+- This is Unity's design, not a bug
+
+The Solution:
+- While editing, references exist in memory
+- Sync captures them BEFORE Unity deletes them
+- Transfers to Registry (MonoBehaviour in scene)
+- MonoBehaviours CAN save scene references!
+
+
+WHEN TO SYNC:
+
+✓ After assigning new arrows in Sequence Builder
+✓ After changing arrow assignments
+✓ After adding new steps
+✓ Before building your project
+✓ After Unity restart (if references are lost)
+
+⚠ DON'T FORGET: Save scene after syncing! (Ctrl+S)
+
+
+=====================================================================
+VERIFYING SYNC STATUS
+=====================================================================
+
+Check the Registry Inspector:
+
+1. Select ArrowRegistry GameObject
+2. Look for "Sync Status" section:
+   - ✓ Fully synced: X - Good!
+   - ⚠ Partially synced: X - Some missing
+   - ✗ Not synced: X - Need to sync
+
+3. Scroll down to see individual step mappings
+4. Color coding:
+   - 🟢 Green = Complete (target + arrows assigned)
+   - 🟡 Yellow = Partial (some refs missing)
+   - 🔴 Red = Empty (no refs assigned)
+
+
+TROUBLESHOOTING SYNC:
+
+Problem: "0 references synced" message
+Solution:
+- References weren't set in Sequence Builder yet, OR
+- Unity already cleared them (editor was restarted)
+- Fix: Open Sequence Builder, assign refs, sync immediately
+
+Problem: Some steps show as "Not synced"
+Solution:
+- Those steps don't have references assigned yet
+- Assign them in Sequence Builder, then sync again
+
+Problem: Arrows work in editor but not in build
+Solution:
+- Did you save the scene after syncing? (Ctrl+S)
+- Scene file must be saved for refs to persist!
+
+
+=====================================================================
+AUTO-SYNC FEATURE
+=====================================================================
+
+Enable automatic syncing when entering play mode:
+
+1. Select ArrowRegistry GameObject
+2. Check "Auto Sync On Play Mode" (enabled by default)
+3. Now every time you press Play, it syncs automatically!
+
+Benefits:
+✓ Never forget to sync
+✓ Always up-to-date when testing
+✓ Saves time during iteration
+
+Note: You still need to SAVE SCENE (Ctrl+S) after play mode
+to persist the synced references!
+
+
+=====================================================================
+ADVANCED USAGE
+=====================================================================
+
+Multiple Sequences in One Scene:
+---------------------------------
+Create multiple ArrowRegistry GameObjects:
+1. ArrowRegistry_Module1 → Links to Module1.asset
+2. ArrowRegistry_Module2 → Links to Module2.asset
+3. Each controller references its own registry
+
+
+Cleaning Up Old Steps:
+-----------------------
+If you deleted steps from your sequence:
+1. Click "Cleanup Stale Mappings" in registry
+2. Removes entries that don't exist anymore
+3. Keeps your registry clean
+
+
+Manual Override:
+----------------
+The registry inspector shows all synced references.
+You CAN manually edit them if needed:
+- Useful for quick testing
+- Changes won't sync back to asset
+- Next sync will overwrite manual changes
+
+
+Viewing What's Stored:
+----------------------
+Expand "Arrow Mappings" list in registry:
+- See every step with its references
+- Verify correct GameObjects are assigned
+- Useful for debugging
+
+
+=====================================================================
+WHAT GETS SYNCED?
+=====================================================================
+
+For Each Step:
+- ✓ Target Object (the thing to interact with)
+- ✓ Destination Object (where to place it)
+- ✓ Target Arrow (shown on step start)
+- ✓ Destination Arrow (shown after grab)
+- ✓ Arrow behavior settings (hide/show flags)
+
+NOT Synced (stays in asset):
+- Step names, descriptions
+- Step types (Grab, GrabAndSnap, etc.)
+- Angle settings for knobs
+- Wait conditions
+- Instruction text
+
+
+=====================================================================
+BUILDING YOUR PROJECT
+=====================================================================
+
+Pre-Build Checklist:
+
+□ Open Sequence Builder → Verify all references assigned
+□ Select ArrowRegistry → Click "Sync from Sequence Asset"
+□ Save scene (Ctrl+S)
+□ Test: Play scene → Arrows should work
+□ Close Unity completely → Reopen
+□ Test again: Play scene → Arrows should STILL work
+□ If arrows work after restart = They WILL work in build!
+
+Then Build:
+File → Build Settings → Build and Run
+
+Your arrows will work perfectly in the build!
+
+
+=====================================================================
+COMPARISON: OLD vs NEW WORKFLOW
+=====================================================================
+
+OLD WAY (Before):
+1. Assign arrow in Sequence Builder
+2. Arrow gets lost after restart
+3. Manually find and reassign in registry
+4. Double-entry for every arrow
+5. Easy to get out of sync
+
+NEW WAY (Now):
+1. Assign arrow in Sequence Builder (ONE place)
+2. Click Sync button (or auto-sync on play)
+3. Save scene
+4. DONE! Arrows persist forever
+
+
+=====================================================================
+TECHNICAL DETAILS (For Developers)
+=====================================================================
+
+Architecture:
+
+GameObjectReference System:
+- Stores: name, hierarchy path, instance ID
+- Tries multiple lookup strategies
+- Works "well enough" during edit session
+- BUT: Unity strips scene refs when saving asset
+
+SequenceArrowRegistry:
+- MonoBehaviour living in scene
+- Direct GameObject references (fully supported)
+- Acts as "compiled" version of references
+- Runtime controller queries registry by step path
+
+Sync Process:
+1. Reads step.targetArrow.GameObject (in memory)
+2. Copies to registry.arrowMappings[i].targetArrow
+3. Registry saves properly (it's scene data)
+
+Why This Works:
+- Separates concerns: data in asset, refs in scene
+- Follows Unity's architecture patterns
+- Same pattern as Addressables, Timeline, etc.
+
+
+Alternative Approaches Considered:
+
+❌ Hierarchical path lookup - Fragile, breaks with renames
+❌ GUID system - Complex, requires ID components
+❌ Addressables - Overkill for this use case
+✓ Scene registry - Simple, reliable, industry standard
+
+
+=====================================================================
+FAQ
+=====================================================================
+
+Q: Do I need to sync every time I edit?
+A: Only if you changed GameObject references. If you only changed
+   step names or settings, no sync needed.
+
+Q: Can I edit references directly in the registry?
+A: Yes, but it's not recommended. Next sync will overwrite your
+   changes. Always edit in Sequence Builder for consistency.
+
+Q: What if I have 100 steps? Do I need to sync all manually?
+A: No! The sync button transfers ALL steps automatically in seconds.
+
+Q: Can I use this for multiple sequences?
+A: Yes, create multiple registry GameObjects, one per sequence.
+
+Q: Do arrows work at runtime without the registry?
+A: No, the controller requires the registry to resolve references.
+
+Q: Does this work with both XRI and AutoHands?
+A: Yes! The reference system is framework-agnostic.
+
+
+=====================================================================
+SUPPORT
+=====================================================================
+
+If arrows still don't work after following this guide:
+
+1. Check Unity Console for error messages
+2. Verify "Sync Status" shows green checkmarks
+3. Confirm scene was saved after syncing
+4. Test after Unity restart before building
+
+The system is production-ready - if it works after Unity restart,
+it WILL work in builds!
+
+
+=====================================================================
+SUMMARY
+=====================================================================
+
+The Magic Formula:
+
+1. Edit in Sequence Builder (ONE place)
+2. Click Sync (transfers to registry)
+3. Save Scene (persists references)
+4. Build → Arrows work!
+
+That's it! No more reference problems, no more double-entry!
+
+=====================================================================

@@ -42,7 +42,8 @@ public class AutoHandsGrabStepHandler : BaseAutoHandsStepHandler
     {
         LogDebug($"🤏 Starting AutoHands grab step: {step.stepName}");
 
-        var targetObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var targetObject = controller.GetTargetObjectForStep(step);
         if (targetObject == null)
         {
             LogError($"Target object is null for step: {step.stepName}");
@@ -129,7 +130,8 @@ public class AutoHandsGrabStepHandler : BaseAutoHandsStepHandler
         if (step.isCompleted) return;
 
         var grabbedObject = grabbable.gameObject;
-        var expectedObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var expectedObject = controller.GetTargetObjectForStep(step);
 
         LogDebug($"🤏 AutoHands object grabbed: {grabbedObject.name}, expected: {expectedObject?.name}");
         LogDebug($"🤏 Grabbed by hand: {hand.name}");

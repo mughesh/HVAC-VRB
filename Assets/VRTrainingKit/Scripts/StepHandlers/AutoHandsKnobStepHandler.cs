@@ -19,6 +19,9 @@ public class AutoHandsKnobStepHandler : BaseAutoHandsStepHandler
     private Dictionary<AutoHandsKnobController, System.Action<float>> knobEventDelegates = new Dictionary<AutoHandsKnobController, System.Action<float>>();
     private Dictionary<InteractionStep, AutoHandsKnobController> activeStepKnobs = new Dictionary<InteractionStep, AutoHandsKnobController>();
 
+    // Track initial angles for rotation direction detection
+    private Dictionary<InteractionStep, float> initialAngles = new Dictionary<InteractionStep, float>();
+
     void Awake()
     {
         CacheKnobControllers();
@@ -40,22 +43,35 @@ public class AutoHandsKnobStepHandler : BaseAutoHandsStepHandler
 
     public override void StartStep(InteractionStep step)
     {
-        LogDebug($"🔄 Starting AutoHands knob step: {step.stepName}");
+        Debug.Log($"🔄 [AutoHandsKnobStepHandler] Starting AutoHands knob step: {step.stepName}");
 
-        var targetObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var targetObject = controller.GetTargetObjectForStep(step);
         if (targetObject == null)
         {
-            LogError($"Target object is null for knob step: {step.stepName}");
+            Debug.LogError($"🔄 [AutoHandsKnobStepHandler] Target object is null for knob step: {step.stepName}");
             return;
         }
 
+        Debug.Log($"🔄 [AutoHandsKnobStepHandler] Target object found: {targetObject.name}");
+
         if (!knobControllers.ContainsKey(targetObject))
         {
-            LogError($"No knob controller found for object: {targetObject.name} in step: {step.stepName}");
+            Debug.LogError($"🔄 [AutoHandsKnobStepHandler] No knob controller found for object: {targetObject.name} in step: {step.stepName}. Cached knobs: {knobControllers.Count}");
+            foreach (var kvp in knobControllers)
+            {
+                Debug.Log($"  - Cached knob: {kvp.Key.name}");
+            }
             return;
         }
 
         var knobController = knobControllers[targetObject];
+
+        // Store initial angle for direction detection
+        float initialAngle = knobController.CurrentHingeAngle;
+        initialAngles[step] = initialAngle;
+
+        Debug.Log($"🔄 [AutoHandsKnobStepHandler] Initial angle captured: {initialAngle:F1}°");
 
         // Subscribe to angle change events
         System.Action<float> angleDelegate = (angle) => OnKnobAngleChanged(step, angle);
@@ -65,7 +81,7 @@ public class AutoHandsKnobStepHandler : BaseAutoHandsStepHandler
         // Track this active step
         activeStepKnobs[step] = knobController;
 
-        LogDebug($"🔄 Subscribed to AutoHands knob events for: {targetObject.name} (Current: {knobController.CurrentAngle:F1}°, Target: {step.targetAngle:F1}°)");
+        Debug.Log($"🔄 [AutoHandsKnobStepHandler] ✅ Subscribed to AutoHands knob events for: {targetObject.name} (Initial: {initialAngle:F1}°, Target: {step.targetAngle:F1}°, Direction: {step.knobRotationType})");
     }
 
     public override void StopStep(InteractionStep step)
@@ -85,6 +101,7 @@ public class AutoHandsKnobStepHandler : BaseAutoHandsStepHandler
 
             // Remove from tracking
             activeStepKnobs.Remove(step);
+            initialAngles.Remove(step);
 
             LogDebug($"🔄 Unsubscribed from AutoHands knob events for step: {step.stepName}");
         }
@@ -132,7 +149,21 @@ public class AutoHandsKnobStepHandler : BaseAutoHandsStepHandler
     /// </summary>
     void OnKnobAngleChanged(InteractionStep step, float currentAngle)
     {
-        if (step.isCompleted) return;
+        Debug.Log($"🔄 [AutoHandsKnobStepHandler] OnKnobAngleChanged called! Step: {step.stepName}, Angle: {currentAngle:F2}°, isCompleted: {step.isCompleted}");
+
+        if (step.isCompleted)
+        {
+            Debug.LogWarning($"🔄 [AutoHandsKnobStepHandler] ⚠️ Step '{step.stepName}' already completed but still receiving events! This should not happen - event not cleaned up properly!");
+            return;
+        }
+
+        // Get the knob controller to access HingeJoint data
+        if (!activeStepKnobs.ContainsKey(step))
+        {
+            Debug.LogWarning($"🔄 [AutoHandsKnobStepHandler] Step not in activeStepKnobs dictionary!");
+            return;
+        }
+        var knobController = activeStepKnobs[step];
 
         float targetAngle = step.targetAngle;
         float tolerance = step.angleTolerance;
@@ -140,26 +171,88 @@ public class AutoHandsKnobStepHandler : BaseAutoHandsStepHandler
         // Calculate angle difference using Unity's DeltaAngle for proper wrapping
         float angleDifference = Mathf.Abs(Mathf.DeltaAngle(currentAngle, targetAngle));
 
-        // Enhanced debug logging with progress indication
-        LogDebug($"🔄 AutoHands knob rotation - {step.stepName}: Current: {currentAngle:F2}°, Target: {targetAngle:F2}°, Diff: {angleDifference:F2}°, Tolerance: ±{tolerance:F2}°");
+        Debug.Log($"🔄 [AutoHandsKnobStepHandler] Angle check - Current: {currentAngle:F2}°, Target: {targetAngle:F2}°, Diff: {angleDifference:F2}°, Tolerance: ±{tolerance:F2}°");
 
         // Check if target angle is reached within tolerance
+        Debug.Log($"🔄 [AutoHandsKnobStepHandler] About to check if {angleDifference:F2} <= {tolerance:F2}... Result: {(angleDifference <= tolerance)}");
+
         if (angleDifference <= tolerance)
         {
-            LogDebug($"🔄 AutoHands knob target reached! Completing step: {step.stepName}");
-            CompleteStep(step, $"Knob rotated to {currentAngle:F1}° (target: {targetAngle}°, tolerance: ±{tolerance}°) with AutoHands");
+            Debug.Log($"🔄 [AutoHandsKnobStepHandler] ✅ Target angle reached! Now validating direction...");
+
+            try
+            {
+                // Validate rotation direction if required
+                bool directionValid = ValidateRotationDirection(step, knobController, currentAngle);
+
+                Debug.Log($"🔄 [AutoHandsKnobStepHandler] Direction validation result: {directionValid}");
+
+                if (directionValid)
+                {
+                    Debug.Log($"🔄 [AutoHandsKnobStepHandler] ✅ Direction valid! Completing step: {step.stepName}");
+                    CompleteStep(step, $"Knob rotated to {currentAngle:F1}° (target: {targetAngle}°, direction: {step.knobRotationType}) with AutoHands");
+                }
+                else
+                {
+                    Debug.LogWarning($"🔄 [AutoHandsKnobStepHandler] ❌ WRONG direction! Required: {step.knobRotationType}");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"🔄 [AutoHandsKnobStepHandler] ❌ Exception during direction validation: {ex.Message}\n{ex.StackTrace}");
+            }
         }
         else
         {
-            // Show progress toward target (optional, can be disabled for performance)
-            if (controller?.enableDebugLogging == true)
-            {
-                float progress = Mathf.Max(0f, 1f - (angleDifference / (tolerance * 3f))); // 3x tolerance = 0% progress
-                if (progress > 0.1f)
-                {
-                    LogDebug($"🔄 AutoHands knob progress: {(progress * 100f):F0}% toward target");
-                }
-            }
+            Debug.Log($"🔄 [AutoHandsKnobStepHandler] Not at target yet. Diff: {angleDifference:F2}° > Tolerance: {tolerance:F2}°");
+        }
+    }
+
+    /// <summary>
+    /// Validates if the rotation direction matches the required direction
+    /// Uses HingeJoint angle to determine if rotation was toward min or max limit
+    /// </summary>
+    private bool ValidateRotationDirection(InteractionStep step, AutoHandsKnobController knobController, float currentAngle)
+    {
+        Debug.Log($"🔄 [AutoHandsKnobStepHandler] ValidateRotationDirection called for step: {step.stepName}, Type: {step.knobRotationType}");
+
+        // If direction doesn't matter, always return true
+        if (step.knobRotationType == InteractionStep.KnobRotationType.Any)
+        {
+            Debug.Log($"🔄 [AutoHandsKnobStepHandler] Rotation type is 'Any', returning true");
+            return true;
+        }
+
+        // Get initial angle that was captured when step started
+        if (!initialAngles.ContainsKey(step))
+        {
+            Debug.LogWarning($"🔄 [AutoHandsKnobStepHandler] ⚠️ No initial angle recorded for step {step.stepName}, accepting any direction");
+            return true;
+        }
+
+        float initialAngle = initialAngles[step];
+        float hingeMinLimit = knobController.HingeMinLimit;
+        float hingeMaxLimit = knobController.HingeMaxLimit;
+
+        Debug.Log($"🔄 [AutoHandsKnobStepHandler] Direction validation - Initial: {initialAngle:F1}°, Current: {currentAngle:F1}°, Limits: [{hingeMinLimit:F1}° to {hingeMaxLimit:F1}°]");
+
+        switch (step.knobRotationType)
+        {
+            case InteractionStep.KnobRotationType.OpenToMax:
+                // Must have rotated toward max limit (increasing angle)
+                bool movedTowardMax = currentAngle > initialAngle;
+                Debug.Log($"🔄 [AutoHandsKnobStepHandler] OpenToMax validation: Current({currentAngle:F1}°) > Initial({initialAngle:F1}°) = {movedTowardMax}");
+                return movedTowardMax;
+
+            case InteractionStep.KnobRotationType.CloseToMin:
+                // Must have rotated toward min limit (decreasing angle)
+                bool movedTowardMin = currentAngle < initialAngle;
+                Debug.Log($"🔄 [AutoHandsKnobStepHandler] CloseToMin validation: Current({currentAngle:F1}°) < Initial({initialAngle:F1}°) = {movedTowardMin}");
+                return movedTowardMin;
+
+            default:
+                Debug.Log($"🔄 [AutoHandsKnobStepHandler] Default case, returning true");
+                return true;
         }
     }
 }

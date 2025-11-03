@@ -26,13 +26,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56630
+            _instanceID: 56686
             _gameObjectName: suction valve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 56030
+            _instanceID: 56028
             _gameObjectName: LSV valve_socket_drop
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -53,19 +53,25 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 1
         - stepName: GSV Cap
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56120
+            _instanceID: 56122
             _gameObjectName: GasValve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55962
-            _gameObjectName: GSV valve_socket_drop
+            _instanceID: 55906
+            _gameObjectName: Sphere
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
@@ -85,6 +91,12 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
@@ -95,13 +107,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55680
+            _instanceID: 55670
             _gameObjectName: AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57218
+            _instanceID: 57340
             _gameObjectName: LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -122,18 +134,24 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 1
         - stepName: Allenkey snap - GSV
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55680
+            _instanceID: 55670
             _gameObjectName: AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57110
+            _instanceID: 57218
             _gameObjectName: GSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -154,6 +172,12 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
@@ -164,13 +188,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56762
+            _instanceID: 56842
             _gameObjectName: 'Yellow Hose Male '
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55672
+            _instanceID: 55662
             _gameObjectName: Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -191,18 +215,24 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 1
         - stepName: Yellow female
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55768
+            _instanceID: 55760
             _gameObjectName: Yellow hose female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55310
+            _instanceID: 55280
             _gameObjectName: Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -223,6 +253,12 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
@@ -233,13 +269,13 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56334
+            _instanceID: 56358
             _gameObjectName: Blue hose male
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57110
+            _instanceID: 57218
             _gameObjectName: GSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -260,18 +296,24 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 1
         - stepName: Blue female
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57210
+            _instanceID: 57330
             _gameObjectName: Blue Hose Female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57012
+            _instanceID: 57116
             _gameObjectName: Blue female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -292,6 +334,12 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
@@ -308,7 +356,7 @@ MonoBehaviour:
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57218
+            _instanceID: 57340
             _gameObjectName: LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
@@ -329,19 +377,25 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 1
         - stepName: Red Female
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57004
+            _instanceID: 57098
             _gameObjectName: Red_Hose_Female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55978
-            _gameObjectName: Red female snap
+            _instanceID: 56034
+            _gameObjectName: Limen
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
@@ -361,6 +415,12 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
+          showTargetArrow: 1
+          targetArrowType: 0
+          keepTargetArrowAfterGrab: 0
+          showDestinationArrow: 0
+          destinationArrowType: 0
+          showDestinationAfterGrab: 1
           isCompleted: 0
         enforceSequentialFlow: 1
         isExpanded: 1

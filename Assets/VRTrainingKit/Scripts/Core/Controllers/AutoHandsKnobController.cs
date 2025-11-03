@@ -1,6 +1,7 @@
 // AutoHandsKnobController.cs
 // Controls knob rotation behavior for AutoHands framework
 using UnityEngine;
+using UnityEngine.Events;
 using System;
 
 // NO NAMESPACE - Follows existing project pattern
@@ -24,8 +25,20 @@ public class AutoHandsKnobController : MonoBehaviour
     public float NormalizedValue => profile != null && profile.useLimits ?
         (currentAngle - profile.minAngle) / (profile.maxAngle - profile.minAngle) : 0f;
 
+    // HingeJoint-based properties for rotation direction detection
+    public float CurrentHingeAngle => hingeJoint != null ? hingeJoint.angle : GetTransformAngle();
+    public float HingeMinLimit => hingeJoint != null && hingeJoint.useLimits ? hingeJoint.limits.min : (profile?.minAngle ?? 0f);
+    public float HingeMaxLimit => hingeJoint != null && hingeJoint.useLimits ? hingeJoint.limits.max : (profile?.maxAngle ?? 90f);
+    public bool IsAtMaxLimit(float tolerance = 5f) => Mathf.Abs(CurrentHingeAngle - HingeMaxLimit) <= tolerance;
+    public bool IsAtMinLimit(float tolerance = 5f) => Mathf.Abs(CurrentHingeAngle - HingeMinLimit) <= tolerance;
+
+    // C# events for code-based subscriptions
     public event Action<float> OnAngleChanged;
     public event Action<float> OnSnapToAngle;
+
+    [Header("Callbacks (Optional)")]
+    [Tooltip("Event fired during rotation with normalized value (0.0 to 1.0). Wire displays here.")]
+    public UnityEvent<float> OnKnobRotated;
 
     private void Awake()
     {
@@ -126,6 +139,9 @@ public class AutoHandsKnobController : MonoBehaviour
 
           //  Debug.Log($"[AutoHandsKnobController] {gameObject.name} ANGLE CHANGED! {previousAngle:F3}° → {currentAngle:F3}° (diff: {angleDifference:F3}°) - FIRING EVENT");
             OnAngleChanged?.Invoke(currentAngle);
+
+            // Fire UnityEvent with normalized value for Inspector-wired displays
+            OnKnobRotated?.Invoke(NormalizedValue);
         }
     }
 
@@ -245,6 +261,7 @@ public class AutoHandsKnobController : MonoBehaviour
             ApplyRotation(angle);
             currentAngle = angle;
             OnAngleChanged?.Invoke(currentAngle);
+            OnKnobRotated?.Invoke(NormalizedValue);
         }
         else
         {
@@ -265,11 +282,13 @@ public class AutoHandsKnobController : MonoBehaviour
             ApplyRotation(angle);
             currentAngle = angle;
             OnAngleChanged?.Invoke(currentAngle);
+            OnKnobRotated?.Invoke(NormalizedValue);
             yield return null;
         }
 
         ApplyRotation(targetAngle);
         currentAngle = targetAngle;
         OnAngleChanged?.Invoke(currentAngle);
+        OnKnobRotated?.Invoke(NormalizedValue);
     }
 }

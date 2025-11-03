@@ -18,6 +18,10 @@ public class ModularTrainingSequenceController : MonoBehaviour
     [Tooltip("The training sequence asset to execute")]
     public TrainingSequenceAsset trainingAsset;
 
+    [Header("Arrow Registry")]
+    [Tooltip("Scene-based arrow registry (optional - if not set, will search for one in scene)")]
+    public SequenceArrowRegistry arrowRegistry;
+
     [Header("Debug Settings")]
     [Tooltip("Log detailed debug information")]
     public bool enableDebugLogging = true;
@@ -40,15 +44,43 @@ public class ModularTrainingSequenceController : MonoBehaviour
     private bool sequenceComplete = false;
 
     // Events for UI integration
+    public event Action<InteractionStep> OnStepStarted;
     public event Action<InteractionStep> OnStepCompleted;
+    public event Action<InteractionStep> OnObjectGrabbed; // For dual-arrow transitions
     public event Action<TaskGroup> OnTaskGroupCompleted;
     public event Action<TrainingModule> OnModuleCompleted;
     public event Action OnSequenceCompleted;
+
+    // Guidance arrow tracking
+    private class ArrowState
+    {
+        public InteractionStep step;
+        public GuidanceArrow targetArrow;
+        public GuidanceArrow destinationArrow;
+        public bool targetArrowShown;
+        public bool destinationArrowShown;
+    }
+    private Dictionary<InteractionStep, ArrowState> activeArrows = new Dictionary<InteractionStep, ArrowState>();
 
     void Start()
     {
         // Initialize restriction manager for sequential flow enforcement
         restrictionManager = gameObject.AddComponent<SequenceFlowRestrictionManager>();
+
+        // Find arrow registry if not assigned
+        if (arrowRegistry == null)
+        {
+            arrowRegistry = FindObjectOfType<SequenceArrowRegistry>();
+            if (arrowRegistry == null)
+            {
+                LogWarning("⚠️ No SequenceArrowRegistry found in scene. Arrows will not be displayed. " +
+                    "Add a SequenceArrowRegistry component to a GameObject to enable arrow guidance.");
+            }
+            else
+            {
+                LogInfo($"✓ Found SequenceArrowRegistry: {arrowRegistry.gameObject.name}");
+            }
+        }
 
         InitializeSequence();
     }
@@ -204,12 +236,32 @@ public class ModularTrainingSequenceController : MonoBehaviour
     }
 
     /// <summary>
-    /// Create default AutoHands handlers (placeholder for Phase 2)
+    /// Create default AutoHands handlers
     /// </summary>
     void CreateDefaultAutoHandsHandlers()
     {
-        LogWarning("🏗️ AutoHands default handlers not yet implemented - will be added in Phase 2");
-        // TODO: Create AutoHands handlers in Phase 2
+        LogInfo("🏗️ Creating default AutoHands handlers...");
+
+        // Create AutoHands handler GameObjects
+        var grabHandler = new GameObject("AutoHandsGrabStepHandler").AddComponent<AutoHandsGrabStepHandler>();
+        var snapHandler = new GameObject("AutoHandsSnapStepHandler").AddComponent<AutoHandsSnapStepHandler>();
+        var knobHandler = new GameObject("AutoHandsKnobStepHandler").AddComponent<AutoHandsKnobStepHandler>();
+        var valveHandler = new GameObject("AutoHandsValveStepHandler").AddComponent<AutoHandsValveStepHandler>();
+        var waitForScriptConditionHandler = new GameObject("AutoHandsWaitForScriptConditionHandler").AddComponent<AutoHandsWaitForScriptConditionHandler>();
+
+        // Set as children of this controller for organization
+        grabHandler.transform.SetParent(transform);
+        snapHandler.transform.SetParent(transform);
+        knobHandler.transform.SetParent(transform);
+        valveHandler.transform.SetParent(transform);
+        waitForScriptConditionHandler.transform.SetParent(transform);
+
+        // Register the handlers
+        RegisterHandler(grabHandler);
+        RegisterHandler(snapHandler);
+        RegisterHandler(knobHandler);
+        RegisterHandler(valveHandler);
+        RegisterHandler(waitForScriptConditionHandler);
     }
 
     /// <summary>
@@ -255,6 +307,30 @@ public class ModularTrainingSequenceController : MonoBehaviour
             activeStepHandlers.Remove(step);
         }
 
+        // Hide all guidance arrows for this step
+        HandleStepArrowsOnComplete(step);
+
+        // In sequential mode, show arrow for the next incomplete step
+        if (currentTaskGroup != null && currentTaskGroup.enforceSequentialFlow)
+        {
+            // Find next incomplete step
+            InteractionStep nextIncompleteStep = null;
+            foreach (var s in currentTaskGroup.steps)
+            {
+                if (!s.isCompleted)
+                {
+                    nextIncompleteStep = s;
+                    break;
+                }
+            }
+
+            // Show arrow for next step
+            if (nextIncompleteStep != null)
+            {
+                HandleStepArrowsOnStart(nextIncompleteStep);
+            }
+        }
+
         // Fire external event
         OnStepCompleted?.Invoke(step);
 
@@ -282,6 +358,9 @@ public class ModularTrainingSequenceController : MonoBehaviour
 
         // Clear previous active steps
         StopAllActiveSteps();
+
+        // Hide all arrows from previous task group
+        HideAllArrows();
 
         // PHASE 1: Initialize restriction manager if sequential flow is enabled
         if (currentTaskGroup.enforceSequentialFlow && restrictionManager != null)
@@ -348,6 +427,12 @@ public class ModularTrainingSequenceController : MonoBehaviour
         // Start handling the step
         activeStepHandlers[step] = handler;
         handler.StartStep(step);
+
+        // Setup guidance arrows
+        HandleStepArrowsOnStart(step);
+
+        // Fire step started event
+        OnStepStarted?.Invoke(step);
 
         LogDebug($"🎯 Started step: {step.stepName} with handler: {handler.GetType().Name}");
     }
@@ -649,6 +734,286 @@ public class ModularTrainingSequenceController : MonoBehaviour
     {
         Debug.LogError($"[ModularTrainingSequence] {message}");
     }
+
+    #region Guidance Arrow Management
+
+    /// <summary>
+    /// Hide all currently visible arrows (from all previous steps)
+    /// </summary>
+    void HideAllArrows()
+    {
+        foreach (var arrowState in activeArrows.Values.ToList())
+        {
+            if (arrowState.targetArrow != null && arrowState.targetArrowShown)
+            {
+                arrowState.targetArrow.HideArrow();
+                arrowState.targetArrowShown = false;
+            }
+
+            if (arrowState.destinationArrow != null && arrowState.destinationArrowShown)
+            {
+                arrowState.destinationArrow.HideArrow();
+                arrowState.destinationArrowShown = false;
+            }
+        }
+
+        activeArrows.Clear();
+        LogDebug("🔽 Hid all arrows from previous steps");
+    }
+
+    /// <summary>
+    /// Setup arrows when step starts
+    /// </summary>
+    void HandleStepArrowsOnStart(InteractionStep step)
+    {
+        // In sequential mode, only show arrow if this is the first incomplete step
+        var currentTaskGroup = GetCurrentTaskGroup();
+        if (currentTaskGroup != null && currentTaskGroup.enforceSequentialFlow)
+        {
+            // Find first incomplete step in the task group
+            InteractionStep firstIncompleteStep = null;
+            foreach (var s in currentTaskGroup.steps)
+            {
+                if (!s.isCompleted)
+                {
+                    firstIncompleteStep = s;
+                    break;
+                }
+            }
+
+            // Only show arrow if this is the first incomplete step
+            if (step != firstIncompleteStep)
+            {
+                LogDebug($"🔽 Skipping arrow for step '{step.stepName}' - not the current active step in sequential mode");
+                return;
+            }
+        }
+
+        var arrowState = new ArrowState { step = step };
+
+        // Get arrow from registry if available
+        GameObject targetArrowObj = null;
+        if (arrowRegistry != null)
+        {
+            var currentModule = GetCurrentModule();
+            targetArrowObj = arrowRegistry.GetTargetArrow(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+        }
+
+        // Fallback: Try getting from step's direct reference (for backward compatibility)
+        if (targetArrowObj == null && step.targetArrow != null && step.targetArrow.IsValid)
+        {
+            targetArrowObj = step.targetArrow.GameObject;
+            LogDebug($"⚠️ Using arrow from step direct reference (legacy mode). Consider using SequenceArrowRegistry instead.");
+        }
+
+        // Show target arrow if found
+        if (targetArrowObj != null)
+        {
+            var targetArrow = targetArrowObj.GetComponent<GuidanceArrow>();
+
+            if (targetArrow != null)
+            {
+                targetArrow.ShowArrow();
+                arrowState.targetArrow = targetArrow;
+                arrowState.targetArrowShown = true;
+                LogDebug($"🎯 Showed target arrow '{targetArrowObj.name}' for step: {step.stepName}");
+            }
+            else
+            {
+                LogWarning($"⚠️ Step '{step.stepName}' target arrow '{targetArrowObj.name}' has no GuidanceArrow component!");
+            }
+        }
+
+        // Store arrow state
+        if (arrowState.targetArrow != null)
+        {
+            activeArrows[step] = arrowState;
+        }
+    }
+
+    /// <summary>
+    /// Handle arrow transition when object is grabbed (for GrabAndSnap, valves)
+    /// </summary>
+    void HandleStepArrowsOnGrab(InteractionStep step)
+    {
+        if (!activeArrows.ContainsKey(step)) return;
+
+        var arrowState = activeArrows[step];
+        var currentModule = GetCurrentModule();
+        var currentTaskGroup = GetCurrentTaskGroup();
+
+        // Check hide/show settings from registry or step
+        bool hideTargetAfterGrab = step.hideTargetArrowAfterGrab;
+        bool showDestAfterGrab = step.showDestinationAfterGrab;
+
+        if (arrowRegistry != null)
+        {
+            hideTargetAfterGrab = arrowRegistry.ShouldHideTargetAfterGrab(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+            showDestAfterGrab = arrowRegistry.ShouldShowDestinationAfterGrab(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+        }
+
+        // Hide target arrow if configured
+        if (hideTargetAfterGrab && arrowState.targetArrow != null && arrowState.targetArrowShown)
+        {
+            arrowState.targetArrow.HideArrow();
+            arrowState.targetArrowShown = false;
+            LogDebug($"🔽 Hid target arrow after grab: {step.stepName}");
+        }
+
+        // Get destination arrow from registry or step
+        GameObject destArrowObj = null;
+        if (arrowRegistry != null)
+        {
+            destArrowObj = arrowRegistry.GetDestinationArrow(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+        }
+
+        // Fallback to step's direct reference
+        if (destArrowObj == null && step.destinationArrow != null && step.destinationArrow.IsValid)
+        {
+            destArrowObj = step.destinationArrow.GameObject;
+        }
+
+        // Show destination arrow if configured
+        if (showDestAfterGrab && destArrowObj != null && !arrowState.destinationArrowShown)
+        {
+            var destArrow = destArrowObj.GetComponent<GuidanceArrow>();
+
+            if (destArrow != null)
+            {
+                destArrow.ShowArrow();
+                arrowState.destinationArrow = destArrow;
+                arrowState.destinationArrowShown = true;
+                LogDebug($"🎯 Showed destination arrow '{destArrowObj.name}' for step: {step.stepName}");
+            }
+            else
+            {
+                LogWarning($"⚠️ Step '{step.stepName}' destination arrow '{destArrowObj.name}' has no GuidanceArrow component!");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Hide all arrows when step completes
+    /// </summary>
+    void HandleStepArrowsOnComplete(InteractionStep step)
+    {
+        if (!activeArrows.ContainsKey(step)) return;
+
+        var arrowState = activeArrows[step];
+
+        // Hide target arrow
+        if (arrowState.targetArrow != null && arrowState.targetArrowShown)
+        {
+            arrowState.targetArrow.HideArrow();
+            arrowState.targetArrowShown = false;
+        }
+
+        // Hide destination arrow
+        if (arrowState.destinationArrow != null && arrowState.destinationArrowShown)
+        {
+            arrowState.destinationArrow.HideArrow();
+            arrowState.destinationArrowShown = false;
+        }
+
+        // Remove from tracking
+        activeArrows.Remove(step);
+        LogDebug($"🔽 Hid all arrows for completed step: {step.stepName}");
+    }
+
+    /// <summary>
+    /// Public method for handlers to notify when object is grabbed
+    /// Handlers should call this to trigger arrow transitions
+    /// </summary>
+    public void NotifyObjectGrabbed(InteractionStep step)
+    {
+        LogDebug($"🖐️ Object grabbed for step: {step.stepName}");
+        HandleStepArrowsOnGrab(step);
+        OnObjectGrabbed?.Invoke(step);
+    }
+
+    /// <summary>
+    /// Get target object for a step (with registry support)
+    /// HANDLERS SHOULD USE THIS instead of step.targetObject.GameObject
+    /// This ensures references are resolved from registry (reliable) not asset (unreliable)
+    /// </summary>
+    public GameObject GetTargetObjectForStep(InteractionStep step)
+    {
+        GameObject targetObj = null;
+
+        // Try registry first (reliable source)
+        if (arrowRegistry != null)
+        {
+            var currentModule = GetCurrentModule();
+            var currentTaskGroup = GetCurrentTaskGroup();
+            if (currentModule != null && currentTaskGroup != null)
+            {
+                targetObj = arrowRegistry.GetTargetObject(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+            }
+        }
+
+        // Fallback to step's direct reference (unreliable but better than null)
+        if (targetObj == null && step.targetObject != null)
+        {
+            targetObj = step.targetObject.GameObject;
+            if (targetObj != null)
+            {
+                LogDebug($"⚠️ Using target object from step direct reference (not registry): {targetObj.name}");
+            }
+        }
+
+        return targetObj;
+    }
+
+    /// <summary>
+    /// Get destination object for a step (with registry support)
+    /// HANDLERS SHOULD USE THIS instead of step.destination.GameObject
+    /// </summary>
+    public GameObject GetDestinationObjectForStep(InteractionStep step)
+    {
+        GameObject destObj = null;
+
+        // Try registry first (reliable source)
+        if (arrowRegistry != null)
+        {
+            var currentModule = GetCurrentModule();
+            var currentTaskGroup = GetCurrentTaskGroup();
+            if (currentModule != null && currentTaskGroup != null)
+            {
+                destObj = arrowRegistry.GetDestinationObject(currentModule.moduleName, currentTaskGroup.groupName, step.stepName);
+            }
+        }
+
+        // Fallback to step's direct reference
+        if (destObj == null && step.destination != null)
+        {
+            destObj = step.destination.GameObject;
+            if (destObj != null)
+            {
+                LogDebug($"⚠️ Using destination from step direct reference (not registry): {destObj.name}");
+            }
+        }
+
+        return destObj;
+    }
+
+    /// <summary>
+    /// Get target socket for valve operations (with registry support)
+    /// HANDLERS SHOULD USE THIS instead of step.targetSocket.GameObject
+    /// </summary>
+    public GameObject GetTargetSocketForStep(InteractionStep step)
+    {
+        // For now, sockets can use direct reference (could add to registry later if needed)
+        GameObject socketObj = null;
+
+        if (step.targetSocket != null)
+        {
+            socketObj = step.targetSocket.GameObject;
+        }
+
+        return socketObj;
+    }
+
+    #endregion
 
     /// <summary>
     /// Progress information for UI display (reused from original)

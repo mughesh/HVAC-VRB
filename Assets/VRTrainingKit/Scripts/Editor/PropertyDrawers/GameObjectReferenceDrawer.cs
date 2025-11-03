@@ -18,6 +18,7 @@ public class GameObjectReferenceDrawer : PropertyDrawer
         // Get the serialized fields from GameObjectReference
         var gameObjectProp = property.FindPropertyRelative("_gameObject");
         var gameObjectNameProp = property.FindPropertyRelative("_gameObjectName");
+        var hierarchyPathProp = property.FindPropertyRelative("_hierarchyPath");
         var scenePathProp = property.FindPropertyRelative("_scenePath");
         var isValidProp = property.FindPropertyRelative("_isValid");
         
@@ -61,17 +62,18 @@ public class GameObjectReferenceDrawer : PropertyDrawer
             // Update all the internal fields
             gameObjectProp.objectReferenceValue = newGameObject;
             gameObjectNameProp.stringValue = newGameObject != null ? newGameObject.name : "";
+            hierarchyPathProp.stringValue = newGameObject != null ? GetHierarchyPath(newGameObject) : "";
             scenePathProp.stringValue = newGameObject != null && newGameObject.scene.IsValid() ? newGameObject.scene.path : "";
             isValidProp.boolValue = newGameObject != null;
-            
+
             // Force immediate serialization update
             property.serializedObject.ApplyModifiedProperties();
             property.serializedObject.Update();
-            
+
             // Force repaint of Inspector
             EditorUtility.SetDirty(property.serializedObject.targetObject);
-            
-            Debug.Log($"GameObjectReference updated: {(newGameObject != null ? newGameObject.name : "None")}");
+
+            Debug.Log($"GameObjectReference updated: {(newGameObject != null ? newGameObject.name : "None")} at path: {hierarchyPathProp.stringValue}");
         }
         
         // Show validation status if we have a name but no valid direct reference
@@ -91,6 +93,25 @@ public class GameObjectReferenceDrawer : PropertyDrawer
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         return EditorGUIUtility.singleLineHeight;
+    }
+
+    /// <summary>
+    /// Gets the full hierarchy path of a GameObject (e.g., "Parent/Child/Object")
+    /// </summary>
+    private static string GetHierarchyPath(GameObject obj)
+    {
+        if (obj == null) return "";
+
+        string path = obj.name;
+        Transform current = obj.transform.parent;
+
+        while (current != null)
+        {
+            path = current.name + "/" + path;
+            current = current.parent;
+        }
+
+        return path;
     }
 }
 #endif

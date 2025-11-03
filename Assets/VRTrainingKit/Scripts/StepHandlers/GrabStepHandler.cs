@@ -42,7 +42,8 @@ public class GrabStepHandler : BaseXRIStepHandler
     {
         LogDebug($"🤏 Starting grab step: {step.stepName}");
 
-        var targetObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var targetObject = controller.GetTargetObjectForStep(step);
         if (targetObject == null)
         {
             LogError($"Target object is null for step: {step.stepName}");
@@ -127,7 +128,8 @@ public class GrabStepHandler : BaseXRIStepHandler
         if (step.isCompleted) return;
 
         var grabbedObject = args.interactableObject.transform.gameObject;
-        var expectedObject = step.targetObject.GameObject;
+        // Use controller's helper method to get object from registry (reliable!)
+        var expectedObject = controller.GetTargetObjectForStep(step);
 
         LogDebug($"🤏 Object grabbed: {grabbedObject.name}, expected: {expectedObject?.name}");
 

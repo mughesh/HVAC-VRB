@@ -17,13 +17,13 @@ MonoBehaviour:
   enableAutoHandsDebugLogging: 0
   rotationAxis: 1
   minAngle: 0
-  maxAngle: 180
+  maxAngle: 90
   useLimits: 1
   autoConfigureConnectedAnchor: 1
   useSpring: 1
   springValue: 0
   damper: 0.1
-  targetPosition: 0
+  targetPosition: 45
   bounceMinVelocity: 0.2
   contactDistance: 0
   grabType: 0

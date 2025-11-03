@@ -1719,6 +1719,11 @@ public class VRInteractionSetupWindow : EditorWindow
             case InteractionStep.StepType.TurnKnob: return "🔄";
             case InteractionStep.StepType.WaitForCondition: return "⏳";
             case InteractionStep.StepType.ShowInstruction: return "💬";
+            case InteractionStep.StepType.TightenValve: return "🔧";
+            case InteractionStep.StepType.LoosenValve: return "🔓";
+            case InteractionStep.StepType.InstallValve: return "🔩";
+            case InteractionStep.StepType.RemoveValve: return "🔧";
+            case InteractionStep.StepType.WaitForScriptCondition: return "⚙️";
             default: return "❓";
         }
     }
@@ -1924,9 +1929,10 @@ public class VRInteractionSetupWindow : EditorWindow
         EditorGUILayout.Space(10);
         
         // Target objects based on type
-        if (step.type == InteractionStep.StepType.Grab || 
-            step.type == InteractionStep.StepType.GrabAndSnap || 
-            step.type == InteractionStep.StepType.TurnKnob)
+        if (step.type == InteractionStep.StepType.Grab ||
+            step.type == InteractionStep.StepType.GrabAndSnap ||
+            step.type == InteractionStep.StepType.TurnKnob ||
+            step.type == InteractionStep.StepType.WaitForScriptCondition)
         {
             EditorGUILayout.LabelField("Target Objects", EditorStyles.boldLabel);
             
@@ -1960,7 +1966,20 @@ public class VRInteractionSetupWindow : EditorWindow
                 EditorGUILayout.EndHorizontal();
             }
         }
-        
+
+        // WaitForScriptCondition-specific info
+        if (step.type == InteractionStep.StepType.WaitForScriptCondition)
+        {
+            EditorGUILayout.Space(5);
+            EditorGUILayout.HelpBox(
+                "Target Object must have a component that implements ISequenceCondition interface.\n\n" +
+                "Available condition types:\n" +
+                "• DummyCondition (for testing)\n" +
+                "• ButtonPressCondition\n" +
+                "• Custom conditions (inherit from BaseSequenceCondition)",
+                MessageType.Info);
+        }
+
         // Knob-specific settings
         if (step.type == InteractionStep.StepType.TurnKnob)
         {
@@ -1968,6 +1987,26 @@ public class VRInteractionSetupWindow : EditorWindow
             EditorGUILayout.LabelField("Knob Settings", EditorStyles.boldLabel);
             step.targetAngle = EditorGUILayout.FloatField("Target Angle", step.targetAngle);
             step.angleTolerance = EditorGUILayout.FloatField("Angle Tolerance", step.angleTolerance);
+
+            // Rotation direction dropdown
+            EditorGUILayout.Space(3);
+            step.knobRotationType = (InteractionStep.KnobRotationType)EditorGUILayout.EnumPopup(
+                new GUIContent("Rotation Direction", "Required rotation direction based on HingeJoint limits"),
+                step.knobRotationType
+            );
+
+            // Help text for rotation direction
+            string directionHelp = step.knobRotationType switch
+            {
+                InteractionStep.KnobRotationType.OpenToMax => "Opening: Rotate toward max limit (increasing angle)",
+                InteractionStep.KnobRotationType.CloseToMin => "Closing: Rotate toward min limit (decreasing angle)",
+                InteractionStep.KnobRotationType.Any => "Any direction is acceptable",
+                _ => ""
+            };
+            if (!string.IsNullOrEmpty(directionHelp))
+            {
+                EditorGUILayout.HelpBox(directionHelp, MessageType.Info);
+            }
         }
         
         // Valve-specific settings
@@ -2055,7 +2094,62 @@ public class VRInteractionSetupWindow : EditorWindow
         EditorGUILayout.Space(5);
         EditorGUILayout.LabelField("Instruction");
         step.hint = EditorGUILayout.TextArea(step.hint, GUILayout.Height(40));
-        
+
+        // Guidance Arrows
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("Guidance Arrows", EditorStyles.boldLabel);
+
+        EditorGUILayout.HelpBox("Place arrow GameObjects independently in scene, then reference them here. Arrows will show/hide automatically based on step progress.", MessageType.Info);
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        EditorGUILayout.LabelField("Target Arrow", EditorStyles.miniBoldLabel);
+        step.targetArrow.GameObject = (GameObject)EditorGUILayout.ObjectField(
+            "Arrow GameObject",
+            step.targetArrow.GameObject,
+            typeof(GameObject),
+            true
+        );
+
+        if (step.targetArrow.GameObject != null)
+        {
+            EditorGUI.indentLevel++;
+            step.hideTargetArrowAfterGrab = EditorGUILayout.Toggle("Hide After Grab", step.hideTargetArrowAfterGrab);
+            EditorGUI.indentLevel--;
+
+            // Validate arrow has GuidanceArrow component
+            if (step.targetArrow.GameObject.GetComponent<GuidanceArrow>() == null)
+            {
+                EditorGUILayout.HelpBox("Warning: Arrow GameObject needs GuidanceArrow component!", MessageType.Warning);
+            }
+        }
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.Space(5);
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        EditorGUILayout.LabelField("Destination Arrow (Optional)", EditorStyles.miniBoldLabel);
+        EditorGUILayout.LabelField("For GrabAndSnap/Valve steps - shows after object is grabbed", EditorStyles.miniLabel);
+        step.destinationArrow.GameObject = (GameObject)EditorGUILayout.ObjectField(
+            "Arrow GameObject",
+            step.destinationArrow.GameObject,
+            typeof(GameObject),
+            true
+        );
+
+        if (step.destinationArrow.GameObject != null)
+        {
+            EditorGUI.indentLevel++;
+            step.showDestinationAfterGrab = EditorGUILayout.Toggle("Show After Grab", step.showDestinationAfterGrab);
+            EditorGUI.indentLevel--;
+
+            // Validate arrow has GuidanceArrow component
+            if (step.destinationArrow.GameObject.GetComponent<GuidanceArrow>() == null)
+            {
+                EditorGUILayout.HelpBox("Warning: Arrow GameObject needs GuidanceArrow component!", MessageType.Warning);
+            }
+        }
+        EditorGUILayout.EndVertical();
+
         // Validation
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Validation", EditorStyles.boldLabel);
@@ -2111,6 +2205,7 @@ public class VRInteractionSetupWindow : EditorWindow
         
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
+        menu.AddItem(new GUIContent("Wait For Script Condition"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForScriptCondition));
         menu.AddItem(new GUIContent("Show Instruction Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.ShowInstruction));
         menu.ShowAsContext();
     }
