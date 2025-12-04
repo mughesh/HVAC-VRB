@@ -23,7 +23,7 @@ MonoBehaviour:
         description: 
         steps:
         - stepName: New Step
-          type: 1
+          type: 10
           targetObject:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -73,6 +73,22 @@ MonoBehaviour:
             _scenePath: 
             _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 0
         enforceSequentialFlow: 0
         isExpanded: 1
