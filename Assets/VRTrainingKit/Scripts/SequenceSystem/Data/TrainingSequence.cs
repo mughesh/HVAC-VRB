@@ -356,7 +356,10 @@ public class InteractionStep
         RemoveValve,       // Complete reverse flow (loosen → remove)
 
         // Script-based condition step type
-        WaitForScriptCondition  // Wait for custom condition script (ISequenceCondition)
+        WaitForScriptCondition,  // Wait for custom condition script (ISequenceCondition)
+
+        // Teleport step type
+        Teleport              // Manual teleport to destination via wrist button
     }
     
     [Header("Step Information")]
@@ -443,6 +446,20 @@ public class InteractionStep
     [Tooltip("Show destination arrow automatically after object is grabbed")]
     public bool showDestinationAfterGrab = true;
 
+    [Header("Teleport Settings")]
+    [Tooltip("For Teleport: The wrist button that triggers teleport")]
+    public GameObjectReference wristButton = new GameObjectReference();
+
+    [Tooltip("For Teleport: Destination teleport point GameObject (tagged 'teleportPoint')")]
+    public GameObjectReference teleportDestination = new GameObjectReference();
+
+    [Tooltip("For Teleport: Enable XR recentering after teleport")]
+    public bool enableRecentering = true;
+
+    [Tooltip("For Teleport: Delay before recentering (seconds)")]
+    [Range(0f, 2f)]
+    public float recenteringDelay = 0.5f;
+
     [Header("Runtime State")]
     [Tooltip("Completion state - managed by runtime controller")]
     public bool isCompleted = false;
@@ -494,6 +511,10 @@ public class InteractionStep
 
             case StepType.WaitForScriptCondition:
                 return targetObject != null && targetObject.IsValid;
+
+            case StepType.Teleport:
+                return wristButton != null && wristButton.IsValid &&
+                       teleportDestination != null && teleportDestination.IsValid;
 
             default:
                 return false;
@@ -573,6 +594,15 @@ public class InteractionStep
             case StepType.WaitForScriptCondition:
                 if (targetObject == null || !targetObject.IsValid)
                     return "Missing or invalid target object with ISequenceCondition component";
+                break;
+
+            case StepType.Teleport:
+                if ((wristButton == null || !wristButton.IsValid) && (teleportDestination == null || !teleportDestination.IsValid))
+                    return "Missing wrist button and teleport destination";
+                if (wristButton == null || !wristButton.IsValid)
+                    return "Missing or invalid wrist button reference";
+                if (teleportDestination == null || !teleportDestination.IsValid)
+                    return "Missing or invalid teleport destination";
                 break;
         }
 
