@@ -89,7 +89,7 @@ MonoBehaviour:
             _isValid: 1
           enableRecentering: 1
           recenteringDelay: 0.5
-          isCompleted: 1
+          isCompleted: 0
         enforceSequentialFlow: 1
         isExpanded: 1
       - groupName: New Task Group
@@ -235,7 +235,7 @@ MonoBehaviour:
             _isValid: 1
           enableRecentering: 1
           recenteringDelay: 0.5
-          isCompleted: 0
+          isCompleted: 1
         enforceSequentialFlow: 0
         isExpanded: 1
       isExpanded: 1

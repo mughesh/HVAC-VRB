@@ -21,6 +21,6 @@ MonoBehaviour:
   preserveYRotation: 0
   positionOffset: {x: 0, y: 0, z: 0}
   rotationOffset: {x: 0, y: 0, z: 0}
-  showDestinationPreview: 1
+  showDestinationPreview: 0
   previewColor: {r: 0, g: 1, b: 0, a: 0.5}
   previewRadius: 0.5

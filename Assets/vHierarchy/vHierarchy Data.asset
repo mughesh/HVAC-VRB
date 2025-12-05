@@ -15,6 +15,7 @@ MonoBehaviour:
   sceneDatas_byGuid:
     keys:
     - 4991b03d8601c344fb22458bf2f1a2b9
+    - 1be1b648ad901f24ca17d390e61c8481
     values:
     - goDatas_byGlobalId:
         keys:
@@ -43,3 +44,6 @@ MonoBehaviour:
           iconNameOrGuid: cs Script Icon
         - colorIndex: 6
           iconNameOrGuid: 
+    - goDatas_byGlobalId:
+        keys: []
+        values: []
