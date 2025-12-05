@@ -864,6 +864,12 @@ public class VRInteractionSetupWindow : EditorWindow
                             }
                         }
                     }
+                    else if (tag == "teleportPoint")
+                    {
+                        // TeleportController validation
+                        var teleportController = obj.GetComponent<TeleportController>();
+                        isConfigured = teleportController != null;
+                    }
                 }
                 
                 string statusIcon = isConfigured ? "✓" : "○";
@@ -2371,14 +2377,15 @@ public class VRInteractionSetupWindow : EditorWindow
         menu.AddItem(new GUIContent("Grab Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Grab));
         menu.AddItem(new GUIContent("Grab and Snap Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.GrabAndSnap));
         menu.AddItem(new GUIContent("Turn Knob Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TurnKnob));
-        
+        menu.AddItem(new GUIContent("🚀 Teleport Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Teleport));
+
         // Valve operation steps
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Valve Operations/Tighten Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenValve));
         menu.AddItem(new GUIContent("Valve Operations/Loosen Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenValve));
         menu.AddItem(new GUIContent("Valve Operations/Install Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallValve));
         menu.AddItem(new GUIContent("Valve Operations/Remove Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveValve));
-        
+
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
         menu.AddItem(new GUIContent("Wait For Script Condition"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForScriptCondition));
