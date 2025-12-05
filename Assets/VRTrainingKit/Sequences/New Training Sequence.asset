@@ -75,14 +75,14 @@ MonoBehaviour:
           showDestinationAfterGrab: 1
           wristButton:
             _gameObject: {fileID: 0}
-            _instanceID: 56554
-            _gameObjectName: Touch Button
-            _hierarchyPath: WristUI/Hide/Show/Canvas/Touch Button
+            _instanceID: 101034
+            _gameObjectName: Wrist Button
+            _hierarchyPath: WristUI/Hide/Show/Canvas/Wrist Button
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           teleportDestination:
             _gameObject: {fileID: 0}
-            _instanceID: 59104
+            _instanceID: 103596
             _gameObjectName: GameObject
             _hierarchyPath: Teleport points/GameObject
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -90,152 +90,6 @@ MonoBehaviour:
           enableRecentering: 1
           recenteringDelay: 0.5
           isCompleted: 0
-        enforceSequentialFlow: 1
-        isExpanded: 1
-      - groupName: New Task Group
-        description: Task group description
-        steps:
-        - stepName: New Step
-          type: 10
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          knobRotationType: 2
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          targetArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          hideTargetArrowAfterGrab: 1
-          destinationArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          showDestinationAfterGrab: 1
-          wristButton:
-            _gameObject: {fileID: 0}
-            _instanceID: 56554
-            _gameObjectName: Touch Button
-            _hierarchyPath: WristUI/Hide/Show/Canvas/Touch Button
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          teleportDestination:
-            _gameObject: {fileID: 0}
-            _instanceID: 58536
-            _gameObjectName: GameObject (1)
-            _hierarchyPath: Teleport points/GameObject (1)
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          enableRecentering: 1
-          recenteringDelay: 0.5
-          isCompleted: 1
-        enforceSequentialFlow: 0
-        isExpanded: 1
-      - groupName: New Task Group
-        description: Task group description
-        steps:
-        - stepName: New Step
-          type: 10
-          targetObject:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          destination:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          targetAngle: 0
-          angleTolerance: 5
-          knobRotationType: 2
-          rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
-          loosenThreshold: 90
-          valveAngleTolerance: 5
-          targetSocket:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          rotationDampening: 0
-          allowParallel: 0
-          isOptional: 0
-          waitForSteps: 
-          hint: Step instruction goes here
-          targetArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          hideTargetArrowAfterGrab: 1
-          destinationArrow:
-            _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
-          showDestinationAfterGrab: 1
-          wristButton:
-            _gameObject: {fileID: 0}
-            _instanceID: 56554
-            _gameObjectName: Wrist Button
-            _hierarchyPath: WristUI/Hide/Show/Canvas/Wrist Button
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          teleportDestination:
-            _gameObject: {fileID: 0}
-            _instanceID: -35818
-            _gameObjectName: GameObject (2)
-            _hierarchyPath: Teleport points/GameObject (2)
-            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
-          enableRecentering: 1
-          recenteringDelay: 0.5
-          isCompleted: 1
         enforceSequentialFlow: 0
         isExpanded: 1
       isExpanded: 1
