@@ -12,6 +12,7 @@ using UnityEditor;
 public abstract class VRSetupTabBase
 {
     protected VRInteractionSetupWindow window;
+    protected VRProfileManager profileManager;
     
     // Common styles
     protected GUIStyle headerStyle;
@@ -23,6 +24,13 @@ public abstract class VRSetupTabBase
     public VRSetupTabBase(VRInteractionSetupWindow window)
     {
         this.window = window;
+        InitializeStyles();
+    }
+    
+    public VRSetupTabBase(VRInteractionSetupWindow window, VRProfileManager profileManager)
+    {
+        this.window = window;
+        this.profileManager = profileManager;
         InitializeStyles();
     }
     

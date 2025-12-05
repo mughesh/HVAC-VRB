@@ -17,16 +17,7 @@ public class VRSetupTab_Setup : VRSetupTabBase
     private InteractionSetupService.SceneAnalysis sceneAnalysis;
     private Vector2 setupScrollPos;
     
-    // References to selected profiles from main window
-    private InteractionProfile selectedGrabProfile;
-    private InteractionProfile selectedKnobProfile;
-    private InteractionProfile selectedSnapProfile;
-    private InteractionProfile selectedToolProfile;
-    private InteractionProfile selectedValveProfile;
-    private InteractionProfile selectedTurnProfile;
-    private InteractionProfile selectedTeleportProfile;
-    
-    public VRSetupTab_Setup(VRInteractionSetupWindow window) : base(window)
+    public VRSetupTab_Setup(VRInteractionSetupWindow window, VRProfileManager profileManager) : base(window, profileManager)
     {
     }
     
@@ -73,24 +64,6 @@ public class VRSetupTab_Setup : VRSetupTabBase
         }
     }
     
-    public void SetSelectedProfiles(
-        InteractionProfile grabProfile,
-        InteractionProfile knobProfile,
-        InteractionProfile snapProfile,
-        InteractionProfile toolProfile,
-        InteractionProfile valveProfile,
-        InteractionProfile turnProfile,
-        InteractionProfile teleportProfile)
-    {
-        selectedGrabProfile = grabProfile;
-        selectedKnobProfile = knobProfile;
-        selectedSnapProfile = snapProfile;
-        selectedToolProfile = toolProfile;
-        selectedValveProfile = valveProfile;
-        selectedTurnProfile = turnProfile;
-        selectedTeleportProfile = teleportProfile;
-    }
-    
     public override void DrawTab()
     {
         EditorGUILayout.LabelField("Scene Setup", headerStyle);
@@ -114,31 +87,31 @@ public class VRSetupTab_Setup : VRSetupTabBase
             setupScrollPos = EditorGUILayout.BeginScrollView(setupScrollPos);
             
             // Grab objects
-            DrawObjectGroup("Grab Objects", sceneAnalysis.grabObjects, "grab", selectedGrabProfile);
+            DrawObjectGroup("Grab Objects", sceneAnalysis.grabObjects, "grab", profileManager.selectedGrabProfile);
             EditorGUILayout.Space(10);
             
             // Knob objects
-            DrawObjectGroup("Knob Objects", sceneAnalysis.knobObjects, "knob", selectedKnobProfile);
+            DrawObjectGroup("Knob Objects", sceneAnalysis.knobObjects, "knob", profileManager.selectedKnobProfile);
             EditorGUILayout.Space(10);
             
             // Snap points
-            DrawObjectGroup("Snap Points", sceneAnalysis.snapObjects, "snap", selectedSnapProfile);
+            DrawObjectGroup("Snap Points", sceneAnalysis.snapObjects, "snap", profileManager.selectedSnapProfile);
             EditorGUILayout.Space(10);
             
             // Tool objects
-            DrawObjectGroup("Tool Objects", sceneAnalysis.toolObjects, "tool", selectedToolProfile);
+            DrawObjectGroup("Tool Objects", sceneAnalysis.toolObjects, "tool", profileManager.selectedToolProfile);
             EditorGUILayout.Space(10);
             
             // Valve objects
-            DrawObjectGroup("Valve Objects", sceneAnalysis.valveObjects, "valve", selectedValveProfile);
+            DrawObjectGroup("Valve Objects", sceneAnalysis.valveObjects, "valve", profileManager.selectedValveProfile);
             EditorGUILayout.Space(10);
 
             // Turn objects
-            DrawObjectGroup("Turn Objects", sceneAnalysis.turnObjects, "turn", selectedTurnProfile);
+            DrawObjectGroup("Turn Objects", sceneAnalysis.turnObjects, "turn", profileManager.selectedTurnProfile);
             EditorGUILayout.Space(10);
 
             // Teleport points
-            DrawObjectGroup("🚀 Teleport Points", sceneAnalysis.teleportObjects, "teleportPoint", selectedTeleportProfile);
+            DrawObjectGroup("🚀 Teleport Points", sceneAnalysis.teleportObjects, "teleportPoint", profileManager.selectedTeleportProfile);
 
             EditorGUILayout.EndScrollView();
             
@@ -396,45 +369,45 @@ public class VRSetupTab_Setup : VRSetupTabBase
         
         int totalApplied = 0;
         
-        if (selectedGrabProfile != null && sceneAnalysis.grabObjects.Count > 0)
+        if (profileManager.selectedGrabProfile != null && sceneAnalysis.grabObjects.Count > 0)
         {
-            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.grabObjects, selectedGrabProfile);
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.grabObjects, profileManager.selectedGrabProfile);
             totalApplied += sceneAnalysis.grabObjects.Count;
         }
         
-        if (selectedKnobProfile != null && sceneAnalysis.knobObjects.Count > 0)
+        if (profileManager.selectedKnobProfile != null && sceneAnalysis.knobObjects.Count > 0)
         {
-            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.knobObjects, selectedKnobProfile);
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.knobObjects, profileManager.selectedKnobProfile);
             totalApplied += sceneAnalysis.knobObjects.Count;
         }
         
-        if (selectedSnapProfile != null && sceneAnalysis.snapObjects.Count > 0)
+        if (profileManager.selectedSnapProfile != null && sceneAnalysis.snapObjects.Count > 0)
         {
-            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.snapObjects, selectedSnapProfile);
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.snapObjects, profileManager.selectedSnapProfile);
             totalApplied += sceneAnalysis.snapObjects.Count;
         }
         
-        if (selectedToolProfile != null && sceneAnalysis.toolObjects.Count > 0)
+        if (profileManager.selectedToolProfile != null && sceneAnalysis.toolObjects.Count > 0)
         {
-            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.toolObjects, selectedToolProfile);
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.toolObjects, profileManager.selectedToolProfile);
             totalApplied += sceneAnalysis.toolObjects.Count;
         }
         
-        if (selectedValveProfile != null && sceneAnalysis.valveObjects.Count > 0)
+        if (profileManager.selectedValveProfile != null && sceneAnalysis.valveObjects.Count > 0)
         {
-            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.valveObjects, selectedValveProfile);
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.valveObjects, profileManager.selectedValveProfile);
             totalApplied += sceneAnalysis.valveObjects.Count;
         }
         
-        if (selectedTurnProfile != null && sceneAnalysis.turnObjects.Count > 0)
+        if (profileManager.selectedTurnProfile != null && sceneAnalysis.turnObjects.Count > 0)
         {
-            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.turnObjects, selectedTurnProfile);
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.turnObjects, profileManager.selectedTurnProfile);
             totalApplied += sceneAnalysis.turnObjects.Count;
         }
         
-        if (selectedTeleportProfile != null && sceneAnalysis.teleportObjects.Count > 0)
+        if (profileManager.selectedTeleportProfile != null && sceneAnalysis.teleportObjects.Count > 0)
         {
-            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.teleportObjects, selectedTeleportProfile);
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.teleportObjects, profileManager.selectedTeleportProfile);
             totalApplied += sceneAnalysis.teleportObjects.Count;
         }
         
