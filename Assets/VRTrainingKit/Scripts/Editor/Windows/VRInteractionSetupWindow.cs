@@ -79,6 +79,13 @@ public class VRInteractionSetupWindow : EditorWindow
     private GUIStyle warningStyle;
     private GUIStyle errorStyle;
     
+    // MODULAR REFACTORING: New tab system
+    private VRProfileManager profileManager;
+    private VRSetupTab_Setup setupTabModular;
+    private VRSetupTab_Configure configureTabModular;
+    private VRSetupTab_Validate validateTabModular;
+    private bool useModularTabs = true; // Toggle between old and new implementation
+    
     [MenuItem("VR Training/Setup Assistant")]
     public static void ShowWindow()
     {
@@ -89,10 +96,30 @@ public class VRInteractionSetupWindow : EditorWindow
     private void OnEnable()
     {
         InitializeStyles();
-        LoadDefaultProfiles();
-
-        // Cache available profiles for performance
-        RefreshProfileCaches();
+        
+        // MODULAR REFACTORING: Initialize profile manager and tabs
+        if (useModularTabs)
+        {
+            profileManager = new VRProfileManager();
+            profileManager.LoadDefaultProfiles();
+            profileManager.RefreshProfileCaches();
+            
+            // Create modular tab instances
+            setupTabModular = new VRSetupTab_Setup(this, profileManager);
+            configureTabModular = new VRSetupTab_Configure(this, profileManager);
+            validateTabModular = new VRSetupTab_Validate(this);
+            
+            // Initialize tabs
+            setupTabModular.OnEnable();
+            configureTabModular.OnEnable();
+            validateTabModular.OnEnable();
+        }
+        else
+        {
+            // OLD: Keep existing initialization for backward compatibility
+            LoadDefaultProfiles();
+            RefreshProfileCaches();
+        }
 
         // Subscribe to play mode state changes
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
@@ -114,6 +141,14 @@ public class VRInteractionSetupWindow : EditorWindow
         // Unsubscribe from play mode state changes
         EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
         
+        // MODULAR REFACTORING: Cleanup modular tabs
+        if (useModularTabs)
+        {
+            if (setupTabModular != null) setupTabModular.OnDisable();
+            if (configureTabModular != null) configureTabModular.OnDisable();
+            if (validateTabModular != null) validateTabModular.OnDisable();
+        }
+        
         // Save that we had a valid scene analysis
         if (sceneAnalysis != null)
         {
@@ -123,12 +158,20 @@ public class VRInteractionSetupWindow : EditorWindow
     
     private void OnPlayModeStateChanged(PlayModeStateChange state)
     {
+        // MODULAR REFACTORING: Forward to modular tabs
+        if (useModularTabs)
+        {
+            if (setupTabModular != null) setupTabModular.OnPlayModeStateChanged(state);
+            if (configureTabModular != null) configureTabModular.OnPlayModeStateChanged(state);
+            if (validateTabModular != null) validateTabModular.OnPlayModeStateChanged(state);
+        }
+        
         if (state == PlayModeStateChange.EnteredPlayMode)
         {
             Debug.Log("[VRInteractionSetupWindow] Entered play mode - refreshing scene analysis");
-            if (sceneAnalysis != null)
+            if (sceneAnalysis != null && !useModularTabs)
             {
-                // Refresh the analysis in play mode to show current state
+                // OLD: Refresh the analysis in play mode to show current state
                 sceneAnalysis = InteractionSetupService.ScanScene();
             }
         }
@@ -136,8 +179,8 @@ public class VRInteractionSetupWindow : EditorWindow
         {
             Debug.Log("[VRInteractionSetupWindow] Entered edit mode - refreshing scene analysis and training assets");
 
-            // Refresh scene analysis
-            if (EditorPrefs.GetBool("VRTrainingKit_LastSceneAnalysisValid", false))
+            // Refresh scene analysis (OLD path only)
+            if (!useModularTabs && EditorPrefs.GetBool("VRTrainingKit_LastSceneAnalysisValid", false))
             {
                 sceneAnalysis = InteractionSetupService.ScanScene();
             }
@@ -676,23 +719,52 @@ public class VRInteractionSetupWindow : EditorWindow
         EditorGUILayout.Space(10);
         
         // Draw current tab
-        switch (currentTab)
+        // MODULAR REFACTORING: Use modular tabs when enabled
+        if (useModularTabs)
         {
-            case Tab.Setup:
-                DrawSetupTab();
-                break;
-            case Tab.Configure:
-                DrawConfigureTab();
-                break;
-            case Tab.Sequence:
-                DrawSequenceTab();
-                break;
-            case Tab.RuntimeMonitor:
-                DrawRuntimeMonitorTab();
-                break;
-            case Tab.Validate:
-                DrawValidateTab();
-                break;
+            switch (currentTab)
+            {
+                case Tab.Setup:
+                    if (setupTabModular != null) setupTabModular.DrawTab();
+                    else DrawSetupTab(); // Fallback
+                    break;
+                case Tab.Configure:
+                    if (configureTabModular != null) configureTabModular.DrawTab();
+                    else DrawConfigureTab(); // Fallback
+                    break;
+                case Tab.Sequence:
+                    DrawSequenceTab(); // TODO: Create VRSetupTab_Sequence
+                    break;
+                case Tab.RuntimeMonitor:
+                    DrawRuntimeMonitorTab(); // TODO: Create VRSetupTab_RuntimeMonitor
+                    break;
+                case Tab.Validate:
+                    if (validateTabModular != null) validateTabModular.DrawTab();
+                    else DrawValidateTab(); // Fallback
+                    break;
+            }
+        }
+        else
+        {
+            // OLD: Keep existing draw methods for backward compatibility
+            switch (currentTab)
+            {
+                case Tab.Setup:
+                    DrawSetupTab();
+                    break;
+                case Tab.Configure:
+                    DrawConfigureTab();
+                    break;
+                case Tab.Sequence:
+                    DrawSequenceTab();
+                    break;
+                case Tab.RuntimeMonitor:
+                    DrawRuntimeMonitorTab();
+                    break;
+                case Tab.Validate:
+                    DrawValidateTab();
+                    break;
+            }
         }
     }
     
