@@ -72,12 +72,13 @@ public class VRInteractionSetupWindow : EditorWindow
     private List<string> validationIssues = new List<string>();
     private Vector2 validateScrollPos;
     
-    // Styling
-    private GUIStyle headerStyle;
-    private GUIStyle subHeaderStyle;
-    private GUIStyle successStyle;
-    private GUIStyle warningStyle;
-    private GUIStyle errorStyle;
+    // Styling - Now uses centralized VRTrainingEditorStyles class
+    // Accessors for backward compatibility during refactoring
+    private GUIStyle headerStyle => VRTrainingEditorStyles.HeaderStyle;
+    private GUIStyle subHeaderStyle => VRTrainingEditorStyles.SubHeaderStyle;
+    private GUIStyle successStyle => VRTrainingEditorStyles.SuccessStyle;
+    private GUIStyle warningStyle => VRTrainingEditorStyles.WarningStyle;
+    private GUIStyle errorStyle => VRTrainingEditorStyles.ErrorStyle;
     
     [MenuItem("VR Training/Setup Assistant")]
     public static void ShowWindow()
@@ -182,39 +183,9 @@ public class VRInteractionSetupWindow : EditorWindow
     
     private void InitializeStyles()
     {
-        headerStyle = new GUIStyle()
-        {
-            fontSize = 14,
-            fontStyle = FontStyle.Bold,
-            normal = { textColor = Color.white },
-            padding = new RectOffset(5, 5, 5, 5)
-        };
-        
-        subHeaderStyle = new GUIStyle()
-        {
-            fontSize = 12,
-            fontStyle = FontStyle.Bold,
-            normal = { textColor = Color.white },
-            padding = new RectOffset(5, 5, 3, 3)
-        };
-        
-        successStyle = new GUIStyle()
-        {
-            normal = { textColor = Color.green },
-            padding = new RectOffset(5, 5, 2, 2)
-        };
-        
-        warningStyle = new GUIStyle()
-        {
-            normal = { textColor = Color.yellow },
-            padding = new RectOffset(5, 5, 2, 2)
-        };
-        
-        errorStyle = new GUIStyle()
-        {
-            normal = { textColor = Color.red },
-            padding = new RectOffset(5, 5, 2, 2)
-        };
+        // Styles are now managed by VRTrainingEditorStyles (centralized)
+        // This method ensures they are initialized when the window opens
+        VRTrainingEditorStyles.EnsureInitialized();
     }
     
     private void LoadDefaultProfiles()
