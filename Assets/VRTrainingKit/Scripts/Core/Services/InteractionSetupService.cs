@@ -17,9 +17,10 @@ public class InteractionSetupService
             public List<GameObject> toolObjects = new List<GameObject>();
             public List<GameObject> valveObjects = new List<GameObject>();
             public List<GameObject> turnObjects = new List<GameObject>();
+            public List<GameObject> teleportObjects = new List<GameObject>();
             public List<GameObject> untaggedObjects = new List<GameObject>();
 
-            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count + toolObjects.Count + valveObjects.Count + turnObjects.Count;
+            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count + toolObjects.Count + valveObjects.Count + turnObjects.Count + teleportObjects.Count;
         }
         
         /// <summary>
@@ -65,8 +66,13 @@ public class InteractionSetupService
                     analysis.turnObjects.Add(obj);
                     Debug.Log($"[InteractionSetupService] Found turn object: {obj.name} (Tag: {obj.tag})");
                 }
+                else if (obj.CompareTag("teleportPoint"))
+                {
+                    analysis.teleportObjects.Add(obj);
+                    Debug.Log($"[InteractionSetupService] Found teleport point: {obj.name} (Tag: {obj.tag})");
+                }
             }
-            
+
             Debug.Log($"Scene Analysis Complete: {analysis.TotalInteractables} interactables found");
             Debug.Log($"  - Grab Objects: {analysis.grabObjects.Count}");
             Debug.Log($"  - Knob Objects: {analysis.knobObjects.Count}");
@@ -74,6 +80,7 @@ public class InteractionSetupService
             Debug.Log($"  - Tool Objects: {analysis.toolObjects.Count}");
             Debug.Log($"  - Valve Objects: {analysis.valveObjects.Count}");
             Debug.Log($"  - Turn Objects: {analysis.turnObjects.Count}");
+            Debug.Log($"  - Teleport Points: {analysis.teleportObjects.Count}");
             
             return analysis;
         }

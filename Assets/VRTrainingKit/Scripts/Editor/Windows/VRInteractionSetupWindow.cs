@@ -35,6 +35,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private InteractionProfile selectedToolProfile;
     private InteractionProfile selectedValveProfile;
     private InteractionProfile selectedTurnProfile;
+    private InteractionProfile selectedTeleportProfile;
     private Vector2 configScrollPos;
 
     // Cache available profiles to avoid performance issues
@@ -44,6 +45,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private List<InteractionProfile> cachedToolProfiles;
     private List<InteractionProfile> cachedValveProfiles;
     private List<InteractionProfile> cachedTurnProfiles;
+    private List<InteractionProfile> cachedTeleportProfiles;
     
     // Sequence tab - Legacy state-based system
     private LegacySequenceController sequenceController;
@@ -394,6 +396,7 @@ public class VRInteractionSetupWindow : EditorWindow
         RefreshToolProfileCache();
         RefreshValveProfileCache();
         RefreshTurnProfileCache();
+        RefreshTeleportProfileCache();
     }
 
     private void RefreshGrabProfileCache()
@@ -546,6 +549,23 @@ public class VRInteractionSetupWindow : EditorWindow
             if (profile != null && IsTurnProfile(profile))
             {
                 cachedTurnProfiles.Add(profile);
+            }
+        }
+    }
+
+    private void RefreshTeleportProfileCache()
+    {
+        cachedTeleportProfiles = new List<InteractionProfile>();
+
+        // Find AutoHands TeleportProfile (only AutoHands version exists)
+        string[] autoHandsTeleportGuids = AssetDatabase.FindAssets("t:AutoHandsTeleportProfile");
+        foreach (string guid in autoHandsTeleportGuids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
+            if (profile != null && IsTeleportProfile(profile))
+            {
+                cachedTeleportProfiles.Add(profile);
             }
         }
     }
@@ -720,6 +740,10 @@ public class VRInteractionSetupWindow : EditorWindow
 
             // Turn objects
             DrawObjectGroup("Turn Objects", sceneAnalysis.turnObjects, "turn", selectedTurnProfile);
+            EditorGUILayout.Space(10);
+
+            // Teleport points
+            DrawObjectGroup("🚀 Teleport Points", sceneAnalysis.teleportObjects, "teleportPoint", selectedTeleportProfile);
 
             EditorGUILayout.EndScrollView();
             
@@ -839,6 +863,12 @@ public class VRInteractionSetupWindow : EditorWindow
                                 break;
                             }
                         }
+                    }
+                    else if (tag == "teleportPoint")
+                    {
+                        // TeleportController validation
+                        var teleportController = obj.GetComponent<TeleportController>();
+                        isConfigured = teleportController != null;
                     }
                 }
                 
@@ -1353,10 +1383,76 @@ public class VRInteractionSetupWindow : EditorWindow
         }
         EditorGUILayout.EndVertical();
 
-        EditorGUILayout.EndScrollView();
-        
         EditorGUILayout.Space(10);
-        
+
+        // Teleport Profile
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("🚀 Teleport Profile", subHeaderStyle);
+        var teleportProfileTemp = EditorGUILayout.ObjectField(
+            "Profile Asset", selectedTeleportProfile, typeof(InteractionProfile), false) as InteractionProfile;
+
+        // Framework-aware ObjectField - accepts AutoHands teleport profiles
+        if (teleportProfileTemp != null && IsTeleportProfile(teleportProfileTemp))
+        {
+            selectedTeleportProfile = teleportProfileTemp;
+        }
+        else if (teleportProfileTemp != null)
+        {
+            EditorUtility.DisplayDialog("Invalid Profile Type",
+                $"The selected profile '{teleportProfileTemp.name}' is not a teleport-type profile.", "OK");
+        }
+
+        if (selectedTeleportProfile == null)
+        {
+            // Use cached profiles for performance
+            if (cachedTeleportProfiles != null && cachedTeleportProfiles.Count > 0)
+            {
+                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
+                foreach (var profile in cachedTeleportProfiles)
+                {
+                    if (profile != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        string frameworkType = GetProfileFrameworkType(profile);
+                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
+                        if (GUILayout.Button("Select", GUILayout.Width(50)))
+                        {
+                            selectedTeleportProfile = profile;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("No teleport profiles found in project.", MessageType.Info);
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Create New Teleport Profile"))
+            {
+                CreateNewProfile<AutoHandsTeleportProfile>("TeleportProfile");
+                RefreshTeleportProfileCache();
+            }
+            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
+            {
+                RefreshTeleportProfileCache();
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        else
+        {
+            if (GUILayout.Button("Edit Profile"))
+            {
+                Selection.activeObject = selectedTeleportProfile;
+            }
+        }
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.EndScrollView();
+
+        EditorGUILayout.Space(10);
+
         // Create default profiles button
         if (GUILayout.Button("Create All Default Profiles", GUILayout.Height(30)))
         {
@@ -1724,6 +1820,7 @@ public class VRInteractionSetupWindow : EditorWindow
             case InteractionStep.StepType.InstallValve: return "🔩";
             case InteractionStep.StepType.RemoveValve: return "🔧";
             case InteractionStep.StepType.WaitForScriptCondition: return "⚙️";
+            case InteractionStep.StepType.Teleport: return "🚀";
             default: return "❓";
         }
     }
@@ -2083,7 +2180,92 @@ public class VRInteractionSetupWindow : EditorWindow
                 EditorGUILayout.HelpBox("Set to 0 to use profile default", MessageType.Info);
             }
         }
-        
+
+        // Teleport-specific settings
+        if (step.type == InteractionStep.StepType.Teleport)
+        {
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("🚀 Teleport Settings", EditorStyles.boldLabel);
+
+            // Wrist Button field
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Wrist Button", GUILayout.Width(100));
+            GameObject currentButton = step.wristButton.GameObject;
+            GameObject newButton = (GameObject)EditorGUILayout.ObjectField(currentButton, typeof(GameObject), true);
+            if (newButton != currentButton)
+            {
+                step.wristButton.GameObject = newButton;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // Validate WristUIButton component
+            if (step.wristButton.GameObject != null)
+            {
+                var wristUIButton = step.wristButton.GameObject.GetComponent<WristUIButton>();
+                if (wristUIButton == null)
+                {
+                    EditorGUILayout.HelpBox("⚠️ Selected GameObject does not have WristUIButton component!", MessageType.Warning);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("✅ Valid WristUIButton component found", MessageType.Info);
+                }
+            }
+
+            EditorGUILayout.Space(3);
+
+            // Teleport Destination field
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Destination", GUILayout.Width(100));
+            GameObject currentDest = step.teleportDestination.GameObject;
+            GameObject newDest = (GameObject)EditorGUILayout.ObjectField(currentDest, typeof(GameObject), true);
+            if (newDest != currentDest)
+            {
+                step.teleportDestination.GameObject = newDest;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // Validate TeleportController component
+            if (step.teleportDestination.GameObject != null)
+            {
+                var teleportController = step.teleportDestination.GameObject.GetComponent<TeleportController>();
+                if (teleportController == null)
+                {
+                    EditorGUILayout.HelpBox("⚠️ Selected GameObject does not have TeleportController component!", MessageType.Warning);
+                }
+                else
+                {
+                    // Show TeleportController info
+                    string info = $"✅ TeleportController found\n" +
+                                 $"Recentering: {(teleportController.enableRecentering ? "Enabled" : "Disabled")}\n" +
+                                 $"Preview: {(teleportController.showDestinationPreview ? "Visible" : "Hidden")}";
+                    if (teleportController.autoHandPlayerReference == null)
+                    {
+                        info += "\n⚠️ AutoHandPlayer reference not set on controller!";
+                    }
+                    EditorGUILayout.HelpBox(info, teleportController.autoHandPlayerReference == null ? MessageType.Warning : MessageType.Info);
+                }
+
+                // Check for teleportPoint tag
+                if (!step.teleportDestination.GameObject.CompareTag("teleportPoint"))
+                {
+                    EditorGUILayout.HelpBox("⚠️ Destination should be tagged as 'teleportPoint' for consistency", MessageType.Warning);
+                }
+            }
+
+            EditorGUILayout.Space(3);
+
+            // Recentering settings
+            EditorGUILayout.LabelField("Recentering Settings", EditorStyles.boldLabel);
+            step.enableRecentering = EditorGUILayout.Toggle("Enable Recentering", step.enableRecentering);
+
+            if (step.enableRecentering)
+            {
+                step.recenteringDelay = EditorGUILayout.Slider("Recentering Delay", step.recenteringDelay, 0f, 2f);
+                EditorGUILayout.HelpBox("XR tracking origin will recenter after teleport", MessageType.Info);
+            }
+        }
+
         // Execution settings
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Execution Settings", EditorStyles.boldLabel);
@@ -2195,14 +2377,15 @@ public class VRInteractionSetupWindow : EditorWindow
         menu.AddItem(new GUIContent("Grab Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Grab));
         menu.AddItem(new GUIContent("Grab and Snap Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.GrabAndSnap));
         menu.AddItem(new GUIContent("Turn Knob Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TurnKnob));
-        
+        menu.AddItem(new GUIContent("🚀 Teleport Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Teleport));
+
         // Valve operation steps
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Valve Operations/Tighten Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenValve));
         menu.AddItem(new GUIContent("Valve Operations/Loosen Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenValve));
         menu.AddItem(new GUIContent("Valve Operations/Install Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallValve));
         menu.AddItem(new GUIContent("Valve Operations/Remove Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveValve));
-        
+
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
         menu.AddItem(new GUIContent("Wait For Script Condition"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForScriptCondition));
@@ -3082,6 +3265,22 @@ public class VRInteractionSetupWindow : EditorWindow
     }
 
     /// <summary>
+    /// Get the framework type display string for a profile
+    /// </summary>
+    private string GetProfileFrameworkType(InteractionProfile profile)
+    {
+        if (profile == null) return "[Unknown]";
+        
+        string typeName = profile.GetType().Name;
+        if (typeName.Contains("AutoHands"))
+            return "[AutoHands]";
+        else if (typeName.Contains("XRI") || profile is GrabProfile || profile is KnobProfile || profile is SnapProfile || profile is ToolProfile || profile is ValveProfile)
+            return "[XRI]";
+        else
+            return "[Unknown]";
+    }
+
+    /// <summary>
     /// Profile type validation helper methods
     /// </summary>
     private bool IsGrabProfile(InteractionProfile profile)
@@ -3117,6 +3316,11 @@ public class VRInteractionSetupWindow : EditorWindow
     private bool IsTurnProfile(InteractionProfile profile)
     {
         return profile != null && profile.GetType().Name.Contains("Turn");
+    }
+
+    private bool IsTeleportProfile(InteractionProfile profile)
+    {
+        return profile != null && profile.GetType().Name.Contains("Teleport");
     }
 
     /// <summary>

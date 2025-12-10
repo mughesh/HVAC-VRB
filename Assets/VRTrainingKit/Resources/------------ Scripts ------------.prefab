@@ -1,0 +1,661 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2009905308495660625
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 345551606824205453}
+  - component: {fileID: 4033016293243208339}
+  m_Layer: 0
+  m_Name: Arrows registry
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &345551606824205453
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009905308495660625}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.1219574, y: -0.081309915, z: -1.2847418}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 701363267499589996}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4033016293243208339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009905308495660625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b2a3b141399341499322c79d66fc60e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sequenceAsset: {fileID: 11400000, guid: 106f3ce76ca48b44b9df2be8e9d46ceb, type: 2}
+  arrowMappings:
+  - stepPath: Phase 1 - Hose connections/Cap Removal/LSV cap
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Cap Removal/GSV Cap
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Allen key-LSV/Allen key snap - LSV
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/AllenKey-GSV/Allen key snap -GSV
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/AllenKey-GSV/Allenkey Reset
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: 'Phase 1 - Hose connections/Yellow Hose/Yellow male '
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Yellow Hose/Yellow female
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Blue Hose/Blue male
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 854192028681302235, guid: 19fdb1a6995ae914cb296fdf5283a2e0, type: 3}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Blue Hose/Blue female
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Red hose/Red male
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Red hose/Red Female
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 707591344719062004, guid: 90a955c206988be4ab4c8d8b7ffebe36, type: 3}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 2 - Purging/Turn cylinder knob/Knob turn
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 0
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 2 - Purging/Loose yellow valve at GM/Loose yellow valve
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 0
+    showDestinationAfterGrab: 0
+  - stepPath: Phase 2 - Purging/Loose yellow valve at GM/Mist effect
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 2 - Purging/Loose yellow valve at GM/Tight yellow valve
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 0
+    showDestinationAfterGrab: 0
+  - stepPath: Phase 2 - Purging/Turn on switches/AC switch
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 2 - Purging/Turn on switches/Weigh machine switch
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 2 - Purging/weigh machine TARE/Weight zero button
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 2 - Purging/Clamp meter/clamp meter
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 3 - Charging/LP knob/Knob turn
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 0
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/Knob Off/Cylinder close
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 0
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/LP Knob close/LP knob close
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 0
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/Remove Yellow hose/Yellow male loose
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/Remove Yellow hose/Yellow female loose
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/Remove Red hose/Red Male loose
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/Remove Red hose/Red Female Loose
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/Remove Blue Hose/Blue male loose
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/Remove Blue Hose/Blue female loose
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/Allen key GSV/Allen key GSV close
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 4 - Disconnection/Allen key LSV/Allen key LSV close
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  autoSyncOnPlayMode: 1
+  arrowTag: GuidanceArrow
+--- !u!1 &3866150299442542363
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6355585708432480584}
+  - component: {fileID: 5015617765811165263}
+  m_Layer: 0
+  m_Name: VRTrainingDebug
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6355585708432480584
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3866150299442542363}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.52390003, y: -1.0247364, z: -0.86199963}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 701363267499589996}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5015617765811165263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3866150299442542363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64e4e7b8b9cf8734f880cff097270736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableDebugLogging: 0
+  enableValidationLogging: 0
+  enableEventLogging: 0
+--- !u!1 &7638134938765068450
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 701363267499589996}
+  m_Layer: 0
+  m_Name: ------------ Scripts ------------
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &701363267499589996
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7638134938765068450}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.52390003, y: 1.0247364, z: 0.86199963}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1731935529223698748}
+  - {fileID: 8014818324233859844}
+  - {fileID: 345551606824205453}
+  - {fileID: 6355585708432480584}
+  - {fileID: 8768307479768577064}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7737975944762595145
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1731935529223698748}
+  - component: {fileID: 8421293847946137134}
+  - component: {fileID: 6073952975528120288}
+  - component: {fileID: 6273497450214979072}
+  - component: {fileID: 5154070724244185051}
+  - component: {fileID: 104260263563710448}
+  - component: {fileID: 3823997641047600806}
+  - component: {fileID: 735202421270425805}
+  - component: {fileID: 5508010913583088200}
+  - component: {fileID: 6236248297213336077}
+  - component: {fileID: 5306346404378635406}
+  - component: {fileID: 4791683289795021216}
+  - component: {fileID: 6553574943516340988}
+  m_Layer: 0
+  m_Name: Sequence Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1731935529223698748
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.5039001, y: 0.026263595, z: -0.123999655}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 701363267499589996}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8421293847946137134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff69ed256991bab48929e233a2d15e7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trainingAsset: {fileID: 11400000, guid: 2103b40c9f8adcd41a789e5f81f9251a, type: 2}
+  arrowRegistry: {fileID: 0}
+  enableDebugLogging: 0
+  showStepCompletions: 1
+  restrictionManager: {fileID: 0}
+  currentProgram:
+    programName: New Training Program
+    description: 
+    modules: []
+    isExpanded: 1
+--- !u!114 &6073952975528120288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b65bd541ca1e4e4899737e2e2c39469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6273497450214979072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff4ee1fbcd107ee40bf652b8db99d78d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5154070724244185051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5269bac31ff2ee74a86d32b00ae43eab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &104260263563710448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93dadb9bb231f243aa9480cb7aa5b75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3823997641047600806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fbff5fb0d29c944b874fcc181362cec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &735202421270425805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f670a28c8d50624bbbc43e5b5ccee83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5508010913583088200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a765aea91356294ba3caf9fa425deac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6236248297213336077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 149cb7f38113c894aa7e453d40fcccd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5306346404378635406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c50776d239381940bbbce7292403c05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  snapPairs:
+  - objectToSnap: {fileID: 0}
+    targetSocket: {fileID: 0}
+  - objectToSnap: {fileID: 0}
+    targetSocket: {fileID: 0}
+  delayBeforeSnap: 0.5
+  positionOffset: {x: 0, y: 0, z: 0}
+  matchRotation: 1
+--- !u!114 &4791683289795021216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d7793ce4b1a54848831f6aac7f28462, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pollInterval: 0.1
+--- !u!114 &6553574943516340988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7737975944762595145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f408253e5e084d14c8bdf4575167a772, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &7828216234902030413
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8014818324233859844}
+  - component: {fileID: 4962182518237647875}
+  m_Layer: 0
+  m_Name: runtime
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8014818324233859844
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7828216234902030413}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.1219574, y: -0.081309915, z: -1.2847418}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 701363267499589996}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4962182518237647875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7828216234902030413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b184cc91c7476d4e964e74128c4680c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showRuntimeMonitorTab: 1
+  info: The Runtime Monitor tab will be visible in the VR Training Setup Assistant
+    window only when this component exists in the scene and 'showRuntimeMonitorTab'
+    is enabled.
+--- !u!1 &8699560204389838127
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8768307479768577064}
+  - component: {fileID: 7333297404284775456}
+  - component: {fileID: 4419443136057395051}
+  m_Layer: 0
+  m_Name: HandColliderRegistry
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8768307479768577064
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8699560204389838127}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -11.8057, y: 0.11326361, z: -0.13899964}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 701363267499589996}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7333297404284775456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8699560204389838127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1550762fe9621664c9d65a05a43eeb2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  conditionMet: 0
+  enableDebugLogging: 0
+  useSpaceKey: 1
+  autoCompleteAfterSeconds: 0
+--- !u!114 &4419443136057395051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8699560204389838127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3328645dd976284cb49fd71844dcc90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fingerTipColliders: []
+  enableDebugLogging: 0
+  showGizmos: 1
