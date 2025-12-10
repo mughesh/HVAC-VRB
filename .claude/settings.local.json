@@ -11,7 +11,7 @@
       "Bash(dir:*)",
       "Bash(findstr:*)",
       "Read(//c/Users/SKILLVERI DEV/AppData/Local/Unity/Editor/**)",
-      "Bash(git checkout:*)"
+      "Bash(cd:*)"
     ],
     "deny": [],
     "ask": []

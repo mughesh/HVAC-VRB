@@ -18,6 +18,7 @@ TagManager:
   - turn
   - Coils
   - GuidanceArrow
+  - teleportPoint
   layers:
   - Default
   - TransparentFX

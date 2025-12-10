@@ -15,6 +15,7 @@ MonoBehaviour:
   sceneDatas_byGuid:
     keys:
     - 4991b03d8601c344fb22458bf2f1a2b9
+    - 1be1b648ad901f24ca17d390e61c8481
     values:
     - goDatas_byGlobalId:
         keys:
@@ -25,6 +26,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-141268337-0
         - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-838426672-0
         - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-443514525-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-694693869-0
         values:
         - colorIndex: 0
           iconNameOrGuid: 
@@ -40,3 +42,8 @@ MonoBehaviour:
           iconNameOrGuid: cs Script Icon
         - colorIndex: 0
           iconNameOrGuid: cs Script Icon
+        - colorIndex: 6
+          iconNameOrGuid: 
+    - goDatas_byGlobalId:
+        keys: []
+        values: []

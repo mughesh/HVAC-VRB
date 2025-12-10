@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 739c76855d3140045ace164895da94de, type: 3}
+  m_Name: AutoHandsTeleportProfile
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  enableAutoHandsDebugLogging: 0
+  enableRecentering: 1
+  recenteringDelay: 0.5
+  fadeDuration: 0.3
+  preserveYRotation: 0
+  positionOffset: {x: 0, y: 0, z: 0}
+  rotationOffset: {x: 0, y: 0, z: 0}
+  showDestinationPreview: 0
+  previewColor: {r: 0, g: 1, b: 0, a: 0.5}
+  previewRadius: 0.5

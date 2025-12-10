@@ -248,6 +248,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
         var knobHandler = new GameObject("AutoHandsKnobStepHandler").AddComponent<AutoHandsKnobStepHandler>();
         var valveHandler = new GameObject("AutoHandsValveStepHandler").AddComponent<AutoHandsValveStepHandler>();
         var waitForScriptConditionHandler = new GameObject("AutoHandsWaitForScriptConditionHandler").AddComponent<AutoHandsWaitForScriptConditionHandler>();
+        var teleportHandler = new GameObject("AutoHandsTeleportStepHandler").AddComponent<AutoHandsTeleportStepHandler>();
 
         // Set as children of this controller for organization
         grabHandler.transform.SetParent(transform);
@@ -255,6 +256,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
         knobHandler.transform.SetParent(transform);
         valveHandler.transform.SetParent(transform);
         waitForScriptConditionHandler.transform.SetParent(transform);
+        teleportHandler.transform.SetParent(transform);
 
         // Register the handlers
         RegisterHandler(grabHandler);
@@ -262,6 +264,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
         RegisterHandler(knobHandler);
         RegisterHandler(valveHandler);
         RegisterHandler(waitForScriptConditionHandler);
+        RegisterHandler(teleportHandler);
     }
 
     /// <summary>
