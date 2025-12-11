@@ -75,14 +75,14 @@ MonoBehaviour:
           showDestinationAfterGrab: 1
           wristButton:
             _gameObject: {fileID: 0}
-            _instanceID: 101034
+            _instanceID: 79066
             _gameObjectName: Wrist Button
             _hierarchyPath: WristUI/Hide/Show/Canvas/Wrist Button
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           teleportDestination:
             _gameObject: {fileID: 0}
-            _instanceID: 103596
+            _instanceID: 81572
             _gameObjectName: GameObject
             _hierarchyPath: Teleport points/GameObject
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity

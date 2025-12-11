@@ -27,6 +27,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-838426672-0
         - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-443514525-0
         - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-694693869-0
+        - globalObjectIdString: GlobalObjectId_V1-2-4991b03d8601c344fb22458bf2f1a2b9-7638134938765068450-4279892400166963001
         values:
         - colorIndex: 0
           iconNameOrGuid: 
@@ -43,6 +44,8 @@ MonoBehaviour:
         - colorIndex: 0
           iconNameOrGuid: cs Script Icon
         - colorIndex: 6
+          iconNameOrGuid: 
+        - colorIndex: 5
           iconNameOrGuid: 
     - goDatas_byGlobalId:
         keys: []
