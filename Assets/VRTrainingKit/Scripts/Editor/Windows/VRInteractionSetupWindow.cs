@@ -28,24 +28,62 @@ public class VRInteractionSetupWindow : EditorWindow
     private InteractionSetupService.SceneAnalysis sceneAnalysis;
     private Vector2 setupScrollPos;
     
-    // Configure tab - Support both XRI and AutoHands profiles
-    private InteractionProfile selectedGrabProfile;
-    private InteractionProfile selectedKnobProfile;
-    private InteractionProfile selectedSnapProfile;
-    private InteractionProfile selectedToolProfile;
-    private InteractionProfile selectedValveProfile;
-    private InteractionProfile selectedTurnProfile;
-    private InteractionProfile selectedTeleportProfile;
-    private Vector2 configScrollPos;
+    // Profile caching - Now uses centralized ProfileCacheManager
+    private ProfileCacheManager _profileCacheManager;
 
-    // Cache available profiles to avoid performance issues
-    private List<InteractionProfile> cachedGrabProfiles;
-    private List<InteractionProfile> cachedKnobProfiles;
-    private List<InteractionProfile> cachedSnapProfiles;
-    private List<InteractionProfile> cachedToolProfiles;
-    private List<InteractionProfile> cachedValveProfiles;
-    private List<InteractionProfile> cachedTurnProfiles;
-    private List<InteractionProfile> cachedTeleportProfiles;
+    // Configure tab - Now uses extracted ConfigureTabDrawer
+    private ConfigureTabDrawer _configureTabDrawer;
+
+    // Property accessors for backward compatibility - delegate to ConfigureTabDrawer
+    private InteractionProfile selectedGrabProfile
+    {
+        get => _configureTabDrawer?.GetSelectedProfile(ProfileCacheManager.ProfileType.Grab);
+        set => _configureTabDrawer?.SetSelectedProfile(ProfileCacheManager.ProfileType.Grab, value);
+    }
+    private InteractionProfile selectedKnobProfile
+    {
+        get => _configureTabDrawer?.GetSelectedProfile(ProfileCacheManager.ProfileType.Knob);
+        set => _configureTabDrawer?.SetSelectedProfile(ProfileCacheManager.ProfileType.Knob, value);
+    }
+    private InteractionProfile selectedSnapProfile
+    {
+        get => _configureTabDrawer?.GetSelectedProfile(ProfileCacheManager.ProfileType.Snap);
+        set => _configureTabDrawer?.SetSelectedProfile(ProfileCacheManager.ProfileType.Snap, value);
+    }
+    private InteractionProfile selectedToolProfile
+    {
+        get => _configureTabDrawer?.GetSelectedProfile(ProfileCacheManager.ProfileType.Tool);
+        set => _configureTabDrawer?.SetSelectedProfile(ProfileCacheManager.ProfileType.Tool, value);
+    }
+    private InteractionProfile selectedValveProfile
+    {
+        get => _configureTabDrawer?.GetSelectedProfile(ProfileCacheManager.ProfileType.Valve);
+        set => _configureTabDrawer?.SetSelectedProfile(ProfileCacheManager.ProfileType.Valve, value);
+    }
+    private InteractionProfile selectedTurnProfile
+    {
+        get => _configureTabDrawer?.GetSelectedProfile(ProfileCacheManager.ProfileType.Turn);
+        set => _configureTabDrawer?.SetSelectedProfile(ProfileCacheManager.ProfileType.Turn, value);
+    }
+    private InteractionProfile selectedTeleportProfile
+    {
+        get => _configureTabDrawer?.GetSelectedProfile(ProfileCacheManager.ProfileType.Teleport);
+        set => _configureTabDrawer?.SetSelectedProfile(ProfileCacheManager.ProfileType.Teleport, value);
+    }
+    private Vector2 configScrollPos
+    {
+        get => _configureTabDrawer?.ScrollPosition ?? Vector2.zero;
+        set { if (_configureTabDrawer != null) _configureTabDrawer.ScrollPosition = value; }
+    }
+
+    // Accessors for backward compatibility during refactoring
+    private List<InteractionProfile> cachedGrabProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Grab) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedKnobProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Knob) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedSnapProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Snap) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedToolProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Tool) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedValveProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Valve) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedTurnProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Turn) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedTeleportProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Teleport) ?? new List<InteractionProfile>();
     
     // Sequence tab - Legacy state-based system
     private LegacySequenceController sequenceController;
@@ -89,6 +127,13 @@ public class VRInteractionSetupWindow : EditorWindow
     private void OnEnable()
     {
         InitializeStyles();
+
+        // Initialize profile cache manager
+        _profileCacheManager = new ProfileCacheManager();
+
+        // Initialize Configure tab drawer
+        _configureTabDrawer = new ConfigureTabDrawer(_profileCacheManager);
+
         LoadDefaultProfiles();
 
         // Cache available profiles for performance
@@ -390,185 +435,10 @@ public class VRInteractionSetupWindow : EditorWindow
     /// </summary>
     private void RefreshProfileCaches()
     {
-        RefreshGrabProfileCache();
-        RefreshKnobProfileCache();
-        RefreshSnapProfileCache();
-        RefreshToolProfileCache();
-        RefreshValveProfileCache();
-        RefreshTurnProfileCache();
-        RefreshTeleportProfileCache();
+        // Profile caching now handled by ProfileCacheManager
+        _profileCacheManager?.RefreshAllCaches();
     }
 
-    private void RefreshGrabProfileCache()
-    {
-        cachedGrabProfiles = new List<InteractionProfile>();
-
-        // Find XRI GrabProfile
-        string[] xriGrabGuids = AssetDatabase.FindAssets("t:GrabProfile");
-        foreach (string guid in xriGrabGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsGrabProfile(profile))
-            {
-                cachedGrabProfiles.Add(profile);
-            }
-        }
-
-        // Find AutoHands GrabProfile
-        string[] autoHandsGrabGuids = AssetDatabase.FindAssets("t:AutoHandsGrabProfile");
-        foreach (string guid in autoHandsGrabGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsGrabProfile(profile))
-            {
-                cachedGrabProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshKnobProfileCache()
-    {
-        cachedKnobProfiles = new List<InteractionProfile>();
-
-        string[] xriKnobGuids = AssetDatabase.FindAssets("t:KnobProfile");
-        foreach (string guid in xriKnobGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsKnobProfile(profile))
-            {
-                cachedKnobProfiles.Add(profile);
-            }
-        }
-
-        string[] autoHandsKnobGuids = AssetDatabase.FindAssets("t:AutoHandsKnobProfile");
-        foreach (string guid in autoHandsKnobGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsKnobProfile(profile))
-            {
-                cachedKnobProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshSnapProfileCache()
-    {
-        cachedSnapProfiles = new List<InteractionProfile>();
-
-        string[] xriSnapGuids = AssetDatabase.FindAssets("t:SnapProfile");
-        foreach (string guid in xriSnapGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsSnapProfile(profile))
-            {
-                cachedSnapProfiles.Add(profile);
-            }
-        }
-
-        string[] autoHandsSnapGuids = AssetDatabase.FindAssets("t:AutoHandsSnapProfile");
-        foreach (string guid in autoHandsSnapGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsSnapProfile(profile))
-            {
-                cachedSnapProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshToolProfileCache()
-    {
-        cachedToolProfiles = new List<InteractionProfile>();
-
-        string[] xriToolGuids = AssetDatabase.FindAssets("t:ToolProfile");
-        foreach (string guid in xriToolGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsToolProfile(profile))
-            {
-                cachedToolProfiles.Add(profile);
-            }
-        }
-
-        string[] autoHandsToolGuids = AssetDatabase.FindAssets("t:AutoHandsToolProfile");
-        foreach (string guid in autoHandsToolGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsToolProfile(profile))
-            {
-                cachedToolProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshValveProfileCache()
-    {
-        cachedValveProfiles = new List<InteractionProfile>();
-
-        string[] xriValveGuids = AssetDatabase.FindAssets("t:ValveProfile");
-        foreach (string guid in xriValveGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsValveProfile(profile))
-            {
-                cachedValveProfiles.Add(profile);
-            }
-        }
-
-        string[] autoHandsValveGuids = AssetDatabase.FindAssets("t:AutoHandsValveProfile");
-        foreach (string guid in autoHandsValveGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsValveProfile(profile))
-            {
-                cachedValveProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshTurnProfileCache()
-    {
-        cachedTurnProfiles = new List<InteractionProfile>();
-
-        // Find AutoHands TurnByCountProfile (only AutoHands version exists)
-        string[] autoHandsTurnGuids = AssetDatabase.FindAssets("t:AutoHandsTurnByCountProfile");
-        foreach (string guid in autoHandsTurnGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsTurnProfile(profile))
-            {
-                cachedTurnProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshTeleportProfileCache()
-    {
-        cachedTeleportProfiles = new List<InteractionProfile>();
-
-        // Find AutoHands TeleportProfile (only AutoHands version exists)
-        string[] autoHandsTeleportGuids = AssetDatabase.FindAssets("t:AutoHandsTeleportProfile");
-        foreach (string guid in autoHandsTeleportGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsTeleportProfile(profile))
-            {
-                cachedTeleportProfiles.Add(profile);
-            }
-        }
-    }
 
     /// <summary>
     /// Handles keyboard shortcuts for the editor window
@@ -979,485 +849,8 @@ public class VRInteractionSetupWindow : EditorWindow
     
     private void DrawConfigureTab()
     {
-        EditorGUILayout.LabelField("Profile Configuration", headerStyle);
-        EditorGUILayout.Space(5);
-
-        // Framework compatibility notice
-        DrawConfigureFrameworkNotice();
-        EditorGUILayout.Space(5);
-
-        configScrollPos = EditorGUILayout.BeginScrollView(configScrollPos);
-        
-        // Grab Profile
-        EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField("Grab Profile", subHeaderStyle);
-
-        // Framework-aware ObjectField - accepts both XRI and AutoHands grab profiles
-        var grabbableProfileTemp = EditorGUILayout.ObjectField(
-            "Profile Asset", selectedGrabProfile, typeof(InteractionProfile), false) as InteractionProfile;
-
-        // Validate that it's a grab-type profile
-        if (grabbableProfileTemp != null && IsGrabProfile(grabbableProfileTemp))
-        {
-            selectedGrabProfile = grabbableProfileTemp; // No cast needed - keep as InteractionProfile
-        }
-        else if (grabbableProfileTemp != null && !IsGrabProfile(grabbableProfileTemp))
-        {
-            EditorUtility.DisplayDialog("Invalid Profile Type",
-                $"The selected profile '{grabbableProfileTemp.name}' is not a grab-type profile.", "OK");
-        }
-        
-        if (selectedGrabProfile == null)
-        {
-            // Use cached profiles for performance - no more per-frame AssetDatabase queries!
-            if (cachedGrabProfiles != null && cachedGrabProfiles.Count > 0)
-            {
-                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
-                foreach (var profile in cachedGrabProfiles)
-                {
-                    if (profile != null) // Null check in case profile was deleted
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        // Show framework type for clarity
-                        string frameworkType = profile.GetType().Name.Contains("AutoHands") ? "[AutoHands]" : "[XRI]";
-                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
-                        if (GUILayout.Button("Select", GUILayout.Width(50)))
-                        {
-                            selectedGrabProfile = profile;
-                        }
-                        EditorGUILayout.EndHorizontal();
-                    }
-                }
-            }
-            else
-            {
-                EditorGUILayout.LabelField("No grab profiles found. Create one below.", EditorStyles.miniLabel);
-            }
-            
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Grab Profile"))
-            {
-                CreateNewProfile<GrabProfile>("GrabProfile");
-                RefreshGrabProfileCache(); // Refresh cache after creating new profile
-            }
-            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
-            {
-                RefreshGrabProfileCache(); // Manual refresh button
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-        else
-        {
-            if (GUILayout.Button("Edit Profile"))
-            {
-                Selection.activeObject = selectedGrabProfile;
-            }
-        }
-        EditorGUILayout.EndVertical();
-        
-        EditorGUILayout.Space(10);
-        
-        // Knob Profile
-        EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField("Knob Profile", subHeaderStyle);
-        var knobProfileTemp = EditorGUILayout.ObjectField(
-            "Profile Asset", selectedKnobProfile, typeof(InteractionProfile), false) as InteractionProfile;
-
-        // Framework-aware ObjectField - accepts both XRI and AutoHands knob profiles
-        if (knobProfileTemp != null && IsKnobProfile(knobProfileTemp))
-        {
-            selectedKnobProfile = knobProfileTemp;
-        }
-        else if (knobProfileTemp != null)
-        {
-            EditorUtility.DisplayDialog("Invalid Profile Type",
-                $"The selected profile '{knobProfileTemp.name}' is not a knob-type profile.", "OK");
-        }
-        
-        if (selectedKnobProfile == null)
-        {
-            // Use cached profiles for performance
-            if (cachedKnobProfiles != null && cachedKnobProfiles.Count > 0)
-            {
-                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
-                foreach (var profile in cachedKnobProfiles)
-                {
-                    if (profile != null)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        string frameworkType = profile.GetType().Name.Contains("AutoHands") ? "[AutoHands]" : "[XRI]";
-                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
-                        if (GUILayout.Button("Select", GUILayout.Width(50)))
-                        {
-                            selectedKnobProfile = profile;
-                        }
-                        EditorGUILayout.EndHorizontal();
-                    }
-                }
-            }
-            else
-            {
-                EditorGUILayout.LabelField("No knob profiles found. Create one below.", EditorStyles.miniLabel);
-            }
-            
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Knob Profile"))
-            {
-                CreateNewProfile<KnobProfile>("KnobProfile");
-                RefreshKnobProfileCache();
-            }
-            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
-            {
-                RefreshKnobProfileCache();
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-        else
-        {
-            if (GUILayout.Button("Edit Profile"))
-            {
-                Selection.activeObject = selectedKnobProfile;
-            }
-        }
-        EditorGUILayout.EndVertical();
-        
-        EditorGUILayout.Space(10);
-        
-        // Snap Profile
-        EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField("Snap Profile", subHeaderStyle);
-        var snapProfileTemp = EditorGUILayout.ObjectField(
-            "Profile Asset", selectedSnapProfile, typeof(InteractionProfile), false) as InteractionProfile;
-
-        // Framework-aware ObjectField - accepts both XRI and AutoHands snap profiles
-        if (snapProfileTemp != null && IsSnapProfile(snapProfileTemp))
-        {
-            selectedSnapProfile = snapProfileTemp;
-        }
-        else if (snapProfileTemp != null)
-        {
-            EditorUtility.DisplayDialog("Invalid Profile Type",
-                $"The selected profile '{snapProfileTemp.name}' is not a snap-type profile.", "OK");
-        }
-        
-        if (selectedSnapProfile == null)
-        {
-            // Use cached profiles for performance
-            if (cachedSnapProfiles != null && cachedSnapProfiles.Count > 0)
-            {
-                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
-                foreach (var profile in cachedSnapProfiles)
-                {
-                    if (profile != null)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        string frameworkType = profile.GetType().Name.Contains("AutoHands") ? "[AutoHands]" : "[XRI]";
-                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
-                        if (GUILayout.Button("Select", GUILayout.Width(50)))
-                        {
-                            selectedSnapProfile = profile;
-                        }
-                        EditorGUILayout.EndHorizontal();
-                    }
-                }
-            }
-            else
-            {
-                EditorGUILayout.LabelField("No snap profiles found. Create one below.", EditorStyles.miniLabel);
-            }
-            
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Snap Profile"))
-            {
-                CreateNewProfile<SnapProfile>("SnapProfile");
-                RefreshSnapProfileCache();
-            }
-            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
-            {
-                RefreshSnapProfileCache();
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-        else
-        {
-            if (GUILayout.Button("Edit Profile"))
-            {
-                Selection.activeObject = selectedSnapProfile;
-            }
-        }
-        EditorGUILayout.EndVertical();
-        EditorGUILayout.Space(10);
-        
-        // Tool Profile
-        EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField("Tool Profile", subHeaderStyle);
-        var toolProfileTemp = EditorGUILayout.ObjectField(
-            "Profile Asset", selectedToolProfile, typeof(InteractionProfile), false) as InteractionProfile;
-
-        // Framework-aware ObjectField - accepts both XRI and AutoHands tool profiles
-        if (toolProfileTemp != null && IsToolProfile(toolProfileTemp))
-        {
-            selectedToolProfile = toolProfileTemp;
-        }
-        else if (toolProfileTemp != null)
-        {
-            EditorUtility.DisplayDialog("Invalid Profile Type",
-                $"The selected profile '{toolProfileTemp.name}' is not a tool-type profile.", "OK");
-        }
-        
-        if (selectedToolProfile == null)
-        {
-            // Use cached profiles for performance
-            if (cachedToolProfiles != null && cachedToolProfiles.Count > 0)
-            {
-                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
-                foreach (var profile in cachedToolProfiles)
-                {
-                    if (profile != null)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        string frameworkType = profile.GetType().Name.Contains("AutoHands") ? "[AutoHands]" : "[XRI]";
-                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
-                        if (GUILayout.Button("Select", GUILayout.Width(50)))
-                        {
-                            selectedToolProfile = profile;
-                        }
-                        EditorGUILayout.EndHorizontal();
-                    }
-                }
-            }
-            else
-            {
-                EditorGUILayout.LabelField("No tool profiles found. Create one below.", EditorStyles.miniLabel);
-            }
-            
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Tool Profile"))
-            {
-                CreateNewProfile<ToolProfile>("ToolProfile");
-                RefreshToolProfileCache();
-            }
-            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
-            {
-                RefreshToolProfileCache();
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-        else
-        {
-            if (GUILayout.Button("Edit Profile"))
-            {
-                Selection.activeObject = selectedToolProfile;
-            }
-        }
-        EditorGUILayout.EndVertical();
-        EditorGUILayout.Space(10);
-        
-        // Valve Profile
-        EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField("Valve Profile", subHeaderStyle);
-        var valveProfileTemp = EditorGUILayout.ObjectField(
-            "Profile Asset", selectedValveProfile, typeof(InteractionProfile), false) as InteractionProfile;
-
-        // Framework-aware ObjectField - accepts both XRI and AutoHands valve profiles
-        if (valveProfileTemp != null && IsValveProfile(valveProfileTemp))
-        {
-            selectedValveProfile = valveProfileTemp;
-        }
-        else if (valveProfileTemp != null)
-        {
-            EditorUtility.DisplayDialog("Invalid Profile Type",
-                $"The selected profile '{valveProfileTemp.name}' is not a valve-type profile.", "OK");
-        }
-        
-        if (selectedValveProfile == null)
-        {
-            // Use cached profiles for performance
-            if (cachedValveProfiles != null && cachedValveProfiles.Count > 0)
-            {
-                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
-                foreach (var profile in cachedValveProfiles)
-                {
-                    if (profile != null)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        string frameworkType = profile.GetType().Name.Contains("AutoHands") ? "[AutoHands]" : "[XRI]";
-                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
-                        if (GUILayout.Button("Select", GUILayout.Width(50)))
-                        {
-                            selectedValveProfile = profile;
-                        }
-                        EditorGUILayout.EndHorizontal();
-                    }
-                }
-            }
-            else
-            {
-                EditorGUILayout.LabelField("No valve profiles found. Create one below.", EditorStyles.miniLabel);
-            }
-            
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Valve Profile"))
-            {
-                CreateNewProfile<ValveProfile>("ValveProfile");
-                RefreshValveProfileCache();
-            }
-            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
-            {
-                RefreshValveProfileCache();
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-        else
-        {
-            if (GUILayout.Button("Edit Profile"))
-            {
-                Selection.activeObject = selectedValveProfile;
-            }
-        }
-        EditorGUILayout.EndVertical();
-
-        EditorGUILayout.Space(10);
-
-        // Turn By Count Profile
-        EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField("Turn By Count Profile", subHeaderStyle);
-        var turnProfileTemp = EditorGUILayout.ObjectField(
-            "Profile Asset", selectedTurnProfile, typeof(InteractionProfile), false) as InteractionProfile;
-
-        // Framework-aware ObjectField - accepts AutoHands turn profiles
-        if (turnProfileTemp != null && IsTurnProfile(turnProfileTemp))
-        {
-            selectedTurnProfile = turnProfileTemp;
-        }
-        else if (turnProfileTemp != null)
-        {
-            EditorUtility.DisplayDialog("Invalid Profile Type",
-                $"The selected profile '{turnProfileTemp.name}' is not a turn-by-count-type profile.", "OK");
-        }
-
-        if (selectedTurnProfile == null)
-        {
-            // Use cached profiles for performance
-            if (cachedTurnProfiles != null && cachedTurnProfiles.Count > 0)
-            {
-                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
-                foreach (var profile in cachedTurnProfiles)
-                {
-                    if (profile != null)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        string frameworkType = "[AutoHands]";
-                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
-                        if (GUILayout.Button("Select", GUILayout.Width(50)))
-                        {
-                            selectedTurnProfile = profile;
-                        }
-                        EditorGUILayout.EndHorizontal();
-                    }
-                }
-            }
-            else
-            {
-                EditorGUILayout.LabelField("No turn-by-count profiles found. Create one below.", EditorStyles.miniLabel);
-            }
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Turn By Count Profile"))
-            {
-                CreateNewProfile<AutoHandsTurnByCountProfile>("TurnByCountProfile");
-                RefreshTurnProfileCache();
-            }
-            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
-            {
-                RefreshTurnProfileCache();
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-        else
-        {
-            if (GUILayout.Button("Edit Profile"))
-            {
-                Selection.activeObject = selectedTurnProfile;
-            }
-        }
-        EditorGUILayout.EndVertical();
-
-        EditorGUILayout.Space(10);
-
-        // Teleport Profile
-        EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField("🚀 Teleport Profile", subHeaderStyle);
-        var teleportProfileTemp = EditorGUILayout.ObjectField(
-            "Profile Asset", selectedTeleportProfile, typeof(InteractionProfile), false) as InteractionProfile;
-
-        // Framework-aware ObjectField - accepts AutoHands teleport profiles
-        if (teleportProfileTemp != null && IsTeleportProfile(teleportProfileTemp))
-        {
-            selectedTeleportProfile = teleportProfileTemp;
-        }
-        else if (teleportProfileTemp != null)
-        {
-            EditorUtility.DisplayDialog("Invalid Profile Type",
-                $"The selected profile '{teleportProfileTemp.name}' is not a teleport-type profile.", "OK");
-        }
-
-        if (selectedTeleportProfile == null)
-        {
-            // Use cached profiles for performance
-            if (cachedTeleportProfiles != null && cachedTeleportProfiles.Count > 0)
-            {
-                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
-                foreach (var profile in cachedTeleportProfiles)
-                {
-                    if (profile != null)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        string frameworkType = GetProfileFrameworkType(profile);
-                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
-                        if (GUILayout.Button("Select", GUILayout.Width(50)))
-                        {
-                            selectedTeleportProfile = profile;
-                        }
-                        EditorGUILayout.EndHorizontal();
-                    }
-                }
-            }
-            else
-            {
-                EditorGUILayout.HelpBox("No teleport profiles found in project.", MessageType.Info);
-            }
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Teleport Profile"))
-            {
-                CreateNewProfile<AutoHandsTeleportProfile>("TeleportProfile");
-                RefreshTeleportProfileCache();
-            }
-            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
-            {
-                RefreshTeleportProfileCache();
-            }
-            EditorGUILayout.EndHorizontal();
-        }
-        else
-        {
-            if (GUILayout.Button("Edit Profile"))
-            {
-                Selection.activeObject = selectedTeleportProfile;
-            }
-        }
-        EditorGUILayout.EndVertical();
-
-        EditorGUILayout.EndScrollView();
-
-        EditorGUILayout.Space(10);
-
-        // Create default profiles button
-        if (GUILayout.Button("Create All Default Profiles", GUILayout.Height(30)))
-        {
-            CreateDefaultProfiles();
-        }
+        // Delegate to ConfigureTabDrawer (Phase 3 extraction)
+        _configureTabDrawer?.Draw();
     }
     
     private void DrawSequenceTab()
@@ -3008,145 +2401,8 @@ public class VRInteractionSetupWindow : EditorWindow
         sceneAnalysis = InteractionSetupService.ScanScene();
     }
     
-    private void CreateNewProfile<T>(string defaultName) where T : InteractionProfile
-    {
-        string path = EditorUtility.SaveFilePanelInProject(
-            "Save Profile", 
-            defaultName, 
-            "asset", 
-            "Save the interaction profile asset");
-        
-        if (!string.IsNullOrEmpty(path))
-        {
-            T profile = ScriptableObject.CreateInstance<T>();
-            AssetDatabase.CreateAsset(profile, path);
-            AssetDatabase.SaveAssets();
-            
-            if (typeof(T) == typeof(GrabProfile))
-                selectedGrabProfile = profile as GrabProfile;
-            else if (typeof(T) == typeof(KnobProfile))
-                selectedKnobProfile = profile as KnobProfile;
-            else if (typeof(T) == typeof(SnapProfile))
-                selectedSnapProfile = profile as SnapProfile;
-            
-            Selection.activeObject = profile;
-        }
-    }
-    
-    private void CreateDefaultProfiles()
-    {
-        string folderPath = "Assets/VRTrainingKit/Resources";
-        
-        // Create folders if they don't exist
-        if (!AssetDatabase.IsValidFolder("Assets/VRTrainingKit"))
-        {
-            AssetDatabase.CreateFolder("Assets", "VRTrainingKit");
-        }
-        if (!AssetDatabase.IsValidFolder(folderPath))
-        {
-            AssetDatabase.CreateFolder("Assets/VRTrainingKit", "Resources");
-        }
-        
-        // Create Grab Profile
-        if (selectedGrabProfile == null)
-        {
-            GrabProfile grabProfile = ScriptableObject.CreateInstance<GrabProfile>();
-            grabProfile.profileName = "Default Grab";
-            grabProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
-            grabProfile.trackPosition = true;
-            grabProfile.trackRotation = true;
-            grabProfile.throwOnDetach = true;
-            
-            AssetDatabase.CreateAsset(grabProfile, $"{folderPath}/DefaultGrabProfile.asset");
-            selectedGrabProfile = grabProfile;
-        }
-        
-        // Create Knob Profile
-        if (selectedKnobProfile == null)
-        {
-            KnobProfile knobProfile = ScriptableObject.CreateInstance<KnobProfile>();
-            knobProfile.profileName = "Default Knob";
-            knobProfile.rotationAxis = KnobProfile.RotationAxis.Y;
-            knobProfile.useLimits = true;
-            knobProfile.minAngle = -90f;
-            knobProfile.maxAngle = 180f;  // Based on your screenshot
-            knobProfile.useSpring = true;
-            knobProfile.springValue = 0f;
-            knobProfile.damper = 1f;
-            knobProfile.targetPosition = 0f;
-            knobProfile.bounceMinVelocity = 0.2f;
-            knobProfile.contactDistance = 0f;
-            knobProfile.useHapticFeedback = true;
-            knobProfile.colliderType = ColliderType.Box;
-            
-            AssetDatabase.CreateAsset(knobProfile, $"{folderPath}/DefaultKnobProfile.asset");
-            selectedKnobProfile = knobProfile;
-        }
-        
-        // Create Snap Profile
-        if (selectedSnapProfile == null)
-        {
-            SnapProfile snapProfile = ScriptableObject.CreateInstance<SnapProfile>();
-            snapProfile.profileName = "Default Snap";
-            snapProfile.socketRadius = 0.1f;
-            snapProfile.socketActive = true;
-            snapProfile.showInteractableHoverMeshes = true;
-            
-            AssetDatabase.CreateAsset(snapProfile, $"{folderPath}/DefaultSnapProfile.asset");
-            selectedSnapProfile = snapProfile;
-        }
-        
-        // Create Tool Profile
-        if (selectedToolProfile == null)
-        {
-            ToolProfile toolProfile = ScriptableObject.CreateInstance<ToolProfile>();
-            toolProfile.profileName = "Default Tool";
-            toolProfile.rotationAxis = Vector3.up;
-            toolProfile.tightenAngle = 90f;
-            toolProfile.loosenAngle = 90f;
-            toolProfile.tightenThreshold = 90f;
-            toolProfile.loosenThreshold = 45f;
-            toolProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
-            toolProfile.trackPosition = true;
-            toolProfile.trackRotation = true;
-            
-            AssetDatabase.CreateAsset(toolProfile, $"{folderPath}/DefaultToolProfile.asset");
-            selectedToolProfile = toolProfile;
-        }
-        
-        // Create Valve Profile
-        if (selectedValveProfile == null)
-        {
-            ValveProfile valveProfile = ScriptableObject.CreateInstance<ValveProfile>();
-            valveProfile.profileName = "Default Valve";
+    // NOTE: CreateNewProfile<T> and CreateDefaultProfiles moved to ConfigureTabDrawer (Phase 3)
 
-            // Configurable defaults - these can be changed per step in sequence builder
-            valveProfile.rotationAxis = Vector3.up;        // Y-axis rotation (most common)
-            valveProfile.tightenThreshold = 180f;          // More realistic full turn
-            valveProfile.loosenThreshold = 180f;           // Symmetric loosening
-            valveProfile.angleTolerance = 10f;             // More forgiving tolerance
-
-            // Socket compatibility
-            valveProfile.compatibleSocketTags = new string[] { "valve_socket" };
-
-            // XR Interaction settings
-            valveProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
-            valveProfile.trackPosition = true;
-            valveProfile.trackRotation = true;
-
-            // Physics settings for better valve feel
-            valveProfile.rotationDampening = 3f;           // Moderate dampening
-            valveProfile.dampeningSpeed = 8f;              // Responsive dampening
-
-            AssetDatabase.CreateAsset(valveProfile, $"{folderPath}/DefaultValveProfile.asset");
-            selectedValveProfile = valveProfile;
-        }
-        
-        AssetDatabase.SaveAssets();
-        EditorUtility.DisplayDialog("Profiles Created", 
-            "Default profiles have been created in Assets/VRTrainingKit/Resources", "OK");
-    }
-    
     private void SetupACLeakTestingSequence()
     {
         if (sequenceController == null) return;
@@ -3264,114 +2520,34 @@ public class VRInteractionSetupWindow : EditorWindow
         EditorGUILayout.EndVertical();
     }
 
-    /// <summary>
-    /// Get the framework type display string for a profile
-    /// </summary>
-    private string GetProfileFrameworkType(InteractionProfile profile)
-    {
-        if (profile == null) return "[Unknown]";
-        
-        string typeName = profile.GetType().Name;
-        if (typeName.Contains("AutoHands"))
-            return "[AutoHands]";
-        else if (typeName.Contains("XRI") || profile is GrabProfile || profile is KnobProfile || profile is SnapProfile || profile is ToolProfile || profile is ValveProfile)
-            return "[XRI]";
-        else
-            return "[Unknown]";
-    }
+    // NOTE: GetProfileFrameworkType moved to ConfigureTabDrawer (Phase 3)
 
     /// <summary>
     /// Profile type validation helper methods
     /// </summary>
-    private bool IsGrabProfile(InteractionProfile profile)
-    {
-        return profile is GrabProfile ||
-               (profile != null && profile.GetType().Name.Contains("Grab"));
-    }
+    // Profile validation - Now delegates to ProfileCacheManager
+    private bool IsGrabProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Grab) ?? false;
 
-    private bool IsKnobProfile(InteractionProfile profile)
-    {
-        return profile is KnobProfile ||
-               (profile != null && profile.GetType().Name.Contains("Knob"));
-    }
+    private bool IsKnobProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Knob) ?? false;
 
-    private bool IsSnapProfile(InteractionProfile profile)
-    {
-        return profile is SnapProfile ||
-               (profile != null && profile.GetType().Name.Contains("Snap"));
-    }
+    private bool IsSnapProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Snap) ?? false;
 
-    private bool IsToolProfile(InteractionProfile profile)
-    {
-        return profile is ToolProfile ||
-               (profile != null && profile.GetType().Name.Contains("Tool"));
-    }
+    private bool IsToolProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Tool) ?? false;
 
-    private bool IsValveProfile(InteractionProfile profile)
-    {
-        return profile is ValveProfile ||
-               (profile != null && profile.GetType().Name.Contains("Valve"));
-    }
+    private bool IsValveProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Valve) ?? false;
 
-    private bool IsTurnProfile(InteractionProfile profile)
-    {
-        return profile != null && profile.GetType().Name.Contains("Turn");
-    }
+    private bool IsTurnProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Turn) ?? false;
 
-    private bool IsTeleportProfile(InteractionProfile profile)
-    {
-        return profile != null && profile.GetType().Name.Contains("Teleport");
-    }
+    private bool IsTeleportProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Teleport) ?? false;
 
-    /// <summary>
-    /// Draws framework compatibility notice in the Configure tab
-    /// </summary>
-    private void DrawConfigureFrameworkNotice()
-    {
-        var detectedFramework = VRFrameworkDetector.DetectCurrentFramework();
-        var frameworkDisplayName = VRFrameworkDetector.GetFrameworkDisplayName(detectedFramework);
-
-        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-        var originalColor = GUI.color;
-
-        switch (detectedFramework)
-        {
-            case VRFramework.XRI:
-                EditorGUILayout.LabelField("✅ XRI Framework Detected", EditorStyles.boldLabel);
-                EditorGUILayout.LabelField("Current profiles are compatible with your XRI setup.", EditorStyles.wordWrappedLabel);
-                break;
-
-            case VRFramework.AutoHands:
-                GUI.color = new Color(1f, 0.8f, 0f); // Orange
-                EditorGUILayout.LabelField("⚠️ AutoHands Framework Detected", EditorStyles.boldLabel);
-                GUI.color = originalColor;
-
-                EditorGUILayout.LabelField(
-                    "Current profiles are XRI-based. AutoHands profiles will be available in Phase 2.",
-                    EditorStyles.wordWrappedLabel);
-
-                EditorGUILayout.Space(3);
-                EditorGUILayout.HelpBox("Use VR Training > Framework Validator for detailed framework analysis.", MessageType.Info);
-                break;
-
-            case VRFramework.None:
-                GUI.color = new Color(1f, 0.5f, 0.5f); // Light red
-                EditorGUILayout.LabelField("❌ No VR Framework Detected", EditorStyles.boldLabel);
-                GUI.color = originalColor;
-
-                EditorGUILayout.LabelField(
-                    "No VR framework found in scene. Add an XR Origin (XRI) or AutoHandPlayer (AutoHands) to use profiles.",
-                    EditorStyles.wordWrappedLabel);
-                break;
-
-            default:
-                EditorGUILayout.LabelField($"Framework: {frameworkDisplayName}", EditorStyles.boldLabel);
-                break;
-        }
-
-        EditorGUILayout.EndVertical();
-    }
+    // NOTE: DrawConfigureFrameworkNotice moved to ConfigureTabDrawer (Phase 3)
 
     /// <summary>
     /// Check if Runtime Monitor tab should be visible
