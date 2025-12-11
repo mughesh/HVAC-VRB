@@ -29,7 +29,8 @@ public class ProfileCacheManager
         Snap,
         Tool,
         Valve,
-        Turn
+        Turn,
+        Teleport
     }
 
     /// <summary>
@@ -99,6 +100,14 @@ public class ProfileCacheManager
                     XRITypeName = null, // No XRI version exists
                     AutoHandsTypeName = "AutoHandsTurnByCountProfile",
                     Validator = IsTurnProfile
+                }
+            },
+            {
+                ProfileType.Teleport, new ProfileTypeConfig
+                {
+                    XRITypeName = null, // No XRI version exists
+                    AutoHandsTypeName = "AutoHandsTeleportProfile",
+                    Validator = IsTeleportProfile
                 }
             }
         };
@@ -248,6 +257,11 @@ public class ProfileCacheManager
     private static bool IsTurnProfile(InteractionProfile profile)
     {
         return profile != null && profile.GetType().Name.Contains("Turn");
+    }
+
+    private static bool IsTeleportProfile(InteractionProfile profile)
+    {
+        return profile != null && profile.GetType().Name.Contains("Teleport");
     }
 }
 #endif

@@ -35,15 +35,20 @@ public class VRInteractionSetupWindow : EditorWindow
     private InteractionProfile selectedToolProfile;
     private InteractionProfile selectedValveProfile;
     private InteractionProfile selectedTurnProfile;
+    private InteractionProfile selectedTeleportProfile;
     private Vector2 configScrollPos;
 
-    // Cache available profiles to avoid performance issues
-    private List<InteractionProfile> cachedGrabProfiles;
-    private List<InteractionProfile> cachedKnobProfiles;
-    private List<InteractionProfile> cachedSnapProfiles;
-    private List<InteractionProfile> cachedToolProfiles;
-    private List<InteractionProfile> cachedValveProfiles;
-    private List<InteractionProfile> cachedTurnProfiles;
+    // Profile caching - Now uses centralized ProfileCacheManager
+    private ProfileCacheManager _profileCacheManager;
+
+    // Accessors for backward compatibility during refactoring
+    private List<InteractionProfile> cachedGrabProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Grab) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedKnobProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Knob) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedSnapProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Snap) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedToolProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Tool) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedValveProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Valve) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedTurnProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Turn) ?? new List<InteractionProfile>();
+    private List<InteractionProfile> cachedTeleportProfiles => _profileCacheManager?.GetCachedProfiles(ProfileCacheManager.ProfileType.Teleport) ?? new List<InteractionProfile>();
     
     // Sequence tab - Legacy state-based system
     private LegacySequenceController sequenceController;
@@ -70,13 +75,12 @@ public class VRInteractionSetupWindow : EditorWindow
     private List<string> validationIssues = new List<string>();
     private Vector2 validateScrollPos;
     
-    // Styling - Now uses centralized VRTrainingEditorStyles class
-    // Accessors for backward compatibility during refactoring
-    private GUIStyle headerStyle => VRTrainingEditorStyles.HeaderStyle;
-    private GUIStyle subHeaderStyle => VRTrainingEditorStyles.SubHeaderStyle;
-    private GUIStyle successStyle => VRTrainingEditorStyles.SuccessStyle;
-    private GUIStyle warningStyle => VRTrainingEditorStyles.WarningStyle;
-    private GUIStyle errorStyle => VRTrainingEditorStyles.ErrorStyle;
+    // Styling
+    private GUIStyle headerStyle;
+    private GUIStyle subHeaderStyle;
+    private GUIStyle successStyle;
+    private GUIStyle warningStyle;
+    private GUIStyle errorStyle;
     
     [MenuItem("VR Training/Setup Assistant")]
     public static void ShowWindow()
@@ -88,6 +92,10 @@ public class VRInteractionSetupWindow : EditorWindow
     private void OnEnable()
     {
         InitializeStyles();
+
+        // Initialize profile cache manager
+        _profileCacheManager = new ProfileCacheManager();
+
         LoadDefaultProfiles();
 
         // Cache available profiles for performance
@@ -181,9 +189,39 @@ public class VRInteractionSetupWindow : EditorWindow
     
     private void InitializeStyles()
     {
-        // Styles are now managed by VRTrainingEditorStyles (centralized)
-        // This method ensures they are initialized when the window opens
-        VRTrainingEditorStyles.EnsureInitialized();
+        headerStyle = new GUIStyle()
+        {
+            fontSize = 14,
+            fontStyle = FontStyle.Bold,
+            normal = { textColor = Color.white },
+            padding = new RectOffset(5, 5, 5, 5)
+        };
+        
+        subHeaderStyle = new GUIStyle()
+        {
+            fontSize = 12,
+            fontStyle = FontStyle.Bold,
+            normal = { textColor = Color.white },
+            padding = new RectOffset(5, 5, 3, 3)
+        };
+        
+        successStyle = new GUIStyle()
+        {
+            normal = { textColor = Color.green },
+            padding = new RectOffset(5, 5, 2, 2)
+        };
+        
+        warningStyle = new GUIStyle()
+        {
+            normal = { textColor = Color.yellow },
+            padding = new RectOffset(5, 5, 2, 2)
+        };
+        
+        errorStyle = new GUIStyle()
+        {
+            normal = { textColor = Color.red },
+            padding = new RectOffset(5, 5, 2, 2)
+        };
     }
     
     private void LoadDefaultProfiles()
@@ -359,167 +397,10 @@ public class VRInteractionSetupWindow : EditorWindow
     /// </summary>
     private void RefreshProfileCaches()
     {
-        RefreshGrabProfileCache();
-        RefreshKnobProfileCache();
-        RefreshSnapProfileCache();
-        RefreshToolProfileCache();
-        RefreshValveProfileCache();
-        RefreshTurnProfileCache();
+        // Profile caching now handled by ProfileCacheManager
+        _profileCacheManager?.RefreshAllCaches();
     }
 
-    private void RefreshGrabProfileCache()
-    {
-        cachedGrabProfiles = new List<InteractionProfile>();
-
-        // Find XRI GrabProfile
-        string[] xriGrabGuids = AssetDatabase.FindAssets("t:GrabProfile");
-        foreach (string guid in xriGrabGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsGrabProfile(profile))
-            {
-                cachedGrabProfiles.Add(profile);
-            }
-        }
-
-        // Find AutoHands GrabProfile
-        string[] autoHandsGrabGuids = AssetDatabase.FindAssets("t:AutoHandsGrabProfile");
-        foreach (string guid in autoHandsGrabGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsGrabProfile(profile))
-            {
-                cachedGrabProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshKnobProfileCache()
-    {
-        cachedKnobProfiles = new List<InteractionProfile>();
-
-        string[] xriKnobGuids = AssetDatabase.FindAssets("t:KnobProfile");
-        foreach (string guid in xriKnobGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsKnobProfile(profile))
-            {
-                cachedKnobProfiles.Add(profile);
-            }
-        }
-
-        string[] autoHandsKnobGuids = AssetDatabase.FindAssets("t:AutoHandsKnobProfile");
-        foreach (string guid in autoHandsKnobGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsKnobProfile(profile))
-            {
-                cachedKnobProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshSnapProfileCache()
-    {
-        cachedSnapProfiles = new List<InteractionProfile>();
-
-        string[] xriSnapGuids = AssetDatabase.FindAssets("t:SnapProfile");
-        foreach (string guid in xriSnapGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsSnapProfile(profile))
-            {
-                cachedSnapProfiles.Add(profile);
-            }
-        }
-
-        string[] autoHandsSnapGuids = AssetDatabase.FindAssets("t:AutoHandsSnapProfile");
-        foreach (string guid in autoHandsSnapGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsSnapProfile(profile))
-            {
-                cachedSnapProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshToolProfileCache()
-    {
-        cachedToolProfiles = new List<InteractionProfile>();
-
-        string[] xriToolGuids = AssetDatabase.FindAssets("t:ToolProfile");
-        foreach (string guid in xriToolGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsToolProfile(profile))
-            {
-                cachedToolProfiles.Add(profile);
-            }
-        }
-
-        string[] autoHandsToolGuids = AssetDatabase.FindAssets("t:AutoHandsToolProfile");
-        foreach (string guid in autoHandsToolGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsToolProfile(profile))
-            {
-                cachedToolProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshValveProfileCache()
-    {
-        cachedValveProfiles = new List<InteractionProfile>();
-
-        string[] xriValveGuids = AssetDatabase.FindAssets("t:ValveProfile");
-        foreach (string guid in xriValveGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsValveProfile(profile))
-            {
-                cachedValveProfiles.Add(profile);
-            }
-        }
-
-        string[] autoHandsValveGuids = AssetDatabase.FindAssets("t:AutoHandsValveProfile");
-        foreach (string guid in autoHandsValveGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsValveProfile(profile))
-            {
-                cachedValveProfiles.Add(profile);
-            }
-        }
-    }
-
-    private void RefreshTurnProfileCache()
-    {
-        cachedTurnProfiles = new List<InteractionProfile>();
-
-        // Find AutoHands TurnByCountProfile (only AutoHands version exists)
-        string[] autoHandsTurnGuids = AssetDatabase.FindAssets("t:AutoHandsTurnByCountProfile");
-        foreach (string guid in autoHandsTurnGuids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsTurnProfile(profile))
-            {
-                cachedTurnProfiles.Add(profile);
-            }
-        }
-    }
 
     /// <summary>
     /// Handles keyboard shortcuts for the editor window
@@ -691,6 +572,10 @@ public class VRInteractionSetupWindow : EditorWindow
 
             // Turn objects
             DrawObjectGroup("Turn Objects", sceneAnalysis.turnObjects, "turn", selectedTurnProfile);
+            EditorGUILayout.Space(10);
+
+            // Teleport points
+            DrawObjectGroup("🚀 Teleport Points", sceneAnalysis.teleportObjects, "teleportPoint", selectedTeleportProfile);
 
             EditorGUILayout.EndScrollView();
             
@@ -810,6 +695,12 @@ public class VRInteractionSetupWindow : EditorWindow
                                 break;
                             }
                         }
+                    }
+                    else if (tag == "teleportPoint")
+                    {
+                        // TeleportController validation
+                        var teleportController = obj.GetComponent<TeleportController>();
+                        isConfigured = teleportController != null;
                     }
                 }
                 
@@ -979,11 +870,11 @@ public class VRInteractionSetupWindow : EditorWindow
             if (GUILayout.Button("Create New Grab Profile"))
             {
                 CreateNewProfile<GrabProfile>("GrabProfile");
-                RefreshGrabProfileCache(); // Refresh cache after creating new profile
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Grab); // Refresh cache after creating new profile
             }
             if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
             {
-                RefreshGrabProfileCache(); // Manual refresh button
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Grab); // Manual refresh button
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -1045,11 +936,11 @@ public class VRInteractionSetupWindow : EditorWindow
             if (GUILayout.Button("Create New Knob Profile"))
             {
                 CreateNewProfile<KnobProfile>("KnobProfile");
-                RefreshKnobProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Knob);
             }
             if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
             {
-                RefreshKnobProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Knob);
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -1111,11 +1002,11 @@ public class VRInteractionSetupWindow : EditorWindow
             if (GUILayout.Button("Create New Snap Profile"))
             {
                 CreateNewProfile<SnapProfile>("SnapProfile");
-                RefreshSnapProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Snap);
             }
             if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
             {
-                RefreshSnapProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Snap);
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -1176,11 +1067,11 @@ public class VRInteractionSetupWindow : EditorWindow
             if (GUILayout.Button("Create New Tool Profile"))
             {
                 CreateNewProfile<ToolProfile>("ToolProfile");
-                RefreshToolProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Tool);
             }
             if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
             {
-                RefreshToolProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Tool);
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -1241,11 +1132,11 @@ public class VRInteractionSetupWindow : EditorWindow
             if (GUILayout.Button("Create New Valve Profile"))
             {
                 CreateNewProfile<ValveProfile>("ValveProfile");
-                RefreshValveProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Valve);
             }
             if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
             {
-                RefreshValveProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Valve);
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -1307,11 +1198,11 @@ public class VRInteractionSetupWindow : EditorWindow
             if (GUILayout.Button("Create New Turn By Count Profile"))
             {
                 CreateNewProfile<AutoHandsTurnByCountProfile>("TurnByCountProfile");
-                RefreshTurnProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Turn);
             }
             if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
             {
-                RefreshTurnProfileCache();
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Turn);
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -1324,10 +1215,76 @@ public class VRInteractionSetupWindow : EditorWindow
         }
         EditorGUILayout.EndVertical();
 
-        EditorGUILayout.EndScrollView();
-        
         EditorGUILayout.Space(10);
-        
+
+        // Teleport Profile
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("🚀 Teleport Profile", subHeaderStyle);
+        var teleportProfileTemp = EditorGUILayout.ObjectField(
+            "Profile Asset", selectedTeleportProfile, typeof(InteractionProfile), false) as InteractionProfile;
+
+        // Framework-aware ObjectField - accepts AutoHands teleport profiles
+        if (teleportProfileTemp != null && IsTeleportProfile(teleportProfileTemp))
+        {
+            selectedTeleportProfile = teleportProfileTemp;
+        }
+        else if (teleportProfileTemp != null)
+        {
+            EditorUtility.DisplayDialog("Invalid Profile Type",
+                $"The selected profile '{teleportProfileTemp.name}' is not a teleport-type profile.", "OK");
+        }
+
+        if (selectedTeleportProfile == null)
+        {
+            // Use cached profiles for performance
+            if (cachedTeleportProfiles != null && cachedTeleportProfiles.Count > 0)
+            {
+                EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
+                foreach (var profile in cachedTeleportProfiles)
+                {
+                    if (profile != null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        string frameworkType = GetProfileFrameworkType(profile);
+                        EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
+                        if (GUILayout.Button("Select", GUILayout.Width(50)))
+                        {
+                            selectedTeleportProfile = profile;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("No teleport profiles found in project.", MessageType.Info);
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Create New Teleport Profile"))
+            {
+                CreateNewProfile<AutoHandsTeleportProfile>("TeleportProfile");
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Teleport);
+            }
+            if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
+            {
+                _profileCacheManager?.RefreshCache(ProfileCacheManager.ProfileType.Teleport);
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        else
+        {
+            if (GUILayout.Button("Edit Profile"))
+            {
+                Selection.activeObject = selectedTeleportProfile;
+            }
+        }
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.EndScrollView();
+
+        EditorGUILayout.Space(10);
+
         // Create default profiles button
         if (GUILayout.Button("Create All Default Profiles", GUILayout.Height(30)))
         {
@@ -1695,6 +1652,7 @@ public class VRInteractionSetupWindow : EditorWindow
             case InteractionStep.StepType.InstallValve: return "🔩";
             case InteractionStep.StepType.RemoveValve: return "🔧";
             case InteractionStep.StepType.WaitForScriptCondition: return "⚙️";
+            case InteractionStep.StepType.Teleport: return "🚀";
             default: return "❓";
         }
     }
@@ -2054,7 +2012,92 @@ public class VRInteractionSetupWindow : EditorWindow
                 EditorGUILayout.HelpBox("Set to 0 to use profile default", MessageType.Info);
             }
         }
-        
+
+        // Teleport-specific settings
+        if (step.type == InteractionStep.StepType.Teleport)
+        {
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("🚀 Teleport Settings", EditorStyles.boldLabel);
+
+            // Wrist Button field
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Wrist Button", GUILayout.Width(100));
+            GameObject currentButton = step.wristButton.GameObject;
+            GameObject newButton = (GameObject)EditorGUILayout.ObjectField(currentButton, typeof(GameObject), true);
+            if (newButton != currentButton)
+            {
+                step.wristButton.GameObject = newButton;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // Validate WristUIButton component
+            if (step.wristButton.GameObject != null)
+            {
+                var wristUIButton = step.wristButton.GameObject.GetComponent<WristUIButton>();
+                if (wristUIButton == null)
+                {
+                    EditorGUILayout.HelpBox("⚠️ Selected GameObject does not have WristUIButton component!", MessageType.Warning);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("✅ Valid WristUIButton component found", MessageType.Info);
+                }
+            }
+
+            EditorGUILayout.Space(3);
+
+            // Teleport Destination field
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Destination", GUILayout.Width(100));
+            GameObject currentDest = step.teleportDestination.GameObject;
+            GameObject newDest = (GameObject)EditorGUILayout.ObjectField(currentDest, typeof(GameObject), true);
+            if (newDest != currentDest)
+            {
+                step.teleportDestination.GameObject = newDest;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            // Validate TeleportController component
+            if (step.teleportDestination.GameObject != null)
+            {
+                var teleportController = step.teleportDestination.GameObject.GetComponent<TeleportController>();
+                if (teleportController == null)
+                {
+                    EditorGUILayout.HelpBox("⚠️ Selected GameObject does not have TeleportController component!", MessageType.Warning);
+                }
+                else
+                {
+                    // Show TeleportController info
+                    string info = $"✅ TeleportController found\n" +
+                                 $"Recentering: {(teleportController.enableRecentering ? "Enabled" : "Disabled")}\n" +
+                                 $"Preview: {(teleportController.showDestinationPreview ? "Visible" : "Hidden")}";
+                    if (teleportController.autoHandPlayerReference == null)
+                    {
+                        info += "\n⚠️ AutoHandPlayer reference not set on controller!";
+                    }
+                    EditorGUILayout.HelpBox(info, teleportController.autoHandPlayerReference == null ? MessageType.Warning : MessageType.Info);
+                }
+
+                // Check for teleportPoint tag
+                if (!step.teleportDestination.GameObject.CompareTag("teleportPoint"))
+                {
+                    EditorGUILayout.HelpBox("⚠️ Destination should be tagged as 'teleportPoint' for consistency", MessageType.Warning);
+                }
+            }
+
+            EditorGUILayout.Space(3);
+
+            // Recentering settings
+            EditorGUILayout.LabelField("Recentering Settings", EditorStyles.boldLabel);
+            step.enableRecentering = EditorGUILayout.Toggle("Enable Recentering", step.enableRecentering);
+
+            if (step.enableRecentering)
+            {
+                step.recenteringDelay = EditorGUILayout.Slider("Recentering Delay", step.recenteringDelay, 0f, 2f);
+                EditorGUILayout.HelpBox("XR tracking origin will recenter after teleport", MessageType.Info);
+            }
+        }
+
         // Execution settings
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Execution Settings", EditorStyles.boldLabel);
@@ -2166,14 +2209,15 @@ public class VRInteractionSetupWindow : EditorWindow
         menu.AddItem(new GUIContent("Grab Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Grab));
         menu.AddItem(new GUIContent("Grab and Snap Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.GrabAndSnap));
         menu.AddItem(new GUIContent("Turn Knob Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TurnKnob));
-        
+        menu.AddItem(new GUIContent("🚀 Teleport Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Teleport));
+
         // Valve operation steps
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Valve Operations/Tighten Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenValve));
         menu.AddItem(new GUIContent("Valve Operations/Loosen Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenValve));
         menu.AddItem(new GUIContent("Valve Operations/Install Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallValve));
         menu.AddItem(new GUIContent("Valve Operations/Remove Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveValve));
-        
+
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
         menu.AddItem(new GUIContent("Wait For Script Condition"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForScriptCondition));
@@ -3053,42 +3097,45 @@ public class VRInteractionSetupWindow : EditorWindow
     }
 
     /// <summary>
+    /// Get the framework type display string for a profile
+    /// </summary>
+    private string GetProfileFrameworkType(InteractionProfile profile)
+    {
+        if (profile == null) return "[Unknown]";
+        
+        string typeName = profile.GetType().Name;
+        if (typeName.Contains("AutoHands"))
+            return "[AutoHands]";
+        else if (typeName.Contains("XRI") || profile is GrabProfile || profile is KnobProfile || profile is SnapProfile || profile is ToolProfile || profile is ValveProfile)
+            return "[XRI]";
+        else
+            return "[Unknown]";
+    }
+
+    /// <summary>
     /// Profile type validation helper methods
     /// </summary>
-    private bool IsGrabProfile(InteractionProfile profile)
-    {
-        return profile is GrabProfile ||
-               (profile != null && profile.GetType().Name.Contains("Grab"));
-    }
+    // Profile validation - Now delegates to ProfileCacheManager
+    private bool IsGrabProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Grab) ?? false;
 
-    private bool IsKnobProfile(InteractionProfile profile)
-    {
-        return profile is KnobProfile ||
-               (profile != null && profile.GetType().Name.Contains("Knob"));
-    }
+    private bool IsKnobProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Knob) ?? false;
 
-    private bool IsSnapProfile(InteractionProfile profile)
-    {
-        return profile is SnapProfile ||
-               (profile != null && profile.GetType().Name.Contains("Snap"));
-    }
+    private bool IsSnapProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Snap) ?? false;
 
-    private bool IsToolProfile(InteractionProfile profile)
-    {
-        return profile is ToolProfile ||
-               (profile != null && profile.GetType().Name.Contains("Tool"));
-    }
+    private bool IsToolProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Tool) ?? false;
 
-    private bool IsValveProfile(InteractionProfile profile)
-    {
-        return profile is ValveProfile ||
-               (profile != null && profile.GetType().Name.Contains("Valve"));
-    }
+    private bool IsValveProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Valve) ?? false;
 
-    private bool IsTurnProfile(InteractionProfile profile)
-    {
-        return profile != null && profile.GetType().Name.Contains("Turn");
-    }
+    private bool IsTurnProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Turn) ?? false;
+
+    private bool IsTeleportProfile(InteractionProfile profile) =>
+        _profileCacheManager?.IsValidProfile(profile, ProfileCacheManager.ProfileType.Teleport) ?? false;
 
     /// <summary>
     /// Draws framework compatibility notice in the Configure tab
