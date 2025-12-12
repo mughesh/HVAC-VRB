@@ -84,9 +84,25 @@ public class AutoHandsSnapProfile : AutoHandsInteractionProfile
     {
         LogDebug($"Applying AutoHands PlacePoint to: {target.name}");
 
-        // Add PlacePoint component using reflection (AutoHands component)
-        // PlacePoint will automatically create trigger collider in its Awake() method
-        Component placePointComponent = AddAutoHandsComponent(target, "PlacePoint");
+        // Check if PlacePoint component already exists
+        Component placePointComponent = null;
+        var existingComponents = target.GetComponents<MonoBehaviour>();
+        foreach (var component in existingComponents)
+        {
+            if (component != null && component.GetType().Name == "PlacePoint")
+            {
+                placePointComponent = component;
+                LogDebug($"✅ Found existing PlacePoint component on {target.name}, will reconfigure it");
+                break;
+            }
+        }
+
+        // Only add new component if one doesn't exist
+        if (placePointComponent == null)
+        {
+            placePointComponent = AddAutoHandsComponent(target, "PlacePoint");
+            LogDebug($"✅ Added new PlacePoint component to {target.name}");
+        }
 
         if (placePointComponent != null)
         {
