@@ -52,14 +52,14 @@ public class ValidateTabDrawer
 
         if (_validationIssues.Count > 0)
         {
-            EditorGUILayout.LabelField($"Found {_validationIssues.Count} issues:", VRTrainingEditorStyles.WarningStyle);
+            EditorGUILayout.LabelField("Found " + _validationIssues.Count + " issues:", VRTrainingEditorStyles.WarningStyle);
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             foreach (var issue in _validationIssues)
             {
                 EditorGUILayout.BeginHorizontal("box");
-                EditorGUILayout.LabelField("!", GUILayout.Width(20));
+                EditorGUILayout.LabelField("\u26A0", GUILayout.Width(20));
                 EditorGUILayout.LabelField(issue, EditorStyles.wordWrappedLabel);
                 EditorGUILayout.EndHorizontal();
             }
@@ -68,7 +68,7 @@ public class ValidateTabDrawer
         }
         else if (_validationIssues != null)
         {
-            EditorGUILayout.LabelField("? All checks passed!", VRTrainingEditorStyles.SuccessStyle);
+            EditorGUILayout.LabelField("\u2713 All checks passed!", VRTrainingEditorStyles.SuccessStyle);
         }
     }
 }

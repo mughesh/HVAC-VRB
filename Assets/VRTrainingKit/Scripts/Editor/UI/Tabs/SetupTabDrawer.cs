@@ -264,7 +264,7 @@ public class SetupTabDrawer
             }
         }
 
-        string statusIcon = isConfigured ? "?" : "?";
+        string statusIcon = isConfigured ? "\u2713" : "\u25CB";
         GUIStyle statusStyle = isConfigured ? VRTrainingEditorStyles.SuccessStyle : GUI.skin.label;
 
         // Object name
@@ -345,7 +345,7 @@ public class SetupTabDrawer
             else if (currentFramework == VRFramework.AutoHands)
             {
                 // AutoHands doesn't use XRI interaction layers
-                EditorGUILayout.LabelField("? Configured (AutoHands)", EditorStyles.miniLabel, GUILayout.Width(150));
+                EditorGUILayout.LabelField("\u2713 Configured (AutoHands)", EditorStyles.miniLabel, GUILayout.Width(150));
             }
             else
             {
@@ -365,7 +365,7 @@ public class SetupTabDrawer
     {
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-        EditorGUILayout.LabelField("VR Framework Status", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("\uD83D\uDD27 VR Framework Status", EditorStyles.boldLabel);
         EditorGUILayout.Space(3);
 
         // Detect current framework
@@ -382,17 +382,17 @@ public class SetupTabDrawer
         if (detectedFramework == VRFramework.None)
         {
             GUI.color = Color.red;
-            EditorGUILayout.LabelField("X " + frameworkDisplayName, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("\u274C " + frameworkDisplayName, EditorStyles.boldLabel);
         }
         else if (isFrameworkValid)
         {
             GUI.color = Color.green;
-            EditorGUILayout.LabelField("? " + frameworkDisplayName, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("\u2705 " + frameworkDisplayName, EditorStyles.boldLabel);
         }
         else
         {
             GUI.color = Color.yellow;
-            EditorGUILayout.LabelField("! " + frameworkDisplayName, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("\u26A0\uFE0F " + frameworkDisplayName, EditorStyles.boldLabel);
         }
         GUI.color = originalColor;
         EditorGUILayout.EndHorizontal();
@@ -410,7 +410,7 @@ public class SetupTabDrawer
             if (hasMismatch)
             {
                 GUI.color = Color.yellow;
-                EditorGUILayout.LabelField("! " + VRFrameworkDetector.GetFrameworkDisplayName(activeFramework) + " (Mismatch)", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("\u26A0\uFE0F " + VRFrameworkDetector.GetFrameworkDisplayName(activeFramework) + " (Mismatch)", EditorStyles.boldLabel);
                 GUI.color = originalColor;
             }
             else

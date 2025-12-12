@@ -13,6 +13,9 @@ using System.Linq;
 /// </summary>
 public class RuntimeMonitorTabDrawer
 {
+    // Scroll position for the entire tab
+    private Vector2 _scrollPosition;
+
     /// <summary>
     /// Check if Runtime Monitor tab should be visible
     /// </summary>
@@ -32,7 +35,7 @@ public class RuntimeMonitorTabDrawer
         // Play Mode check
         if (!EditorApplication.isPlaying)
         {
-            EditorGUILayout.HelpBox("Runtime Monitor is only available in Play Mode.\n\nEnter Play Mode to view real-time sequence execution status.", MessageType.Info);
+            EditorGUILayout.HelpBox("\u23F8\uFE0F Runtime Monitor is only available in Play Mode.\n\nEnter Play Mode to view real-time sequence execution status.", MessageType.Info);
             return;
         }
 
@@ -40,12 +43,12 @@ public class RuntimeMonitorTabDrawer
         var controller = Object.FindObjectOfType<ModularTrainingSequenceController>();
         if (controller == null)
         {
-            EditorGUILayout.HelpBox("No ModularTrainingSequenceController found in scene.\n\nMake sure your scene has a GameObject with the ModularTrainingSequenceController component.", MessageType.Warning);
+            EditorGUILayout.HelpBox("\u274C No ModularTrainingSequenceController found in scene.\n\nMake sure your scene has a GameObject with the ModularTrainingSequenceController component.", MessageType.Warning);
             return;
         }
 
-        // Begin scrollable area
-        EditorGUILayout.BeginVertical();
+        // Begin scrollable area for the entire content
+        _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
         var progress = controller.GetProgress();
 
@@ -68,7 +71,7 @@ public class RuntimeMonitorTabDrawer
         // Utility Buttons Section
         DrawUtilityButtons(controller, progress);
 
-        EditorGUILayout.EndVertical();
+        EditorGUILayout.EndScrollView();
     }
 
     /// <summary>
@@ -83,7 +86,7 @@ public class RuntimeMonitorTabDrawer
 
         if (controller.currentProgram != null)
         {
-            EditorGUILayout.LabelField($"Program: {controller.currentProgram.programName}", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("\uD83D\uDCCB Program: " + controller.currentProgram.programName, EditorStyles.boldLabel);
             EditorGUILayout.Space(5);
 
             // Show all modules and their task groups
@@ -94,7 +97,7 @@ public class RuntimeMonitorTabDrawer
                 bool isCompletedModule = moduleIdx < progress.currentModuleIndex;
 
                 // Module header
-                string moduleIcon = isCompletedModule ? "?" : (isCurrentModule ? ">" : "o");
+                string moduleIcon = isCompletedModule ? "\u2705" : (isCurrentModule ? "\uD83D\uDFE2" : "\u23F8\uFE0F");
                 GUIStyle moduleStyle = new GUIStyle(EditorStyles.label);
                 if (isCurrentModule)
                 {
@@ -110,7 +113,7 @@ public class RuntimeMonitorTabDrawer
                     moduleStyle.normal.textColor = Color.gray;
                 }
 
-                EditorGUILayout.LabelField($"{moduleIcon} Module: {module.moduleName}", moduleStyle);
+                EditorGUILayout.LabelField(moduleIcon + " Module: " + module.moduleName, moduleStyle);
 
                 // Show task groups for current or adjacent modules only (for cleaner UI)
                 if (moduleIdx >= progress.currentModuleIndex - 1 && moduleIdx <= progress.currentModuleIndex + 1)
@@ -121,7 +124,7 @@ public class RuntimeMonitorTabDrawer
                         bool isCurrentTaskGroup = isCurrentModule && tgIdx == progress.currentTaskGroupIndex;
                         bool isCompletedTaskGroup = isCurrentModule ? (tgIdx < progress.currentTaskGroupIndex) : isCompletedModule;
 
-                        string tgIcon = isCompletedTaskGroup ? "?" : (isCurrentTaskGroup ? ">" : "o");
+                        string tgIcon = isCompletedTaskGroup ? "\u2705" : (isCurrentTaskGroup ? "\uD83D\uDFE2" : "\u23F8\uFE0F");
                         GUIStyle tgStyle = new GUIStyle(EditorStyles.label);
 
                         if (isCurrentTaskGroup)
@@ -141,16 +144,16 @@ public class RuntimeMonitorTabDrawer
                         string stepInfo = "";
                         if (isCurrentTaskGroup)
                         {
-                            stepInfo = $" ({progress.completedSteps}/{progress.totalSteps} steps)";
+                            stepInfo = " (" + progress.completedSteps + "/" + progress.totalSteps + " steps)";
                         }
 
-                        EditorGUILayout.LabelField($"   {tgIcon} {taskGroup.groupName}{stepInfo}", tgStyle);
+                        EditorGUILayout.LabelField("   " + tgIcon + " " + taskGroup.groupName + stepInfo, tgStyle);
                     }
                 }
                 else
                 {
                     // Show count only for distant modules
-                    EditorGUILayout.LabelField($"   ... {module.taskGroups.Count} task groups", EditorStyles.miniLabel);
+                    EditorGUILayout.LabelField("   ... " + module.taskGroups.Count + " task groups", EditorStyles.miniLabel);
                 }
 
                 EditorGUILayout.Space(3);
@@ -174,18 +177,18 @@ public class RuntimeMonitorTabDrawer
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-        EditorGUILayout.LabelField($"Current Module: {progress.currentModuleName ?? "None"}");
-        EditorGUILayout.LabelField($"Current Task Group: {progress.currentTaskGroupName ?? "None"}");
+        EditorGUILayout.LabelField("Current Module: " + (progress.currentModuleName ?? "None"));
+        EditorGUILayout.LabelField("Current Task Group: " + (progress.currentTaskGroupName ?? "None"));
 
         // Check if sequential flow is enabled
         var currentTaskGroup = controller.currentProgram?.modules?[progress.currentModuleIndex]?.taskGroups?[progress.currentTaskGroupIndex];
         bool sequentialFlowEnabled = currentTaskGroup != null && currentTaskGroup.enforceSequentialFlow;
 
-        EditorGUILayout.LabelField($"Sequential Flow: {(sequentialFlowEnabled ? "? Enabled" : "X Disabled")}");
+        EditorGUILayout.LabelField("Sequential Flow: " + (sequentialFlowEnabled ? "\u2705 Enabled" : "\u274C Disabled"));
 
         // Progress bar
         float progressPercent = progress.totalSteps > 0 ? (float)progress.completedSteps / progress.totalSteps : 0f;
-        EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(), progressPercent, $"{progress.completedSteps}/{progress.totalSteps} steps ({progressPercent:P0})");
+        EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(), progressPercent, progress.completedSteps + "/" + progress.totalSteps + " steps (" + progressPercent.ToString("P0") + ")");
 
         EditorGUILayout.EndVertical();
     }
@@ -210,7 +213,7 @@ public class RuntimeMonitorTabDrawer
                 string status = GetStepStatus(step);
                 GUIStyle stepStyle = GetStepStyle(step);
 
-                EditorGUILayout.LabelField($"{icon} {step.stepName} ({status})", stepStyle);
+                EditorGUILayout.LabelField(icon + " " + step.stepName + " (" + status + ")", stepStyle);
             }
         }
         else
@@ -246,21 +249,21 @@ public class RuntimeMonitorTabDrawer
 
                 if (enabledSockets.Count > 0)
                 {
-                    EditorGUILayout.LabelField($"? Enabled Sockets ({enabledSockets.Count})", EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField("\u2705 Enabled Sockets (" + enabledSockets.Count + ")", EditorStyles.boldLabel);
                     foreach (var socket in enabledSockets)
                     {
                         string occupiedLabel = socket.isOccupied ? " [Occupied]" : "";
-                        EditorGUILayout.LabelField($"   * {socket.socketName}{occupiedLabel} - {socket.disabledReason}");
+                        EditorGUILayout.LabelField("   \u2022 " + socket.socketName + occupiedLabel + " - " + socket.disabledReason);
                     }
                     EditorGUILayout.Space(5);
                 }
 
                 if (disabledSockets.Count > 0)
                 {
-                    EditorGUILayout.LabelField($"X Disabled Sockets ({disabledSockets.Count})", EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField("\u274C Disabled Sockets (" + disabledSockets.Count + ")", EditorStyles.boldLabel);
                     foreach (var socket in disabledSockets)
                     {
-                        EditorGUILayout.LabelField($"   * {socket.socketName} - {socket.disabledReason}", EditorStyles.helpBox);
+                        EditorGUILayout.LabelField("   \u2022 " + socket.socketName + " - " + socket.disabledReason, EditorStyles.helpBox);
                     }
                 }
             }
@@ -271,7 +274,7 @@ public class RuntimeMonitorTabDrawer
         }
         else if (!sequentialFlowEnabled)
         {
-            EditorGUILayout.LabelField("! Sequential flow is not enabled for current task group", EditorStyles.centeredGreyMiniLabel);
+            EditorGUILayout.LabelField("\u26A0\uFE0F Sequential flow is not enabled for current task group", EditorStyles.centeredGreyMiniLabel);
             EditorGUILayout.LabelField("Socket restrictions are not active - all sockets are available", EditorStyles.centeredGreyMiniLabel);
         }
         else
@@ -292,13 +295,13 @@ public class RuntimeMonitorTabDrawer
 
         EditorGUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("Refresh", GUILayout.Height(30)))
+        if (GUILayout.Button("\uD83D\uDD04 Refresh", GUILayout.Height(30)))
         {
             // Force window repaint handled by caller
         }
 
         GUI.enabled = controller.restrictionManager != null && sequentialFlowEnabled;
-        if (GUILayout.Button("Enable All Sockets", GUILayout.Height(30)))
+        if (GUILayout.Button("\uD83D\uDD13 Enable All Sockets", GUILayout.Height(30)))
         {
             if (EditorUtility.DisplayDialog("Enable All Sockets",
                 "This will temporarily enable all sockets, bypassing sequence restrictions.\n\nThis is for debugging purposes only and will be reset when the task group changes.\n\nContinue?",
@@ -309,7 +312,7 @@ public class RuntimeMonitorTabDrawer
             }
         }
 
-        if (GUILayout.Button("Reset Sequence", GUILayout.Height(30)))
+        if (GUILayout.Button("\uD83D\uDD04 Reset Sequence", GUILayout.Height(30)))
         {
             if (EditorUtility.DisplayDialog("Reset Sequence",
                 "This will stop Play Mode and reload the scene.\n\nAny unsaved changes will be lost.\n\nContinue?",
@@ -326,7 +329,7 @@ public class RuntimeMonitorTabDrawer
     // Helper methods
     private string GetStepIcon(InteractionStep step)
     {
-        return step.isCompleted ? "?" : ">";
+        return step.isCompleted ? "\u2705" : "\uD83D\uDFE2";
     }
 
     private string GetStepStatus(InteractionStep step)
