@@ -1,26 +1,26 @@
-// AutoHandsValveProfile.cs
-// AutoHands implementation of valve interactions using Grabbable + AutoHandsValveController
+// AutoHandsScrewProfile.cs (formerly AutoHandsValveProfile.cs)
+// AutoHands implementation of screw interactions using Grabbable + AutoHandsScrewController
 using UnityEngine;
 
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// AutoHands profile for valve interactions with complex state machine
+/// AutoHands profile for screw interactions with complex state machine
 /// Workflow: grab → snap → tighten → loosen → remove
 /// Uses Grabbable for grabbing and PlacePoint for socket snapping
 /// </summary>
-[CreateAssetMenu(fileName = "AutoHandsValveProfile", menuName = "VR Training/AutoHands/Valve Profile", order = 4)]
-public class AutoHandsValveProfile : AutoHandsInteractionProfile
+[CreateAssetMenu(fileName = "AutoHandsScrewProfile", menuName = "VR Training/AutoHands/Screw Profile", order = 4)]
+public class AutoHandsScrewProfile : AutoHandsInteractionProfile
 {
-    [Header("Valve Mechanics")]
-    [Tooltip("Axis around which valve rotates (e.g., Vector3.up for Y-axis)")]
+    [Header("Screw Mechanics")]
+    [Tooltip("Axis around which screw rotates (e.g., Vector3.up for Y-axis)")]
     public Vector3 rotationAxis = Vector3.up;
 
-    [Tooltip("Degrees of rotation required to tighten valve")]
+    [Tooltip("Degrees of rotation required to tighten screw")]
     [Range(10f, 360f)]
     public float tightenThreshold = 50f;
 
-    [Tooltip("Degrees of reverse rotation required to loosen valve")]
+    [Tooltip("Degrees of reverse rotation required to loosen screw")]
     [Range(10f, 360f)]
     public float loosenThreshold = 90f;
 
@@ -29,10 +29,10 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     public float angleTolerance = 5f;
 
     [Header("Socket Compatibility")]
-    [Tooltip("Tags of sockets this valve can work with")]
-    public string[] compatibleSocketTags = {"valve_socket"};
+    [Tooltip("Tags of sockets this screw can work with (supports both 'valve_socket' and 'screw_socket' for backwards compatibility)")]
+    public string[] compatibleSocketTags = {"valve_socket", "screw_socket"};
 
-    [Tooltip("Specific socket objects this valve works with")]
+    [Tooltip("Specific socket objects this screw works with")]
     public GameObjectReference[] specificCompatibleSockets;
 
     [Tooltip("Use specific socket objects instead of tag-based matching")]
@@ -55,7 +55,7 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     public float jointBreakForce = 3500f;
 
     [Header("Physics Settings")]
-    [Tooltip("Angular drag applied when valve is released to stop spinning")]
+    [Tooltip("Angular drag applied when screw is released to stop spinning")]
     [Range(0f, 10f)]
     public float rotationDampening = 5f;
 
@@ -104,7 +104,7 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     public float positioningTimeout = 3f;
 
     [Header("Interaction Feel")]
-    [Tooltip("Rotation speed multiplier when valve is locked")]
+    [Tooltip("Rotation speed multiplier when screw is locked")]
     [Range(0.1f, 3.0f)]
     public float lockedRotationSpeed = 1.0f;
 
@@ -113,10 +113,10 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     public float hapticIntensity = 0.3f;
 
     [Header("Visual Feedback")]
-    [Tooltip("Material when valve is in loose state (needs tightening)")]
+    [Tooltip("Material when screw is in loose state (needs tightening)")]
     public Material looseMaterial;
 
-    [Tooltip("Material when valve is in tight state (properly secured)")]
+    [Tooltip("Material when screw is in tight state (properly secured)")]
     public Material tightMaterial;
 
     [Tooltip("Show progress indicator during rotation")]
@@ -127,11 +127,11 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     public ColliderType colliderType = ColliderType.Box;
 
     /// <summary>
-    /// Apply AutoHands Grabbable + AutoHandsValveController for valve interaction
+    /// Apply AutoHands Grabbable + AutoHandsScrewController for screw interaction
     /// </summary>
     public override void ApplyToGameObject(GameObject target)
     {
-        LogDebug($"Applying AutoHands Valve components to: {target.name}");
+        LogDebug($"Applying AutoHands Screw components to: {target.name}");
 
         // 1. Add Grabbable component (for AutoHands grabbing)
         var grabbable = target.GetComponent<Autohand.Grabbable>();
@@ -141,7 +141,7 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
             LogDebug($"✅ Added Grabbable component to {target.name}");
         }
 
-        // Configure Grabbable for valve interaction
+        // Configure Grabbable for screw interaction
         ConfigureGrabbableComponent(grabbable);
 
         // 2. Add Rigidbody (required for physics, non-kinematic)
@@ -164,27 +164,27 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
             AddCollider(target, colliderType);
         }
 
-        // 4. Add AutoHandsValveControllerV2 (Clean HingeJoint-based valve controller)
-        AutoHandsValveControllerV2 valveController = target.GetComponent<AutoHandsValveControllerV2>();
-        if (valveController == null)
+        // 4. Add AutoHandsScrewControllerV2 (Clean HingeJoint-based screw controller)
+        AutoHandsScrewControllerV2 screwController = target.GetComponent<AutoHandsScrewControllerV2>();
+        if (screwController == null)
         {
-            valveController = target.AddComponent<AutoHandsValveControllerV2>();
-            LogDebug($"✅ Added AutoHandsValveControllerV2 to {target.name}");
+            screwController = target.AddComponent<AutoHandsScrewControllerV2>();
+            LogDebug($"✅ Added AutoHandsScrewControllerV2 to {target.name}");
         }
 
-        // Configure AutoHandsValveControllerV2 with this profile
-        ConfigureValveController(valveController);
+        // Configure AutoHandsScrewControllerV2 with this profile
+        ConfigureScrewController(screwController);
 
-        LogDebug($"✅ Successfully configured AutoHands valve on {target.name}");
-        LogDebug($"✅ Valve {target.name} is ready for grab→snap→tighten→loosen→remove workflow");
+        LogDebug($"✅ Successfully configured AutoHands screw on {target.name}");
+        LogDebug($"✅ Screw {target.name} is ready for grab→snap→tighten→loosen→remove workflow");
     }
 
     /// <summary>
-    /// Configure Grabbable component for valve interaction
+    /// Configure Grabbable component for screw interaction
     /// </summary>
     private void ConfigureGrabbableComponent(Autohand.Grabbable grabbable)
     {
-        LogDebug($"Configuring Grabbable for valve interaction");
+        LogDebug($"Configuring Grabbable for screw interaction");
 
         // Core grab settings
         grabbable.grabType = grabType;
@@ -202,15 +202,15 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     }
 
     /// <summary>
-    /// Configure AutoHandsValveControllerV2 with a temporary ValveProfile
-    /// We create a ValveProfile ScriptableObject at runtime to pass settings to AutoHandsValveControllerV2
+    /// Configure AutoHandsScrewControllerV2 with a temporary ScrewProfile
+    /// We create a ScrewProfile ScriptableObject at runtime to pass settings to AutoHandsScrewControllerV2
     /// </summary>
-    private void ConfigureValveController(AutoHandsValveControllerV2 valveController)
+    private void ConfigureScrewController(AutoHandsScrewControllerV2 screwController)
     {
-        // Create a temporary ValveProfile to pass to AutoHandsValveController
-        ValveProfile tempProfile = ScriptableObject.CreateInstance<ValveProfile>();
+        // Create a temporary ScrewProfile to pass to AutoHandsScrewController
+        ScrewProfile tempProfile = ScriptableObject.CreateInstance<ScrewProfile>();
 
-        // Copy settings from AutoHandsValveProfile to ValveProfile
+        // Copy settings from AutoHandsScrewProfile to ScrewProfile
         tempProfile.rotationAxis = rotationAxis;
         tempProfile.tightenThreshold = tightenThreshold;
         tempProfile.loosenThreshold = loosenThreshold;
@@ -239,10 +239,10 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
         tempProfile.bounceMinVelocity = bounceMinVelocity;
         tempProfile.contactDistance = contactDistance;
 
-        // Configure AutoHandsValveControllerV2 with the temp profile
-        valveController.Configure(tempProfile);
+        // Configure AutoHandsScrewControllerV2 with the temp profile
+        screwController.Configure(tempProfile);
 
-        LogDebug($"✅ Configured AutoHandsValveControllerV2 with settings from AutoHandsValveProfile");
+        LogDebug($"✅ Configured AutoHandsScrewControllerV2 with settings from AutoHandsScrewProfile");
         LogDebug($"   - Rotation Axis: {rotationAxis}");
         LogDebug($"   - Tighten Threshold: {tightenThreshold}°");
         LogDebug($"   - Loosen Threshold: {loosenThreshold}°");
@@ -348,17 +348,18 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     }
 
     /// <summary>
-    /// Validate that target object is suitable for AutoHands valve interaction
+    /// Validate that target object is suitable for AutoHands screw interaction
     /// </summary>
     protected override bool ValidateAutoHandsGameObject(GameObject target)
     {
-        if (!target.CompareTag("valve"))
+        // Dual tag support: accepts both "valve" and "screw" for backwards compatibility
+        if (!target.CompareTag("valve") && !target.CompareTag("screw"))
         {
-            LogError($"GameObject {target.name} must have 'valve' tag for AutoHandsValveProfile");
+            LogError($"GameObject {target.name} must have 'valve' or 'screw' tag for AutoHandsScrewProfile");
             return false;
         }
 
-        LogDebug($"✅ {target.name} is valid for AutoHands valve interaction");
+        LogDebug($"✅ {target.name} is valid for AutoHands screw interaction");
         return true;
     }
 

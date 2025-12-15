@@ -33,7 +33,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private InteractionProfile selectedKnobProfile;
     private InteractionProfile selectedSnapProfile;
     private InteractionProfile selectedToolProfile;
-    private InteractionProfile selectedValveProfile;
+    private InteractionProfile selectedScrewProfile;
     private InteractionProfile selectedTurnProfile;
     private InteractionProfile selectedTeleportProfile;
     private Vector2 configScrollPos;
@@ -43,7 +43,7 @@ public class VRInteractionSetupWindow : EditorWindow
     private List<InteractionProfile> cachedKnobProfiles;
     private List<InteractionProfile> cachedSnapProfiles;
     private List<InteractionProfile> cachedToolProfiles;
-    private List<InteractionProfile> cachedValveProfiles;
+    private List<InteractionProfile> cachedScrewProfiles;
     private List<InteractionProfile> cachedTurnProfiles;
     private List<InteractionProfile> cachedTeleportProfiles;
     
@@ -267,7 +267,7 @@ public class VRInteractionSetupWindow : EditorWindow
         selectedKnobProfile = Resources.Load<InteractionProfile>("XRI/DefaultKnobProfile") ?? Resources.Load<InteractionProfile>("DefaultKnobProfile");
         selectedSnapProfile = Resources.Load<InteractionProfile>("XRI/DefaultSnapProfile") ?? Resources.Load<InteractionProfile>("DefaultSnapProfile");
         selectedToolProfile = Resources.Load<InteractionProfile>("XRI/DefaultToolProfile") ?? Resources.Load<InteractionProfile>("DefaultToolProfile");
-        selectedValveProfile = Resources.Load<InteractionProfile>("XRI/DefaultValveProfile") ?? Resources.Load<InteractionProfile>("DefaultValveProfile");
+        selectedScrewProfile = Resources.Load<InteractionProfile>("XRI/DefaultScrewProfile") ?? Resources.Load<InteractionProfile>("DefaultScrewProfile");
 
         // If not found in Resources, search in Assets for XRI profiles
         if (selectedGrabProfile == null)
@@ -310,13 +310,13 @@ public class VRInteractionSetupWindow : EditorWindow
             }
         }
 
-        if (selectedValveProfile == null)
+        if (selectedScrewProfile == null)
         {
-            string[] guids = AssetDatabase.FindAssets("t:ValveProfile");
+            string[] guids = AssetDatabase.FindAssets("t:ScrewProfile");
             if (guids.Length > 0)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                selectedValveProfile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
+                selectedScrewProfile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
             }
         }
     }
@@ -331,7 +331,7 @@ public class VRInteractionSetupWindow : EditorWindow
         selectedKnobProfile = Resources.Load<InteractionProfile>("AutoHands/DefaultAutoHandsKnobProfile");
         selectedSnapProfile = Resources.Load<InteractionProfile>("AutoHands/DefaultAutoHandsSnapProfile");
         selectedToolProfile = Resources.Load<InteractionProfile>("AutoHands/DefaultAutoHandsToolProfile");
-        selectedValveProfile = Resources.Load<InteractionProfile>("AutoHands/DefaultAutoHandsValveProfile");
+        selectedScrewProfile = Resources.Load<InteractionProfile>("AutoHands/DefaultAutoHandsScrewProfile");
 
         // If not found in Resources, search in Assets for AutoHands profiles
         if (selectedGrabProfile == null)
@@ -374,13 +374,13 @@ public class VRInteractionSetupWindow : EditorWindow
             }
         }
 
-        if (selectedValveProfile == null)
+        if (selectedScrewProfile == null)
         {
-            string[] guids = AssetDatabase.FindAssets("t:AutoHandsValveProfile");
+            string[] guids = AssetDatabase.FindAssets("t:AutoHandsScrewProfile");
             if (guids.Length > 0)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                selectedValveProfile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
+                selectedScrewProfile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
             }
         }
     }
@@ -394,7 +394,7 @@ public class VRInteractionSetupWindow : EditorWindow
         RefreshKnobProfileCache();
         RefreshSnapProfileCache();
         RefreshToolProfileCache();
-        RefreshValveProfileCache();
+        RefreshScrewProfileCache();
         RefreshTurnProfileCache();
         RefreshTeleportProfileCache();
     }
@@ -509,29 +509,29 @@ public class VRInteractionSetupWindow : EditorWindow
         }
     }
 
-    private void RefreshValveProfileCache()
+    private void RefreshScrewProfileCache()
     {
-        cachedValveProfiles = new List<InteractionProfile>();
+        cachedScrewProfiles = new List<InteractionProfile>();
 
-        string[] xriValveGuids = AssetDatabase.FindAssets("t:ValveProfile");
-        foreach (string guid in xriValveGuids)
+        string[] xriScrewGuids = AssetDatabase.FindAssets("t:ScrewProfile");
+        foreach (string guid in xriScrewGuids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsValveProfile(profile))
+            if (profile != null && IsScrewProfile(profile))
             {
-                cachedValveProfiles.Add(profile);
+                cachedScrewProfiles.Add(profile);
             }
         }
 
-        string[] autoHandsValveGuids = AssetDatabase.FindAssets("t:AutoHandsValveProfile");
-        foreach (string guid in autoHandsValveGuids)
+        string[] autoHandsScrewGuids = AssetDatabase.FindAssets("t:AutoHandsScrewProfile");
+        foreach (string guid in autoHandsScrewGuids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var profile = AssetDatabase.LoadAssetAtPath<InteractionProfile>(path);
-            if (profile != null && IsValveProfile(profile))
+            if (profile != null && IsScrewProfile(profile))
             {
-                cachedValveProfiles.Add(profile);
+                cachedScrewProfiles.Add(profile);
             }
         }
     }
@@ -734,8 +734,8 @@ public class VRInteractionSetupWindow : EditorWindow
             DrawObjectGroup("Tool Objects", sceneAnalysis.toolObjects, "tool", selectedToolProfile);
             EditorGUILayout.Space(10);
             
-            // Valve objects
-            DrawObjectGroup("Valve Objects", sceneAnalysis.valveObjects, "valve", selectedValveProfile);
+            // Screw objects (supports both "valve" and "screw" tags)
+            DrawObjectGroup("Screw Objects", sceneAnalysis.screwObjects, "screw", selectedScrewProfile);
             EditorGUILayout.Space(10);
 
             // Turn objects
@@ -1253,30 +1253,30 @@ public class VRInteractionSetupWindow : EditorWindow
         EditorGUILayout.EndVertical();
         EditorGUILayout.Space(10);
         
-        // Valve Profile
+        // Screw Profile
         EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField("Valve Profile", subHeaderStyle);
-        var valveProfileTemp = EditorGUILayout.ObjectField(
-            "Profile Asset", selectedValveProfile, typeof(InteractionProfile), false) as InteractionProfile;
+        EditorGUILayout.LabelField("Screw Profile", subHeaderStyle);
+        var screwProfileTemp = EditorGUILayout.ObjectField(
+            "Profile Asset", selectedScrewProfile, typeof(InteractionProfile), false) as InteractionProfile;
 
-        // Framework-aware ObjectField - accepts both XRI and AutoHands valve profiles
-        if (valveProfileTemp != null && IsValveProfile(valveProfileTemp))
+        // Framework-aware ObjectField - accepts both XRI and AutoHands screw profiles
+        if (screwProfileTemp != null && IsScrewProfile(screwProfileTemp))
         {
-            selectedValveProfile = valveProfileTemp;
+            selectedScrewProfile = screwProfileTemp;
         }
-        else if (valveProfileTemp != null)
+        else if (screwProfileTemp != null)
         {
             EditorUtility.DisplayDialog("Invalid Profile Type",
-                $"The selected profile '{valveProfileTemp.name}' is not a valve-type profile.", "OK");
+                $"The selected profile '{screwProfileTemp.name}' is not a screw-type profile.", "OK");
         }
         
-        if (selectedValveProfile == null)
+        if (selectedScrewProfile == null)
         {
             // Use cached profiles for performance
-            if (cachedValveProfiles != null && cachedValveProfiles.Count > 0)
+            if (cachedScrewProfiles != null && cachedScrewProfiles.Count > 0)
             {
                 EditorGUILayout.LabelField("Available Profiles:", EditorStyles.miniLabel);
-                foreach (var profile in cachedValveProfiles)
+                foreach (var profile in cachedScrewProfiles)
                 {
                     if (profile != null)
                     {
@@ -1285,7 +1285,7 @@ public class VRInteractionSetupWindow : EditorWindow
                         EditorGUILayout.LabelField($"  • {profile.name} {frameworkType}", EditorStyles.miniLabel);
                         if (GUILayout.Button("Select", GUILayout.Width(50)))
                         {
-                            selectedValveProfile = profile;
+                            selectedScrewProfile = profile;
                         }
                         EditorGUILayout.EndHorizontal();
                     }
@@ -1293,18 +1293,18 @@ public class VRInteractionSetupWindow : EditorWindow
             }
             else
             {
-                EditorGUILayout.LabelField("No valve profiles found. Create one below.", EditorStyles.miniLabel);
+                EditorGUILayout.LabelField("No screw profiles found. Create one below.", EditorStyles.miniLabel);
             }
             
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Valve Profile"))
+            if (GUILayout.Button("Create New Screw Profile"))
             {
-                CreateNewProfile<ValveProfile>("ValveProfile");
-                RefreshValveProfileCache();
+                CreateNewProfile<ScrewProfile>("ScrewProfile");
+                RefreshScrewProfileCache();
             }
             if (GUILayout.Button("Refresh List", GUILayout.Width(80)))
             {
-                RefreshValveProfileCache();
+                RefreshScrewProfileCache();
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -1312,7 +1312,7 @@ public class VRInteractionSetupWindow : EditorWindow
         {
             if (GUILayout.Button("Edit Profile"))
             {
-                Selection.activeObject = selectedValveProfile;
+                Selection.activeObject = selectedScrewProfile;
             }
         }
         EditorGUILayout.EndVertical();
@@ -1815,10 +1815,10 @@ public class VRInteractionSetupWindow : EditorWindow
             case InteractionStep.StepType.TurnKnob: return "🔄";
             case InteractionStep.StepType.WaitForCondition: return "⏳";
             case InteractionStep.StepType.ShowInstruction: return "💬";
-            case InteractionStep.StepType.TightenValve: return "🔧";
-            case InteractionStep.StepType.LoosenValve: return "🔓";
-            case InteractionStep.StepType.InstallValve: return "🔩";
-            case InteractionStep.StepType.RemoveValve: return "🔧";
+            case InteractionStep.StepType.TightenScrew: return "🔧";
+            case InteractionStep.StepType.LoosenScrew: return "🔓";
+            case InteractionStep.StepType.InstallScrew: return "🔩";
+            case InteractionStep.StepType.RemoveScrew: return "🔧";
             case InteractionStep.StepType.WaitForScriptCondition: return "⚙️";
             case InteractionStep.StepType.Teleport: return "🚀";
             default: return "❓";
@@ -2106,16 +2106,16 @@ public class VRInteractionSetupWindow : EditorWindow
             }
         }
         
-        // Valve-specific settings
-        if (step.type == InteractionStep.StepType.TightenValve ||
-            step.type == InteractionStep.StepType.LoosenValve ||
-            step.type == InteractionStep.StepType.InstallValve ||
-            step.type == InteractionStep.StepType.RemoveValve)
+        // Screw-specific settings
+        if (step.type == InteractionStep.StepType.TightenScrew ||
+            step.type == InteractionStep.StepType.LoosenScrew ||
+            step.type == InteractionStep.StepType.InstallScrew ||
+            step.type == InteractionStep.StepType.RemoveScrew)
         {
             EditorGUILayout.Space(5);
-            EditorGUILayout.LabelField("Valve Settings", EditorStyles.boldLabel);
-            
-            // Target Object field (valve)
+            EditorGUILayout.LabelField("Screw Settings", EditorStyles.boldLabel);
+
+            // Target Object field (screw)
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Target Object", GUILayout.Width(100));
             step.targetObject.GameObject = (GameObject)EditorGUILayout.ObjectField(
@@ -2145,22 +2145,22 @@ public class VRInteractionSetupWindow : EditorWindow
             EditorGUILayout.EndHorizontal();
             
             // Threshold settings based on step type
-            if (step.type == InteractionStep.StepType.TightenValve || 
-                step.type == InteractionStep.StepType.InstallValve)
+            if (step.type == InteractionStep.StepType.TightenScrew ||
+                step.type == InteractionStep.StepType.InstallScrew)
             {
                 EditorGUILayout.Space(3);
                 step.tightenThreshold = EditorGUILayout.Slider("Tighten Degrees", step.tightenThreshold, 10f, 360f);
             }
-            
-            if (step.type == InteractionStep.StepType.LoosenValve ||
-                step.type == InteractionStep.StepType.RemoveValve)
+
+            if (step.type == InteractionStep.StepType.LoosenScrew ||
+                step.type == InteractionStep.StepType.RemoveScrew)
             {
-                EditorGUILayout.Space(3);  
+                EditorGUILayout.Space(3);
                 step.loosenThreshold = EditorGUILayout.Slider("Loosen Degrees", step.loosenThreshold, 10f, 360f);
             }
-            
-            if (step.type == InteractionStep.StepType.InstallValve ||
-                step.type == InteractionStep.StepType.RemoveValve)
+
+            if (step.type == InteractionStep.StepType.InstallScrew ||
+                step.type == InteractionStep.StepType.RemoveScrew)
             {
                 // Complete operations show both thresholds
                 EditorGUILayout.Space(3);
@@ -2170,7 +2170,7 @@ public class VRInteractionSetupWindow : EditorWindow
             
             // Common settings
             EditorGUILayout.Space(3);
-            step.valveAngleTolerance = EditorGUILayout.Slider("Angle Tolerance", step.valveAngleTolerance, 1f, 15f);
+            step.screwAngleTolerance = EditorGUILayout.Slider("Angle Tolerance", step.screwAngleTolerance, 1f, 15f);
             
             // Advanced settings
             EditorGUILayout.Space(3);
@@ -2310,7 +2310,7 @@ public class VRInteractionSetupWindow : EditorWindow
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         EditorGUILayout.LabelField("Destination Arrow (Optional)", EditorStyles.miniBoldLabel);
-        EditorGUILayout.LabelField("For GrabAndSnap/Valve steps - shows after object is grabbed", EditorStyles.miniLabel);
+        EditorGUILayout.LabelField("For GrabAndSnap/Screw steps - shows after object is grabbed", EditorStyles.miniLabel);
         step.destinationArrow.GameObject = (GameObject)EditorGUILayout.ObjectField(
             "Arrow GameObject",
             step.destinationArrow.GameObject,
@@ -2379,12 +2379,12 @@ public class VRInteractionSetupWindow : EditorWindow
         menu.AddItem(new GUIContent("Turn Knob Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TurnKnob));
         menu.AddItem(new GUIContent("🚀 Teleport Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.Teleport));
 
-        // Valve operation steps
+        // Screw operation steps
         menu.AddSeparator("");
-        menu.AddItem(new GUIContent("Valve Operations/Tighten Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenValve));
-        menu.AddItem(new GUIContent("Valve Operations/Loosen Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenValve));
-        menu.AddItem(new GUIContent("Valve Operations/Install Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallValve));
-        menu.AddItem(new GUIContent("Valve Operations/Remove Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveValve));
+        menu.AddItem(new GUIContent("Screw Operations/Tighten Screw"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenScrew));
+        menu.AddItem(new GUIContent("Screw Operations/Loosen Screw"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenScrew));
+        menu.AddItem(new GUIContent("Screw Operations/Install Screw (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallScrew));
+        menu.AddItem(new GUIContent("Screw Operations/Remove Screw (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveScrew));
 
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
@@ -2995,10 +2995,10 @@ public class VRInteractionSetupWindow : EditorWindow
             appliedCount += sceneAnalysis.toolObjects.Count;
         }
         
-        if (selectedValveProfile != null)
+        if (selectedScrewProfile != null)
         {
-            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.valveObjects, selectedValveProfile);
-            appliedCount += sceneAnalysis.valveObjects.Count;
+            InteractionSetupService.ApplyComponentsToObjects(sceneAnalysis.screwObjects, selectedScrewProfile);
+            appliedCount += sceneAnalysis.screwObjects.Count;
         }
         
         EditorUtility.DisplayDialog("Setup Complete", 
@@ -3114,32 +3114,32 @@ public class VRInteractionSetupWindow : EditorWindow
             selectedToolProfile = toolProfile;
         }
         
-        // Create Valve Profile
-        if (selectedValveProfile == null)
+        // Create Screw Profile
+        if (selectedScrewProfile == null)
         {
-            ValveProfile valveProfile = ScriptableObject.CreateInstance<ValveProfile>();
-            valveProfile.profileName = "Default Valve";
+            ScrewProfile screwProfile = ScriptableObject.CreateInstance<ScrewProfile>();
+            screwProfile.profileName = "Default Screw";
 
             // Configurable defaults - these can be changed per step in sequence builder
-            valveProfile.rotationAxis = Vector3.up;        // Y-axis rotation (most common)
-            valveProfile.tightenThreshold = 180f;          // More realistic full turn
-            valveProfile.loosenThreshold = 180f;           // Symmetric loosening
-            valveProfile.angleTolerance = 10f;             // More forgiving tolerance
+            screwProfile.rotationAxis = Vector3.up;        // Y-axis rotation (most common)
+            screwProfile.tightenThreshold = 180f;          // More realistic full turn
+            screwProfile.loosenThreshold = 180f;           // Symmetric loosening
+            screwProfile.angleTolerance = 10f;             // More forgiving tolerance
 
-            // Socket compatibility
-            valveProfile.compatibleSocketTags = new string[] { "valve_socket" };
+            // Socket compatibility (dual tag support)
+            screwProfile.compatibleSocketTags = new string[] { "valve_socket", "screw_socket" };
 
             // XR Interaction settings
-            valveProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
-            valveProfile.trackPosition = true;
-            valveProfile.trackRotation = true;
+            screwProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+            screwProfile.trackPosition = true;
+            screwProfile.trackRotation = true;
 
-            // Physics settings for better valve feel
-            valveProfile.rotationDampening = 3f;           // Moderate dampening
-            valveProfile.dampeningSpeed = 8f;              // Responsive dampening
+            // Physics settings for better screw feel
+            screwProfile.rotationDampening = 3f;           // Moderate dampening
+            screwProfile.dampeningSpeed = 8f;              // Responsive dampening
 
-            AssetDatabase.CreateAsset(valveProfile, $"{folderPath}/DefaultValveProfile.asset");
-            selectedValveProfile = valveProfile;
+            AssetDatabase.CreateAsset(screwProfile, $"{folderPath}/DefaultScrewProfile.asset");
+            selectedScrewProfile = screwProfile;
         }
         
         AssetDatabase.SaveAssets();
@@ -3274,7 +3274,7 @@ public class VRInteractionSetupWindow : EditorWindow
         string typeName = profile.GetType().Name;
         if (typeName.Contains("AutoHands"))
             return "[AutoHands]";
-        else if (typeName.Contains("XRI") || profile is GrabProfile || profile is KnobProfile || profile is SnapProfile || profile is ToolProfile || profile is ValveProfile)
+        else if (typeName.Contains("XRI") || profile is GrabProfile || profile is KnobProfile || profile is SnapProfile || profile is ToolProfile || profile is ScrewProfile)
             return "[XRI]";
         else
             return "[Unknown]";
@@ -3307,10 +3307,10 @@ public class VRInteractionSetupWindow : EditorWindow
                (profile != null && profile.GetType().Name.Contains("Tool"));
     }
 
-    private bool IsValveProfile(InteractionProfile profile)
+    private bool IsScrewProfile(InteractionProfile profile)
     {
-        return profile is ValveProfile ||
-               (profile != null && profile.GetType().Name.Contains("Valve"));
+        return profile is ScrewProfile ||
+               (profile != null && (profile.GetType().Name.Contains("Screw") || profile.GetType().Name.Contains("Valve")));
     }
 
     private bool IsTurnProfile(InteractionProfile profile)

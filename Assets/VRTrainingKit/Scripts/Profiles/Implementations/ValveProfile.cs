@@ -1,37 +1,37 @@
-// ValveProfile.cs
+// ScrewProfile.cs (formerly ValveProfile.cs)
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// Profile for valve interactions with forward/reverse flow (grab → snap → tighten → loosen → remove)
+/// Profile for screw interactions with forward/reverse flow (grab → snap → tighten → loosen → remove)
 /// Handles complex state management with LOCKED substates (LOOSE/TIGHT)
 /// </summary>
-[CreateAssetMenu(fileName = "ValveProfile", menuName = "VR Training/Valve Profile")]
-public class ValveProfile : InteractionProfile
+[CreateAssetMenu(fileName = "ScrewProfile", menuName = "VR Training/Screw Profile")]
+public class ScrewProfile : InteractionProfile
 {
-    [Header("Valve Mechanics")]
-    [Tooltip("Axis around which valve rotates (e.g., Vector3.up for Y-axis)")]
+    [Header("Screw Mechanics")]
+    [Tooltip("Axis around which screw rotates (e.g., Vector3.up for Y-axis)")]
     public Vector3 rotationAxis = Vector3.up;
-    
-    [Tooltip("Degrees of rotation required to tighten valve")]
+
+    [Tooltip("Degrees of rotation required to tighten screw")]
     [Range(10f, 360f)]
     public float tightenThreshold = 50f;
-    
-    [Tooltip("Degrees of reverse rotation required to loosen valve")]
+
+    [Tooltip("Degrees of reverse rotation required to loosen screw")]
     [Range(10f, 360f)]
     public float loosenThreshold = 90f;
-    
+
     [Tooltip("Angle tolerance for threshold completion")]
     [Range(1f, 15f)]
     public float angleTolerance = 5f;
 
     [Header("Socket Compatibility")]
-    [Tooltip("Tags of sockets this valve can work with")]
-    public string[] compatibleSocketTags = {"valve_socket"};
+    [Tooltip("Tags of sockets this screw can work with (supports both 'valve_socket' and 'screw_socket' for backwards compatibility)")]
+    public string[] compatibleSocketTags = {"valve_socket", "screw_socket"};
 
-    [Tooltip("Specific socket objects this valve works with")]
+    [Tooltip("Specific socket objects this screw works with")]
     public GameObjectReference[] specificCompatibleSockets;
 
     [Tooltip("Use specific socket objects instead of tag-based matching")]
@@ -47,7 +47,7 @@ public class ValveProfile : InteractionProfile
     public float throwVelocityScale = 1.5f;
     public float throwAngularVelocityScale = 1.0f;
 
-    [Tooltip("Angular drag applied when valve is released to stop spinning")]
+    [Tooltip("Angular drag applied when screw is released to stop spinning")]
     [Range(0f, 10f)]
     public float rotationDampening = 5f;
 
@@ -104,19 +104,19 @@ public class ValveProfile : InteractionProfile
     public bool addColliderToMeshChild = true;
 
     [Header("Interaction Feel")]
-    [Tooltip("Rotation speed multiplier when valve is locked")]
+    [Tooltip("Rotation speed multiplier when screw is locked")]
     [Range(0.1f, 3.0f)]
     public float lockedRotationSpeed = 1.0f;
-    
+
     [Tooltip("Haptic feedback intensity during rotation")]
     [Range(0f, 1f)]
     public float hapticIntensity = 0.3f;
 
     [Header("Visual Feedback")]
-    [Tooltip("Material when valve is in loose state (needs tightening)")]
+    [Tooltip("Material when screw is in loose state (needs tightening)")]
     public Material looseMaterial;
-    
-    [Tooltip("Material when valve is in tight state (properly secured)")]
+
+    [Tooltip("Material when screw is in tight state (properly secured)")]
     public Material tightMaterial;
     
     [Tooltip("Show progress indicator during rotation")]
@@ -124,16 +124,16 @@ public class ValveProfile : InteractionProfile
 
     public override void ApplyToGameObject(GameObject target)
     {
-        Debug.Log($"[ValveProfile] ApplyToGameObject() called for: {target.name} with profile: {profileName}");
-        
+        Debug.Log($"[ScrewProfile] ApplyToGameObject() called for: {target.name} with profile: {profileName}");
+
         // Add XRGrabInteractable
         XRGrabInteractable grabInteractable = target.GetComponent<XRGrabInteractable>();
         if (grabInteractable == null)
         {
             grabInteractable = target.AddComponent<XRGrabInteractable>();
-            Debug.Log($"[ValveProfile] Added XRGrabInteractable to {target.name}");
+            Debug.Log($"[ScrewProfile] Added XRGrabInteractable to {target.name}");
         }
-        
+
         // Apply grab settings
         grabInteractable.movementType = movementType;
         grabInteractable.trackPosition = trackPosition;
@@ -143,44 +143,44 @@ public class ValveProfile : InteractionProfile
         grabInteractable.throwAngularVelocityScale = throwAngularVelocityScale;
         grabInteractable.useDynamicAttach = useDynamicAttach;
         grabInteractable.attachEaseInTime = attachEaseInTime;
-        
+
         // Add Rigidbody
         Rigidbody rb = target.GetComponent<Rigidbody>();
         if (rb == null)
         {
             rb = target.AddComponent<Rigidbody>();
-            Debug.Log($"[ValveProfile] Added Rigidbody to {target.name}");
+            Debug.Log($"[ScrewProfile] Added Rigidbody to {target.name}");
         }
         rb.useGravity = true;
         rb.isKinematic = (movementType == XRBaseInteractable.MovementType.Kinematic);
-        
+
         // Handle collider - find appropriate target
         GameObject colliderTarget = target;
         if (addColliderToMeshChild)
         {
             colliderTarget = FindMeshChild(target) ?? target;
         }
-        
+
         // Ensure Collider exists on appropriate object
         if (colliderTarget.GetComponent<Collider>() == null && colliderType != ColliderType.None)
         {
             AddCollider(colliderTarget, colliderType);
-            Debug.Log($"[ValveProfile] Added {colliderType} collider to {colliderTarget.name}");
+            Debug.Log($"[ScrewProfile] Added {colliderType} collider to {colliderTarget.name}");
         }
-        
-        // Add ValveController for complex valve behavior
-        ValveController valveController = target.GetComponent<ValveController>();
-        if (valveController == null)
+
+        // Add ScrewController for complex screw behavior
+        ScrewController screwController = target.GetComponent<ScrewController>();
+        if (screwController == null)
         {
-            valveController = target.AddComponent<ValveController>();
-            Debug.Log($"[ValveProfile] Added ValveController to {target.name}");
+            screwController = target.AddComponent<ScrewController>();
+            Debug.Log($"[ScrewProfile] Added ScrewController to {target.name}");
         }
-        
-        // Configure the valve controller with this profile
-        valveController.Configure(this);
-        
-        Debug.Log($"[ValveProfile] Successfully configured valve: {target.name}");
-        Debug.Log($"[ValveProfile] Valve {target.name} is now ready for grab→snap→tighten→loosen→remove interactions");
+
+        // Configure the screw controller with this profile
+        screwController.Configure(this);
+
+        Debug.Log($"[ScrewProfile] Successfully configured screw: {target.name}");
+        Debug.Log($"[ScrewProfile] Screw {target.name} is now ready for grab→snap→tighten→loosen→remove interactions");
     }
     
     private GameObject FindMeshChild(GameObject parent)
@@ -245,11 +245,12 @@ public class ValveProfile : InteractionProfile
     
     public override bool ValidateGameObject(GameObject target)
     {
-        return target != null && target.CompareTag("valve");
+        // Dual tag support: accepts both "valve" and "screw" for backwards compatibility
+        return target != null && (target.CompareTag("valve") || target.CompareTag("screw"));
     }
-    
+
     /// <summary>
-    /// Check if a socket is compatible with this valve
+    /// Check if a socket is compatible with this screw
     /// </summary>
     public bool IsSocketCompatible(GameObject socket)
     {
