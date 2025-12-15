@@ -5,6 +5,8 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 /// <summary>
 /// Draws the properties panel (right side) for the Sequence tab.
@@ -309,8 +311,27 @@ public class SequencePropertiesPanel
 
             EditorGUILayout.EndHorizontal();
 
+            // Component validation for target object based on step type
+            if (step.targetObject.GameObject != null)
+            {
+                if (step.type == InteractionStep.StepType.Grab)
+                {
+                    DrawGrabTargetValidation(step.targetObject.GameObject);
+                }
+                else if (step.type == InteractionStep.StepType.GrabAndSnap)
+                {
+                    DrawGrabTargetValidation(step.targetObject.GameObject);
+                }
+                else if (step.type == InteractionStep.StepType.TurnKnob)
+                {
+                    DrawKnobTargetValidation(step.targetObject.GameObject);
+                }
+            }
+
             if (step.type == InteractionStep.StepType.GrabAndSnap)
             {
+                EditorGUILayout.Space(5);
+
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("Destination", GUILayout.Width(100));
 
@@ -323,8 +344,436 @@ public class SequencePropertiesPanel
                 }
 
                 EditorGUILayout.EndHorizontal();
+
+                // Component validation for destination (snap socket)
+                if (step.destination.GameObject != null)
+                {
+                    DrawSnapDestinationValidation(step.destination.GameObject);
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Draw validation for Grab target objects (XRGrabInteractable/Grabbable, Rigidbody, Collider)
+    /// </summary>
+    private void DrawGrabTargetValidation(GameObject target)
+    {
+        var framework = VRFrameworkDetector.DetectCurrentFramework();
+        var validationMessages = new System.Collections.Generic.List<string>();
+        bool hasErrors = false;
+
+        // Check for interactable component based on framework
+        if (framework == VRFramework.AutoHands)
+        {
+            var grabbable = target.GetComponent<Autohand.Grabbable>();
+            if (grabbable != null)
+            {
+                validationMessages.Add("\u2705 Grabbable component found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing Grabbable component!");
+                hasErrors = true;
+            }
+        }
+        else // XRI or None (default to XRI)
+        {
+            var grabInteractable = target.GetComponent<XRGrabInteractable>();
+            if (grabInteractable != null)
+            {
+                validationMessages.Add("\u2705 XRGrabInteractable found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing XRGrabInteractable component!");
+                hasErrors = true;
+            }
+        }
+
+        // Check for Rigidbody
+        var rigidbody = target.GetComponent<Rigidbody>();
+        if (rigidbody != null)
+        {
+            validationMessages.Add("\u2705 Rigidbody found");
+        }
+        else
+        {
+            validationMessages.Add("\u26A0\uFE0F Missing Rigidbody component!");
+            hasErrors = true;
+        }
+
+        // Check for Collider (on object or children)
+        var collider = target.GetComponentInChildren<Collider>();
+        if (collider != null)
+        {
+            validationMessages.Add("\u2705 Collider found");
+        }
+        else
+        {
+            validationMessages.Add("\u26A0\uFE0F Missing Collider component!");
+            hasErrors = true;
+        }
+
+        // Check for grab tag
+        if (!target.CompareTag("grab"))
+        {
+            validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'grab' for consistency");
+        }
+
+        // Display validation result
+        string message = string.Join("\n", validationMessages);
+        EditorGUILayout.HelpBox(message, hasErrors ? MessageType.Warning : MessageType.Info);
+    }
+
+    /// <summary>
+    /// Draw validation for TurnKnob target objects (Grabbable + KnobController + HingeJoint)
+    /// </summary>
+    private void DrawKnobTargetValidation(GameObject target)
+    {
+        var framework = VRFrameworkDetector.DetectCurrentFramework();
+        var validationMessages = new System.Collections.Generic.List<string>();
+        bool hasErrors = false;
+
+        // Check for interactable component based on framework
+        if (framework == VRFramework.AutoHands)
+        {
+            var grabbable = target.GetComponent<Autohand.Grabbable>();
+            if (grabbable != null)
+            {
+                validationMessages.Add("\u2705 Grabbable component found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing Grabbable component!");
+                hasErrors = true;
+            }
+
+            // Check for AutoHandsKnobController
+            var autoKnobController = target.GetComponent<AutoHandsKnobController>();
+            if (autoKnobController != null)
+            {
+                validationMessages.Add($"\u2705 AutoHandsKnobController found (Angle: {autoKnobController.CurrentAngle:F1}\u00B0)");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsKnobController component!");
+                hasErrors = true;
+            }
+        }
+        else // XRI
+        {
+            var grabInteractable = target.GetComponent<XRGrabInteractable>();
+            if (grabInteractable != null)
+            {
+                validationMessages.Add("\u2705 XRGrabInteractable found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing XRGrabInteractable component!");
+                hasErrors = true;
+            }
+
+            // Check for KnobController
+            var knobController = target.GetComponent<KnobController>();
+            if (knobController != null)
+            {
+                validationMessages.Add($"\u2705 KnobController found (Angle: {knobController.CurrentAngle:F1}\u00B0)");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing KnobController component!");
+                hasErrors = true;
+            }
+        }
+
+        // Check for HingeJoint
+        var hingeJoint = target.GetComponent<HingeJoint>();
+        if (hingeJoint != null)
+        {
+            string limitInfo = hingeJoint.useLimits
+                ? $"Limits: {hingeJoint.limits.min:F0}\u00B0 to {hingeJoint.limits.max:F0}\u00B0"
+                : "No limits set";
+            validationMessages.Add($"\u2705 HingeJoint found ({limitInfo})");
+        }
+        else
+        {
+            validationMessages.Add("\u26A0\uFE0F Missing HingeJoint component!");
+            hasErrors = true;
+        }
+
+        // Check for knob tag
+        if (!target.CompareTag("knob"))
+        {
+            validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'knob' for consistency");
+        }
+
+        // Display validation result
+        string message = string.Join("\n", validationMessages);
+        EditorGUILayout.HelpBox(message, hasErrors ? MessageType.Warning : MessageType.Info);
+    }
+
+    /// <summary>
+    /// Draw validation for Snap destination objects (XRSocketInteractor/PlacePoint, SnapValidator)
+    /// </summary>
+    private void DrawSnapDestinationValidation(GameObject destination)
+    {
+        var framework = VRFrameworkDetector.DetectCurrentFramework();
+        var validationMessages = new System.Collections.Generic.List<string>();
+        bool hasErrors = false;
+
+        // Check for socket component based on framework
+        if (framework == VRFramework.AutoHands)
+        {
+            // Check for PlacePoint using reflection (AutoHands component)
+            var placePoint = GetAutoHandsPlacePoint(destination);
+            if (placePoint != null)
+            {
+                validationMessages.Add("\u2705 PlacePoint component found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing PlacePoint component!");
+                hasErrors = true;
+            }
+        }
+        else // XRI
+        {
+            var socketInteractor = destination.GetComponent<XRSocketInteractor>();
+            if (socketInteractor != null)
+            {
+                validationMessages.Add("\u2705 XRSocketInteractor found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing XRSocketInteractor component!");
+                hasErrors = true;
+            }
+        }
+
+        // Check for SnapValidator
+        var snapValidator = destination.GetComponent<SnapValidator>();
+        if (snapValidator != null)
+        {
+            validationMessages.Add("\u2705 SnapValidator found");
+        }
+        else
+        {
+            validationMessages.Add("\u26A0\uFE0F Missing SnapValidator component (recommended for sequence validation)");
+        }
+
+        // Check for Collider with isTrigger
+        var collider = destination.GetComponent<Collider>();
+        if (collider != null)
+        {
+            if (collider.isTrigger)
+            {
+                validationMessages.Add("\u2705 Trigger Collider found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Collider should be set as Trigger for socket detection");
+            }
+        }
+        else
+        {
+            validationMessages.Add("\u26A0\uFE0F Missing Collider component!");
+            hasErrors = true;
+        }
+
+        // Check for snap tag
+        if (!destination.CompareTag("snap"))
+        {
+            validationMessages.Add("\u26A0\uFE0F Destination should be tagged as 'snap' for consistency");
+        }
+
+        // Display validation result
+        string message = string.Join("\n", validationMessages);
+        EditorGUILayout.HelpBox(message, hasErrors ? MessageType.Warning : MessageType.Info);
+    }
+
+    /// <summary>
+    /// Helper to get AutoHands PlacePoint component using reflection
+    /// </summary>
+    private MonoBehaviour GetAutoHandsPlacePoint(GameObject obj)
+    {
+        var components = obj.GetComponents<MonoBehaviour>();
+        foreach (var component in components)
+        {
+            if (component != null && component.GetType().Name == "PlacePoint")
+            {
+                return component;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Draw validation for Valve target objects (ValveController/AutoHandsValveController, Grabbable)
+    /// </summary>
+    private void DrawValveTargetValidation(GameObject target)
+    {
+        var framework = VRFrameworkDetector.DetectCurrentFramework();
+        var validationMessages = new System.Collections.Generic.List<string>();
+        bool hasErrors = false;
+
+        // Check for interactable component based on framework
+        if (framework == VRFramework.AutoHands)
+        {
+            var grabbable = target.GetComponent<Autohand.Grabbable>();
+            if (grabbable != null)
+            {
+                validationMessages.Add("\u2705 Grabbable component found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing Grabbable component!");
+                hasErrors = true;
+            }
+
+            // Check for AutoHandsValveController (V1 or V2)
+            var valveController = target.GetComponent<AutoHandsValveController>();
+            var valveControllerV2 = target.GetComponent<AutoHandsValveControllerV2>();
+            if (valveController != null)
+            {
+                validationMessages.Add($"\u2705 AutoHandsValveController found (Current Rotation: {valveController.CurrentRotation:F1}\u00B0)");
+            }
+            else if (valveControllerV2 != null)
+            {
+                validationMessages.Add($"\u2705 AutoHandsValveControllerV2 found (Current Rotation: {valveControllerV2.CurrentRotation:F1}\u00B0)");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsValveController or V2 component!");
+                hasErrors = true;
+            }
+        }
+        else // XRI
+        {
+            var grabInteractable = target.GetComponent<XRGrabInteractable>();
+            if (grabInteractable != null)
+            {
+                validationMessages.Add("\u2705 XRGrabInteractable found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing XRGrabInteractable component!");
+                hasErrors = true;
+            }
+
+            // Check for ValveController
+            var valveController = target.GetComponent<ValveController>();
+            if (valveController != null)
+            {
+                validationMessages.Add($"\u2705 ValveController found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing ValveController component!");
+                hasErrors = true;
+            }
+        }
+
+        // Check for Rigidbody
+        var rigidbody = target.GetComponent<Rigidbody>();
+        if (rigidbody != null)
+        {
+            validationMessages.Add("\u2705 Rigidbody found");
+        }
+        else
+        {
+            validationMessages.Add("\u26A0\uFE0F Missing Rigidbody component!");
+            hasErrors = true;
+        }
+
+        // Check for valve tag
+        if (!target.CompareTag("valve"))
+        {
+            validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'valve' for consistency");
+        }
+
+        // Display validation result
+        string message = string.Join("\n", validationMessages);
+        EditorGUILayout.HelpBox(message, hasErrors ? MessageType.Warning : MessageType.Info);
+    }
+
+    /// <summary>
+    /// Draw validation for Valve socket objects (XRSocketInteractor/PlacePoint)
+    /// </summary>
+    private void DrawValveSocketValidation(GameObject socket)
+    {
+        var framework = VRFrameworkDetector.DetectCurrentFramework();
+        var validationMessages = new System.Collections.Generic.List<string>();
+        bool hasErrors = false;
+
+        // Check for socket component based on framework
+        if (framework == VRFramework.AutoHands)
+        {
+            // Check for PlacePoint using reflection
+            var placePoint = GetAutoHandsPlacePoint(socket);
+            if (placePoint != null)
+            {
+                validationMessages.Add("\u2705 PlacePoint component found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing PlacePoint component!");
+                hasErrors = true;
+            }
+        }
+        else // XRI
+        {
+            var socketInteractor = socket.GetComponent<XRSocketInteractor>();
+            if (socketInteractor != null)
+            {
+                validationMessages.Add("\u2705 XRSocketInteractor found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing XRSocketInteractor component!");
+                hasErrors = true;
+            }
+        }
+
+        // Check for SnapValidator
+        var snapValidator = socket.GetComponent<SnapValidator>();
+        if (snapValidator != null)
+        {
+            validationMessages.Add("\u2705 SnapValidator found");
+        }
+        else
+        {
+            validationMessages.Add("\u26A0\uFE0F Missing SnapValidator component (recommended for sequence validation)");
+        }
+
+        // Check for Collider with isTrigger
+        var collider = socket.GetComponent<Collider>();
+        if (collider != null)
+        {
+            if (collider.isTrigger)
+            {
+                validationMessages.Add("\u2705 Trigger Collider found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Collider should be set as Trigger for socket detection");
+            }
+        }
+        else
+        {
+            validationMessages.Add("\u26A0\uFE0F Missing Collider component!");
+            hasErrors = true;
+        }
+
+        // Check for snap tag
+        if (!socket.CompareTag("snap"))
+        {
+            validationMessages.Add("\u26A0\uFE0F Socket should be tagged as 'snap' for consistency");
+        }
+
+        // Display validation result
+        string message = string.Join("\n", validationMessages);
+        EditorGUILayout.HelpBox(message, hasErrors ? MessageType.Warning : MessageType.Info);
     }
 
     private void DrawTypeSpecificSettings(InteractionStep step)
@@ -395,7 +844,7 @@ public class SequencePropertiesPanel
     private void DrawValveSettings(InteractionStep step)
     {
         EditorGUILayout.Space(5);
-        EditorGUILayout.LabelField("Valve Settings", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("\uD83D\uDD27 Valve Settings", EditorStyles.boldLabel);
 
         // Target Object field (valve)
         EditorGUILayout.BeginHorizontal();
@@ -404,12 +853,28 @@ public class SequencePropertiesPanel
             step.targetObject.GameObject, typeof(GameObject), true);
         EditorGUILayout.EndHorizontal();
 
+        // Validation for target object (valve)
+        if (step.targetObject.GameObject != null)
+        {
+            DrawValveTargetValidation(step.targetObject.GameObject);
+        }
+
+        EditorGUILayout.Space(5);
+
         // Target Socket field
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Target Socket", GUILayout.Width(100));
         step.targetSocket.GameObject = (GameObject)EditorGUILayout.ObjectField(
             step.targetSocket.GameObject, typeof(GameObject), true);
         EditorGUILayout.EndHorizontal();
+
+        // Validation for target socket
+        if (step.targetSocket.GameObject != null)
+        {
+            DrawValveSocketValidation(step.targetSocket.GameObject);
+        }
+
+        EditorGUILayout.Space(5);
 
         // Rotation axis selection
         EditorGUILayout.Space(3);

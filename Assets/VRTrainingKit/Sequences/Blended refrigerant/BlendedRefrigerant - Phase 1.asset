@@ -26,18 +26,21 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56686
+            _instanceID: 58290
             _gameObjectName: suction valve
+            _hierarchyPath: Valve Caps/suction valve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 56028
+            _instanceID: 57570
             _gameObjectName: LSV valve_socket_drop
+            _hierarchyPath: Valve sockets/LSV valve_socket_drop
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -46,6 +49,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -53,29 +57,58 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 1
         - stepName: GSV Cap
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56122
+            _instanceID: 57674
             _gameObjectName: GasValve
+            _hierarchyPath: Valve Caps/GasValve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55906
+            _instanceID: 57444
             _gameObjectName: Sphere
+            _hierarchyPath: Valve sockets/Red female snap/Sphere
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -84,6 +117,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -91,12 +125,38 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
@@ -107,18 +167,21 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55670
-            _gameObjectName: AllenKey
+            _instanceID: 57210
+            _gameObjectName: Yellow male snap
+            _hierarchyPath: Valve sockets/Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57340
+            _instanceID: 58994
             _gameObjectName: LSV valve_socket_pick
+            _hierarchyPath: Valve sockets/LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -127,6 +190,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -134,12 +198,38 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 1
         - stepName: Allenkey snap - GSV
           type: 1
@@ -147,16 +237,19 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 55670
             _gameObjectName: AllenKey
+            _hierarchyPath: 
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 57218
-            _gameObjectName: GSV valve_socket_pick
+            _gameObjectName: Allen Key
+            _hierarchyPath: 
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -165,6 +258,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -172,12 +266,38 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
@@ -188,18 +308,21 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56842
+            _instanceID: 58458
             _gameObjectName: 'Yellow Hose Male '
+            _hierarchyPath: 'Hoses/Yellow Hose Male '
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55662
+            _instanceID: 57210
             _gameObjectName: Yellow male snap
+            _hierarchyPath: Valve sockets/Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 0, z: 1}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -208,6 +331,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 55672
             _gameObjectName: Yellow male snap
+            _hierarchyPath: 
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           rotationDampening: 1
@@ -215,29 +339,58 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 1
         - stepName: Yellow female
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55760
+            _instanceID: 57288
             _gameObjectName: Yellow hose female
+            _hierarchyPath: Hoses/Yellow hose female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 55280
+            _instanceID: 56820
             _gameObjectName: Yellow female snap
+            _hierarchyPath: Valve sockets/Yellow female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -246,6 +399,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 55310
             _gameObjectName: Yellow female snap
+            _hierarchyPath: 
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           rotationDampening: 1
@@ -253,12 +407,38 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
@@ -269,18 +449,21 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56358
+            _instanceID: 57938
             _gameObjectName: Blue hose male
+            _hierarchyPath: Hoses/Blue hose male
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 57218
-            _gameObjectName: GSV valve_socket_pick
+            _gameObjectName: Allen Key
+            _hierarchyPath: 
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -289,6 +472,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -296,29 +480,58 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 1
         - stepName: Blue female
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
             _instanceID: 57330
-            _gameObjectName: Blue Hose Female
+            _gameObjectName: Arrow_rotate_LSV
+            _hierarchyPath: 
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57116
+            _instanceID: 58752
             _gameObjectName: Blue female snap
+            _hierarchyPath: Valve sockets/Blue female snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -327,6 +540,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -334,12 +548,38 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 1
         enforceSequentialFlow: 1
         isExpanded: 1
@@ -350,18 +590,21 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 56106
+            _instanceID: 57656
             _gameObjectName: Red Hose Male
+            _hierarchyPath: Hoses/Red Hose Male
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 57340
+            _instanceID: 58994
             _gameObjectName: LSV valve_socket_pick
+            _hierarchyPath: Valve sockets/LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -370,6 +613,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -377,29 +621,58 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 1
         - stepName: Red Female
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 57098
+            _instanceID: 58734
             _gameObjectName: Red_Hose_Female
+            _hierarchyPath: Hoses/Red_Hose_Female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 56034
+            _instanceID: 57576
             _gameObjectName: Limen
+            _hierarchyPath: Others/Limen
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           targetAngle: 0
           angleTolerance: 5
+          knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
@@ -408,6 +681,7 @@ MonoBehaviour:
             _gameObject: {fileID: 0}
             _instanceID: 0
             _gameObjectName: 
+            _hierarchyPath: 
             _scenePath: 
             _isValid: 0
           rotationDampening: 0
@@ -415,15 +689,114 @@ MonoBehaviour:
           isOptional: 0
           waitForSteps: 
           hint: Step instruction goes here
-          showTargetArrow: 1
-          targetArrowType: 0
-          keepTargetArrowAfterGrab: 0
-          showDestinationArrow: 0
-          destinationArrowType: 0
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 0
         enforceSequentialFlow: 1
         isExpanded: 1
+      - groupName: New Task Group
+        description: Task group description
+        steps:
+        - stepName: New Step
+          type: 10
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          knobRotationType: 2
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 90
+          valveAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: -6264
+            _gameObjectName: Canvas
+            _hierarchyPath: WristUI/Hide/Show/Canvas
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 59452
+            _gameObjectName: Clamp_Meter
+            _hierarchyPath: Clamp_Meter
+            _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
+            _isValid: 1
+          enableRecentering: 1
+          recenteringDelay: 0.5
+          isCompleted: 0
+        enforceSequentialFlow: 0
+        isExpanded: 0
       isExpanded: 1
     isExpanded: 1
   assetDescription: Training sequence asset created with VR Training Kit

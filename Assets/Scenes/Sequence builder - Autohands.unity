@@ -5584,6 +5584,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profile: {fileID: 901955916}
+  OnKnobRotated:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &727389100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7975,6 +7978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trainingAsset: {fileID: 11400000, guid: e8160d99aa59aa64cbef2964d33c98a9, type: 2}
+  arrowRegistry: {fileID: 0}
   enableDebugLogging: 0
   showStepCompletions: 1
   restrictionManager: {fileID: 0}
@@ -9923,55 +9927,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1320907430}
   m_Mesh: {fileID: 5316853185919721518, guid: 105f555847bbbb84a83fea981ab7125f, type: 3}
---- !u!114 &1332075064
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  profileName: New Profile
-  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  rotationAxis: {x: 0, y: 1, z: 0}
-  tightenThreshold: 50
-  loosenThreshold: 90
-  angleTolerance: 5
-  compatibleSocketTags:
-  - snap
-  specificCompatibleSockets: []
-  requireSpecificSockets: 0
-  movementType: 0
-  trackPosition: 1
-  trackRotation: 1
-  throwOnDetach: 1
-  throwVelocityScale: 1.5
-  throwAngularVelocityScale: 1
-  rotationDampening: 5
-  dampeningSpeed: 10
-  autoConfigureConnectedAnchor: 1
-  useSpring: 1
-  springValue: 0
-  springDamper: 0.1
-  springTargetPosition: 0
-  bounceMinVelocity: 0.2
-  contactDistance: 0
-  positionTolerance: 0.01
-  velocityThreshold: 0.05
-  positioningTimeout: 3
-  useDynamicAttach: 1
-  attachEaseInTime: 0.15
-  colliderType: 0
-  addColliderToMeshChild: 1
-  lockedRotationSpeed: 1
-  hapticIntensity: 0.3
-  looseMaterial: {fileID: 0}
-  tightMaterial: {fileID: 0}
-  showProgressIndicator: 1
 --- !u!1 &1332592559
 GameObject:
   m_ObjectHideFlags: 0
@@ -13705,7 +13660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profile: {fileID: 1332075064}
+  profile: {fileID: 1715470691}
   currentState: 0
   currentSubstate: 0
   currentRotationAngle: 0
@@ -13986,6 +13941,55 @@ Transform:
   - {fileID: 2066446695}
   m_Father: {fileID: 1230820369}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1715470691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
+  m_Name: valve Cube_SMALL_ValveProfile
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 1
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!1 &1716617920
 GameObject:
   m_ObjectHideFlags: 0
@@ -14238,6 +14242,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profile: {fileID: 727389100}
+  OnKnobRotated:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &1716617928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15337,13 +15344,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1862597854}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.25848177, y: 0, z: 0, w: 0.9660161}
+  m_LocalRotation: {x: -0.25915614, y: -0, z: -0, w: 0.96583545}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1672545306}
-  m_LocalEulerAnglesHint: {x: 29.96, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -30.04, y: 0, z: 0}
 --- !u!1 &1863884518
 GameObject:
   m_ObjectHideFlags: 0
