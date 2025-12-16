@@ -1,5 +1,5 @@
-// AutoHandsScrewControllerV2.cs (formerly AutoHandsValveControllerV2.cs)
-// CLEAN IMPLEMENTATION: HingeJoint-based screw controller for AutoHands
+// AutoHandsValveControllerV2.cs
+// CLEAN IMPLEMENTATION: HingeJoint-based valve controller for AutoHands
 // Uses HingeJoint for rotation constraints instead of Rigidbody constraints
 using UnityEngine;
 using System;
@@ -9,17 +9,17 @@ using System.Reflection;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// Clean AutoHands screw controller using HingeJoint for locking mechanism
+/// Clean AutoHands valve controller using HingeJoint for locking mechanism
 /// Phase 1: HingeJoint lifecycle and PlacePoint integration
 /// </summary>
-public class AutoHandsScrewControllerV2 : MonoBehaviour
+public class AutoHandsValveControllerV2 : MonoBehaviour
 {
     [Header("Configuration")]
-    [SerializeField] private ScrewProfile profile;
+    [SerializeField] private ValveProfile profile;
 
     [Header("Runtime State")]
-    [SerializeField] private ScrewState currentState = ScrewState.Unlocked;
-    [SerializeField] private ScrewSubstate currentSubstate = ScrewSubstate.None;
+    [SerializeField] private ValveState currentState = ValveState.Unlocked;
+    [SerializeField] private ValveSubstate currentSubstate = ValveSubstate.None;
     [SerializeField] private float currentRotationAngle = 0f;
 
     // Component references
@@ -32,14 +32,14 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     private bool isGrabbed = false;
 
     // Events
-    public event Action OnScrewSnapped;
-    public event Action OnScrewTightened;
-    public event Action OnScrewLoosened;
-    public event Action OnScrewRemoved;
+    public event Action OnValveSnapped;
+    public event Action OnValveTightened;
+    public event Action OnValveLoosened;
+    public event Action OnValveRemoved;
 
     // Public properties
-    public ScrewState CurrentState => currentState;
-    public ScrewSubstate CurrentSubstate => currentSubstate;
+    public ValveState CurrentState => currentState;
+    public ValveSubstate CurrentSubstate => currentSubstate;
     public float CurrentRotation => currentRotationAngle;
 
     private void Awake()
@@ -47,10 +47,10 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
         grabbable = GetComponent<Autohand.Grabbable>();
         rb = GetComponent<Rigidbody>();
 
-        if (grabbable == null) Debug.LogError($"[AutoHandsScrewControllerV2] {gameObject.name} missing Grabbable component!");
-        if (rb == null) Debug.LogError($"[AutoHandsScrewControllerV2] {gameObject.name} missing Rigidbody component!");
+        if (grabbable == null) Debug.LogError($"[AutoHandsValveControllerV2] {gameObject.name} missing Grabbable component!");
+        if (rb == null) Debug.LogError($"[AutoHandsValveControllerV2] {gameObject.name} missing Rigidbody component!");
 
-        Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} initialized - Grabbable: {(grabbable != null ? "✓" : "✗")}, Rigidbody: {(rb != null ? "✓" : "✗")}");
+        Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} initialized - Grabbable: {(grabbable != null ? "✓" : "✗")}, Rigidbody: {(rb != null ? "✓" : "✗")}");
     }
 
     private void OnEnable()
@@ -75,12 +75,12 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     }
 
     /// <summary>
-    /// Configure valve with ScrewProfile
+    /// Configure valve with ValveProfile
     /// </summary>
-    public void Configure(ScrewProfile valveProfile)
+    public void Configure(ValveProfile valveProfile)
     {
         profile = valveProfile;
-        Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} configured with profile: {profile.profileName}");
+        Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} configured with profile: {profile.profileName}");
         Debug.Log($"  - Rotation Axis: {profile.rotationAxis}");
         Debug.Log($"  - Tighten Threshold: {profile.tightenThreshold}°");
         Debug.Log($"  - Loosen Threshold: {profile.loosenThreshold}°");
@@ -125,7 +125,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
                 Delegate newDelegate = Delegate.Combine(currentDelegate, eventDelegate);
                 placeEventField.SetValue(placePoint, newDelegate);
 
-                Debug.Log($"[AutoHandsScrewControllerV2] Subscribed to PlacePoint: {placePoint.gameObject.name}");
+                Debug.Log($"[AutoHandsValveControllerV2] Subscribed to PlacePoint: {placePoint.gameObject.name}");
             }
 
             // Subscribe to OnRemoveEvent
@@ -142,7 +142,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[AutoHandsScrewControllerV2] Failed to subscribe to PlacePoint: {ex.Message}");
+            Debug.LogError($"[AutoHandsValveControllerV2] Failed to subscribe to PlacePoint: {ex.Message}");
         }
     }
 
@@ -157,20 +157,20 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
 
         // CRITICAL: Only process snap if valve is Unlocked (first-time snap)
         // If valve is already Locked, it's already in socket - ignore this event
-        if (currentState != ScrewState.Unlocked)
+        if (currentState != ValveState.Unlocked)
         {
-            Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} already locked - ignoring PlacePoint snap event");
+            Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} already locked - ignoring PlacePoint snap event");
             return;
         }
 
-        Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} snapped to PlacePoint: {placePoint.gameObject.name}");
+        Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} snapped to PlacePoint: {placePoint.gameObject.name}");
 
         currentPlacePoint = placePoint;
 
         // Wait a moment for PlacePoint to finish positioning, then add HingeJoint
         StartCoroutine(WaitAndAddHingeJoint());
 
-        OnScrewSnapped?.Invoke();
+        OnValveSnapped?.Invoke();
     }
 
     /// <summary>
@@ -186,7 +186,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
         AddHingeJoint();
 
         // Transition to Locked-Loose state
-        SetState(ScrewState.Locked, ScrewSubstate.Loose);
+        SetState(ValveState.Locked, ValveSubstate.Loose);
     }
 
     /// <summary>
@@ -196,7 +196,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     {
         if (profile == null)
         {
-            Debug.LogError($"[AutoHandsScrewControllerV2] Cannot add HingeJoint - no profile configured!");
+            Debug.LogError($"[AutoHandsValveControllerV2] Cannot add HingeJoint - no profile configured!");
             return;
         }
 
@@ -210,7 +210,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
         else if (profile.rotationAxis == Vector3.forward) axis = Vector3.forward;
         else
         {
-            Debug.LogWarning($"[AutoHandsScrewControllerV2] Unrecognized rotation axis {profile.rotationAxis}, defaulting to Y-axis");
+            Debug.LogWarning($"[AutoHandsValveControllerV2] Unrecognized rotation axis {profile.rotationAxis}, defaulting to Y-axis");
             axis = Vector3.up;
         }
 
@@ -244,7 +244,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
 
         hingeJoint.enablePreprocessing = true;
 
-        Debug.Log($"[AutoHandsScrewControllerV2] ✅ Added HingeJoint to {gameObject.name}");
+        Debug.Log($"[AutoHandsValveControllerV2] ✅ Added HingeJoint to {gameObject.name}");
         Debug.Log($"  - Axis: {axis}");
         Debug.Log($"  - Anchor: {hingeJoint.anchor} (centered at object origin)");
         Debug.Log($"  - Limits: [{limits.min}° to {limits.max}°]");
@@ -267,12 +267,12 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
             if (matchRotationField != null)
             {
                 matchRotationField.SetValue(currentPlacePoint, false);
-                Debug.Log($"[AutoHandsScrewControllerV2] ✅ Disabled matchRotation on PlacePoint {currentPlacePoint.gameObject.name}");
+                Debug.Log($"[AutoHandsValveControllerV2] ✅ Disabled matchRotation on PlacePoint {currentPlacePoint.gameObject.name}");
             }
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[AutoHandsScrewControllerV2] Failed to disable matchRotation: {ex.Message}");
+            Debug.LogError($"[AutoHandsValveControllerV2] Failed to disable matchRotation: {ex.Message}");
         }
     }
 
@@ -289,12 +289,12 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
             if (matchRotationField != null)
             {
                 matchRotationField.SetValue(currentPlacePoint, true);
-                Debug.Log($"[AutoHandsScrewControllerV2] ✅ Re-enabled matchRotation on PlacePoint {currentPlacePoint.gameObject.name}");
+                Debug.Log($"[AutoHandsValveControllerV2] ✅ Re-enabled matchRotation on PlacePoint {currentPlacePoint.gameObject.name}");
             }
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[AutoHandsScrewControllerV2] Failed to enable matchRotation: {ex.Message}");
+            Debug.LogError($"[AutoHandsValveControllerV2] Failed to enable matchRotation: {ex.Message}");
         }
     }
 
@@ -309,13 +309,13 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
 
         // CRITICAL: Only process removal if valve is in Unlocked state
         // If valve is Locked, user is just grabbing to rotate - ignore removal event
-        if (currentState != ScrewState.Unlocked)
+        if (currentState != ValveState.Unlocked)
         {
-            Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} grabbed in Locked state - ignoring PlacePoint removal event");
+            Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} grabbed in Locked state - ignoring PlacePoint removal event");
             return;
         }
 
-        Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} removed from PlacePoint: {placePoint.gameObject.name}");
+        Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} removed from PlacePoint: {placePoint.gameObject.name}");
 
         // Re-enable matchRotation for next snap
         EnableMatchRotation();
@@ -323,7 +323,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
         // Clear PlacePoint reference
         currentPlacePoint = null;
 
-        OnScrewRemoved?.Invoke();
+        OnValveRemoved?.Invoke();
     }
 
     /// <summary>
@@ -332,14 +332,14 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     private void OnGrab(Autohand.Hand hand, Autohand.Grabbable grabbable)
     {
         isGrabbed = true;
-        Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} grabbed - State: {currentState}-{currentSubstate}");
+        Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} grabbed - State: {currentState}-{currentSubstate}");
 
         // If valve is Unlocked and in socket, re-enable matchRotation when grabbed
         // (User is about to pull it out)
-        if (currentState == ScrewState.Unlocked && currentPlacePoint != null)
+        if (currentState == ValveState.Unlocked && currentPlacePoint != null)
         {
             EnableMatchRotation();
-            Debug.Log($"[AutoHandsScrewControllerV2] Valve grabbed while Unlocked - re-enabled matchRotation for removal");
+            Debug.Log($"[AutoHandsValveControllerV2] Valve grabbed while Unlocked - re-enabled matchRotation for removal");
         }
     }
 
@@ -349,7 +349,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     private void OnRelease(Autohand.Hand hand, Autohand.Grabbable grabbable)
     {
         isGrabbed = false;
-        Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} released - State: {currentState}-{currentSubstate}");
+        Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} released - State: {currentState}-{currentSubstate}");
 
         // No removal logic needed here - HingeJoint is removed immediately when loosened (in CheckRotationThresholds)
     }
@@ -359,7 +359,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if (!isGrabbed || currentState != ScrewState.Locked || hingeJoint == null) return;
+        if (!isGrabbed || currentState != ValveState.Locked || hingeJoint == null) return;
 
         // Track rotation from HingeJoint
         TrackRotation();
@@ -388,28 +388,28 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
 
         switch (currentSubstate)
         {
-            case ScrewSubstate.Loose:
+            case ValveSubstate.Loose:
                 // Check if tightened enough (positive rotation)
                 if (currentRotationAngle >= profile.tightenThreshold - profile.angleTolerance)
                 {
-                    Debug.Log($"[AutoHandsScrewControllerV2] ✅ TIGHTENED! Angle: {currentRotationAngle:F1}° (threshold: {profile.tightenThreshold}°)");
+                    Debug.Log($"[AutoHandsValveControllerV2] ✅ TIGHTENED! Angle: {currentRotationAngle:F1}° (threshold: {profile.tightenThreshold}°)");
                     TransitionToTight();
                 }
                 break;
 
-            case ScrewSubstate.Tight:
+            case ValveSubstate.Tight:
                 // Check if loosened enough (negative rotation from tight position)
                 // After tight, angle goes back towards 0, then negative
                 if (currentRotationAngle <= -(profile.loosenThreshold - profile.angleTolerance))
                 {
-                    Debug.Log($"[AutoHandsScrewControllerV2] ✅ LOOSENED! Angle: {currentRotationAngle:F1}° (threshold: -{profile.loosenThreshold}°)");
-                    Debug.Log($"[AutoHandsScrewControllerV2] Removing HingeJoint immediately - valve comes free in hand");
+                    Debug.Log($"[AutoHandsValveControllerV2] ✅ LOOSENED! Angle: {currentRotationAngle:F1}° (threshold: -{profile.loosenThreshold}°)");
+                    Debug.Log($"[AutoHandsValveControllerV2] Removing HingeJoint immediately - valve comes free in hand");
 
                     // Remove HingeJoint immediately while grabbed (realistic behavior)
                     RemoveHingeJoint();
-                    SetState(ScrewState.Unlocked, ScrewSubstate.None);
-                    OnScrewLoosened?.Invoke();
-                    Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} is now UNLOCKED - valve will come free with hand");
+                    SetState(ValveState.Unlocked, ValveSubstate.None);
+                    OnValveLoosened?.Invoke();
+                    Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} is now UNLOCKED - valve will come free with hand");
                 }
                 break;
         }
@@ -420,8 +420,8 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     /// </summary>
     private void TransitionToTight()
     {
-        SetState(ScrewState.Locked, ScrewSubstate.Tight);
-        OnScrewTightened?.Invoke();
+        SetState(ValveState.Locked, ValveSubstate.Tight);
+        OnValveTightened?.Invoke();
     }
 
     /// <summary>
@@ -433,24 +433,24 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
         {
             Destroy(hingeJoint);
             hingeJoint = null;
-            Debug.Log($"[AutoHandsScrewControllerV2] ✅ Removed HingeJoint - screw can now be removed from socket");
+            Debug.Log($"[AutoHandsValveControllerV2] ✅ Removed HingeJoint - valve can now be removed from socket");
         }
     }
 
     /// <summary>
-    /// Set screw state and substate
+    /// Set valve state and substate
     /// </summary>
-    private void SetState(ScrewState newState, ScrewSubstate newSubstate = ScrewSubstate.None)
+    private void SetState(ValveState newState, ValveSubstate newSubstate = ValveSubstate.None)
     {
         if (currentState == newState && currentSubstate == newSubstate) return;
 
-        ScrewState previousState = currentState;
-        ScrewSubstate previousSubstate = currentSubstate;
+        ValveState previousState = currentState;
+        ValveSubstate previousSubstate = currentSubstate;
 
         currentState = newState;
         currentSubstate = newSubstate;
 
-        Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} state changed: {previousState}-{previousSubstate} → {currentState}-{currentSubstate}");
+        Debug.Log($"[AutoHandsValveControllerV2] {gameObject.name} state changed: {previousState}-{previousSubstate} → {currentState}-{currentSubstate}");
     }
 
     #if UNITY_EDITOR
@@ -459,7 +459,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
         if (profile == null) return;
 
         // Draw rotation axis
-        Gizmos.color = currentState == ScrewState.Locked ? Color.green : Color.yellow;
+        Gizmos.color = currentState == ValveState.Locked ? Color.green : Color.yellow;
         Gizmos.DrawLine(transform.position, transform.position + profile.rotationAxis * 0.1f);
 
         // Draw state label

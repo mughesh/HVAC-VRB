@@ -1,4 +1,4 @@
-// ScrewController.cs (formerly ValveController.cs)
+// ValveController.cs
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -10,36 +10,36 @@ using System.Collections;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// Screw operation states for complex forward/reverse flow interactions
+/// Valve operation states for complex forward/reverse flow interactions
 /// </summary>
-public enum ScrewState
+public enum ValveState
 {
-    Unlocked,    // Screw can be grabbed and moved freely
-    Locked       // Screw is locked to socket position, only rotation allowed (has substates)
+    Unlocked,    // Valve can be grabbed and moved freely
+    Locked       // Valve is locked to socket position, only rotation allowed (has substates)
 }
 
 /// <summary>
-/// Substates within LOCKED state for screw workflow
+/// Substates within LOCKED state for valve workflow
 /// </summary>
-public enum ScrewSubstate
+public enum ValveSubstate
 {
-    None,        // Used when screw is UNLOCKED
-    Loose,       // Screw just snapped to socket, needs tightening
-    Tight        // Screw is properly tightened, needs loosening to remove
+    None,        // Used when valve is UNLOCKED
+    Loose,       // Valve just snapped to socket, needs tightening
+    Tight        // Valve is properly tightened, needs loosening to remove
 }
 
 /// <summary>
-/// Controls complex screw behavior with grab → snap → tighten → loosen → remove workflow
-/// Manages screw state transitions with proper substates and socket interaction
+/// Controls complex valve behavior with grab → snap → tighten → loosen → remove workflow
+/// Manages valve state transitions with proper substates and socket interaction
 /// </summary>
-public class ScrewController : MonoBehaviour
+public class ValveController : MonoBehaviour
 {
     [Header("Profile Configuration")]
-    [SerializeField] private ScrewProfile profile;
+    [SerializeField] private ValveProfile profile;
     
     [Header("Runtime State")]
-    [SerializeField] private ScrewState currentState = ScrewState.Unlocked;
-    [SerializeField] private ScrewSubstate currentSubstate = ScrewSubstate.None;
+    [SerializeField] private ValveState currentState = ValveState.Unlocked;
+    [SerializeField] private ValveSubstate currentSubstate = ValveSubstate.None;
     [SerializeField] private float currentRotationAngle = 0f;
     [SerializeField] private bool isInitialized = false;
     
@@ -66,16 +66,16 @@ public class ScrewController : MonoBehaviour
     private bool isWaitingForGrabRelease = false;
     private bool readyForSocketReEnable = false;
     
-    // Events - Screw-specific
-    public event Action<ScrewState> OnStateChanged;
-    public event Action<ScrewSubstate> OnSubstateChanged;
+    // Events - Valve-specific
+    public event Action<ValveState> OnStateChanged;
+    public event Action<ValveSubstate> OnSubstateChanged;
     public event Action<float> OnRotationChanged;
-
+    
     // Lifecycle events
-    public event Action OnScrewSnapped;      // Screw snapped to socket
-    public event Action OnScrewTightened;    // Tightening completed
-    public event Action OnScrewLoosened;     // Loosening completed
-    public event Action OnScrewRemoved;      // Screw removed from socket
+    public event Action OnValveSnapped;      // Valve snapped to socket
+    public event Action OnValveTightened;    // Tightening completed
+    public event Action OnValveLoosened;     // Loosening completed
+    public event Action OnValveRemoved;      // Valve removed from socket
     
     // Progress events
     public event Action<float> OnTighteningProgress;  // 0-1 tightening progress
@@ -86,13 +86,13 @@ public class ScrewController : MonoBehaviour
     public event Action OnForceRemovalAttempt;       // Try to remove when tight
     
     // Public properties
-    public ScrewState CurrentState => currentState;
-    public ScrewSubstate CurrentSubstate => currentSubstate;
+    public ValveState CurrentState => currentState;
+    public ValveSubstate CurrentSubstate => currentSubstate;
     public float CurrentRotationAngle => currentRotationAngle;
-    public bool IsUnlocked => currentState == ScrewState.Unlocked;
-    public bool IsLocked => currentState == ScrewState.Locked;
-    public bool IsLoose => currentState == ScrewState.Locked && currentSubstate == ScrewSubstate.Loose;
-    public bool IsTight => currentState == ScrewState.Locked && currentSubstate == ScrewSubstate.Tight;
+    public bool IsUnlocked => currentState == ValveState.Unlocked;
+    public bool IsLocked => currentState == ValveState.Locked;
+    public bool IsLoose => currentState == ValveState.Locked && currentSubstate == ValveSubstate.Loose;
+    public bool IsTight => currentState == ValveState.Locked && currentSubstate == ValveSubstate.Tight;
     
     private void Awake()
     {
@@ -107,11 +107,11 @@ public class ScrewController : MonoBehaviour
         }
         
         // Initialize with unlocked state
-        currentState = ScrewState.Unlocked;
-        currentSubstate = ScrewSubstate.None;
+        currentState = ValveState.Unlocked;
+        currentSubstate = ValveSubstate.None;
         lastRotation = transform.localEulerAngles;
-
-        Debug.Log($"[ScrewController] {gameObject.name} Awake() - Initial state: {currentState}");
+        
+        Debug.Log($"[ValveController] {gameObject.name} Awake() - Initial state: {currentState}");
     }
     
     private void OnEnable()
@@ -133,14 +133,14 @@ public class ScrewController : MonoBehaviour
     }
     
     /// <summary>
-    /// Configure this valve with a ScrewProfile
+    /// Configure this valve with a ValveProfile
     /// </summary>
-    public void Configure(ScrewProfile valveProfile)
+    public void Configure(ValveProfile valveProfile)
     {
         // Prevent redundant configuration
         if (profile == valveProfile && isInitialized)
         {
-            Debug.Log($"[ScrewController] {gameObject.name} already configured with {valveProfile.profileName}, skipping...");
+            Debug.Log($"[ValveController] {gameObject.name} already configured with {valveProfile.profileName}, skipping...");
             return;
         }
         
@@ -148,9 +148,9 @@ public class ScrewController : MonoBehaviour
         profile = valveProfile;
 
         // Reset to unlocked state only if needed
-        if (currentState != ScrewState.Unlocked || currentSubstate != ScrewSubstate.None)
+        if (currentState != ValveState.Unlocked || currentSubstate != ValveSubstate.None)
         {
-            SetState(ScrewState.Unlocked, ScrewSubstate.None);
+            SetState(ValveState.Unlocked, ValveSubstate.None);
             Debug.Log("SET STATE : 1");
         }
         
@@ -161,7 +161,7 @@ public class ScrewController : MonoBehaviour
         
         isInitialized = true;
         
-        Debug.Log($"[ScrewController] Configure() called for {gameObject.name}: " +
+        Debug.Log($"[ValveController] Configure() called for {gameObject.name}: " +
                  $"Previous={previousProfile} → New={profile.profileName}, " +
                  $"State={currentState}, Substate={currentSubstate}");
                  
@@ -174,7 +174,7 @@ public class ScrewController : MonoBehaviour
     {
         if (!isInitialized || profile == null) return;
         
-        if (currentState == ScrewState.Locked)
+        if (currentState == ValveState.Locked)
         {
             if (grabInteractable.isSelected)
             {
@@ -199,36 +199,36 @@ public class ScrewController : MonoBehaviour
     }
     
     /// <summary>
-    /// Called when screw is grabbed
+    /// Called when valve is grabbed
     /// </summary>
     private void OnGrabbed(SelectEnterEventArgs args)
     {
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} grabbed in state: {currentState}-{currentSubstate}");
-
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} grabbed in state: {currentState}-{currentSubstate}");
+        
         switch (currentState)
         {
-            case ScrewState.Unlocked:
-                // Normal grab behavior - screw can be moved freely
+            case ValveState.Unlocked:
+                // Normal grab behavior - valve can be moved freely
                 break;
-
-            case ScrewState.Locked:
-                // Screw is locked - prevent movement, only allow rotation
+                
+            case ValveState.Locked:
+                // Valve is locked - prevent movement, only allow rotation
                 // This applies to both LOOSE and TIGHT substates
                 break;
         }
     }
     
     /// <summary>
-    /// Called when screw is released
+    /// Called when valve is released
     /// </summary>
     private void OnReleased(SelectExitEventArgs args)
     {
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} released in state: {currentState}-{currentSubstate}");
-
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} released in state: {currentState}-{currentSubstate}");
+        
         // Check if we need to enable socket and transition after loosening
-        if (isWaitingForGrabRelease && currentState == ScrewState.Locked && currentSubstate == ScrewSubstate.Loose && readyForSocketReEnable)
+        if (isWaitingForGrabRelease && currentState == ValveState.Locked && currentSubstate == ValveSubstate.Loose && readyForSocketReEnable)
         {
-            VRTrainingDebug.LogEvent($"[ScrewController] Grab released after loosening - enabling socket for snap-back");
+            VRTrainingDebug.LogEvent($"[ValveController] Grab released after loosening - enabling socket for snap-back");
             
             // Enable socket just as user releases - object will naturally fall/snap into socket
             EnableSocketInteractor();
@@ -245,12 +245,12 @@ public class ScrewController : MonoBehaviour
     /// <summary>
     /// Set the valve state and substate
     /// </summary>
-    private void SetState(ScrewState newState, ScrewSubstate newSubstate = ScrewSubstate.None)
+    private void SetState(ValveState newState, ValveSubstate newSubstate = ValveSubstate.None)
     {
         if (currentState == newState && currentSubstate == newSubstate) return;
-
-        ScrewState previousState = currentState;
-        ScrewSubstate previousSubstate = currentSubstate;
+        
+        ValveState previousState = currentState;
+        ValveSubstate previousSubstate = currentSubstate;
         
         currentState = newState;
         currentSubstate = newSubstate;
@@ -258,26 +258,26 @@ public class ScrewController : MonoBehaviour
         // Add call context for debugging
         var stackTrace = new System.Diagnostics.StackTrace();
         var callingMethod = stackTrace.GetFrame(1).GetMethod().Name;
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} state changed: {previousState}-{previousSubstate} → {currentState}-{currentSubstate} [Called by: {callingMethod}]");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} state changed: {previousState}-{previousSubstate} → {currentState}-{currentSubstate} [Called by: {callingMethod}]");
         
         // Handle state-specific setup
         switch (currentState)
         {
-            case ScrewState.Unlocked:
-                VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} applying UNLOCKED state setup");
+            case ValveState.Unlocked:
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying UNLOCKED state setup");
                 UnlockValve();
                 break;
                 
-            case ScrewState.Locked:
-                if (currentSubstate == ScrewSubstate.Loose)
+            case ValveState.Locked:
+                if (currentSubstate == ValveSubstate.Loose)
                 {
-                    VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} applying LOCKED-LOOSE specific state setup");
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying LOCKED-LOOSE specific state setup");
                     Debug.Log("CONSTRAINTS : Applying Locked-Loose Constraints");
                     ApplyLockedLooseConstraints();
                 }
                 else
                 {
-                    VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} applying LOCKED state setup (substate: {currentSubstate})");
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} applying LOCKED state setup (substate: {currentSubstate})");
                     Debug.Log("CONSTRAINTS : Applying Locked Constraints");
                     ApplyLockedConstraints();
                 }
@@ -329,7 +329,7 @@ public class ScrewController : MonoBehaviour
                 {
                     // Default case - freeze all rotation if axis not recognized
                     constraints |= RigidbodyConstraints.FreezeRotation;
-                    VRTrainingDebug.LogWarning($"[ScrewController] {gameObject.name} unrecognized rotation axis {profile.rotationAxis}, freezing all rotation");
+                    VRTrainingDebug.LogWarning($"[ValveController] {gameObject.name} unrecognized rotation axis {profile.rotationAxis}, freezing all rotation");
                 }
 
                 rigidBody.constraints = constraints;
@@ -337,7 +337,7 @@ public class ScrewController : MonoBehaviour
                 // Handle socket interactor based on substate
                 HandleSocketInteractorForSubstate();
                 
-                VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} LOCKED - position fixed, rotation allowed on local {profile.rotationAxis}");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - position fixed, rotation allowed on local {profile.rotationAxis}");
             }
         }
     }
@@ -375,7 +375,7 @@ public class ScrewController : MonoBehaviour
             else
             {
                 constraints |= RigidbodyConstraints.FreezeRotation;
-                VRTrainingDebug.LogWarning($"[ScrewController] {gameObject.name} unrecognized rotation axis {profile.rotationAxis}, freezing all rotation");
+                VRTrainingDebug.LogWarning($"[ValveController] {gameObject.name} unrecognized rotation axis {profile.rotationAxis}, freezing all rotation");
             }
 
             rigidBody.constraints = constraints;
@@ -383,7 +383,7 @@ public class ScrewController : MonoBehaviour
             // Handle socket interactor based on LOOSE substate logic
             HandleSocketInteractorForSubstate();
 
-            VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} LOCKED-LOOSE - position fixed, rotation allowed on local {profile.rotationAxis}, socket handling per substate");
+            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED-LOOSE - position fixed, rotation allowed on local {profile.rotationAxis}, socket handling per substate");
         }
     }
 
@@ -394,31 +394,31 @@ public class ScrewController : MonoBehaviour
     {
         switch (currentSubstate)
         {
-            case ScrewSubstate.Loose:
+            case ValveSubstate.Loose:
                 // For LOOSE substate, check if we should keep socket enabled
                 if (readyForSocketReEnable)
                 {
                     // Socket should remain enabled - valve was just loosened and ready for removal
-                    VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} LOCKED-LOOSE - keeping socket ENABLED for removal");
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED-LOOSE - keeping socket ENABLED for removal");
                 }
                 else
                 {
                     // First time entering LOOSE (from snap) - disable socket
                     DisableSocketInteractor();
-                    VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} LOCKED-LOOSE - socket disabled (initial snap)");
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED-LOOSE - socket disabled (initial snap)");
                 }
                 break;
                 
-            case ScrewSubstate.Tight:
+            case ValveSubstate.Tight:
                 // TIGHT substate always disables socket
                 DisableSocketInteractor();
-                VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} LOCKED-TIGHT - socket disabled");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED-TIGHT - socket disabled");
                 break;
                 
             default:
                 // Default case - disable socket
                 DisableSocketInteractor();
-                VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} LOCKED - socket disabled (default)");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOCKED - socket disabled (default)");
                 break;
         }
     }
@@ -443,7 +443,7 @@ public class ScrewController : MonoBehaviour
                 // Remove all constraints
                 rigidBody.constraints = RigidbodyConstraints.None;
                 
-                VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} UNLOCKED for free movement");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} UNLOCKED for free movement");
             }
         }
     }
@@ -462,7 +462,7 @@ public class ScrewController : MonoBehaviour
                 // Add call context for debugging
                 var stackTrace = new System.Diagnostics.StackTrace();
                 var callingMethod = stackTrace.GetFrame(1).GetMethod().Name;
-                VRTrainingDebug.LogEvent($"[ScrewController] Disabled socket interactor on {currentSocket.name} [Called by: {callingMethod}]");
+                VRTrainingDebug.LogEvent($"[ValveController] Disabled socket interactor on {currentSocket.name} [Called by: {callingMethod}]");
             }
         }
     }
@@ -481,7 +481,7 @@ public class ScrewController : MonoBehaviour
                 // Add call context for debugging
                 var stackTrace = new System.Diagnostics.StackTrace();
                 var callingMethod = stackTrace.GetFrame(1).GetMethod().Name;
-                VRTrainingDebug.LogEvent($"[ScrewController] Re-enabled socket interactor on {currentSocket.name} [Called by: {callingMethod}]");
+                VRTrainingDebug.LogEvent($"[ValveController] Re-enabled socket interactor on {currentSocket.name} [Called by: {callingMethod}]");
             }
         }
     }
@@ -499,12 +499,12 @@ public class ScrewController : MonoBehaviour
         if (profile != null)
         {
             baselineAxisRotation = GetAxisRotationValue(transform.localEulerAngles, profile.rotationAxis);
-            VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} rotation tracking reset - baseline for {profile.rotationAxis}: {baselineAxisRotation:F2}°");
+            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset - baseline for {profile.rotationAxis}: {baselineAxisRotation:F2}°");
         }
         else
         {
             baselineAxisRotation = 0f;
-            VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} rotation tracking reset - no profile, baseline set to 0°");
+            VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotation tracking reset - no profile, baseline set to 0°");
         }
     }
 
@@ -521,7 +521,7 @@ public class ScrewController : MonoBehaviour
             return eulerAngles.z;
         else
         {
-            VRTrainingDebug.LogWarning($"[ScrewController] Unrecognized rotation axis {axis}, defaulting to Y axis");
+            VRTrainingDebug.LogWarning($"[ValveController] Unrecognized rotation axis {axis}, defaulting to Y axis");
             return eulerAngles.y;
         }
     }
@@ -541,9 +541,9 @@ public class ScrewController : MonoBehaviour
         // Start position monitoring coroutine instead of event listening
         StartCoroutine(MonitorSocketPositioning(socket));
         
-        OnScrewSnapped?.Invoke();
+        OnValveSnapped?.Invoke();
         
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} detected by socket: {socket.name} → Monitoring position stability");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} detected by socket: {socket.name} → Monitoring position stability");
     }
     
     /// <summary>
@@ -553,7 +553,7 @@ public class ScrewController : MonoBehaviour
     {
         if (profile == null)
         {
-            VRTrainingDebug.LogWarning($"[ScrewController] No profile found for {gameObject.name}, applying constraints immediately");
+            VRTrainingDebug.LogWarning($"[ValveController] No profile found for {gameObject.name}, applying constraints immediately");
             FinalizeLockToSocket();
             yield break;
         }
@@ -566,14 +566,14 @@ public class ScrewController : MonoBehaviour
         
         Vector3 socketCenter = snapPosition;
         
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} monitoring positioning: tolerance={positionTolerance:F4}, velocity={velocityThreshold:F4}, timeout={timeout}s");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} monitoring positioning: tolerance={positionTolerance:F4}, velocity={velocityThreshold:F4}, timeout={timeout}s");
         
         while (Time.time - startTime < timeout)
         {
             // Check if we're still connected to the same socket
             if (currentSocket != socket)
             {
-                VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} socket changed during monitoring, aborting");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} socket changed during monitoring, aborting");
                 yield break;
             }
             
@@ -588,14 +588,14 @@ public class ScrewController : MonoBehaviour
             // Log progress every 0.2 seconds for debugging
             if (Time.time - lastLogTime > 0.2f)
             {
-                VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} positioning: distance={distance:F4}, velocity={totalVelocity:F4}");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} positioning: distance={distance:F4}, velocity={totalVelocity:F4}");
                 lastLogTime = Time.time;
             }
             
             // Check if object is positioned and stabilized
             if (distance <= positionTolerance && totalVelocity <= velocityThreshold)
             {
-                VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} positioning complete: distance={distance:F4}, velocity={totalVelocity:F4} (took {Time.time - startTime:F2}s)");
+                VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} positioning complete: distance={distance:F4}, velocity={totalVelocity:F4} (took {Time.time - startTime:F2}s)");
                 FinalizeLockToSocket();
                 yield break;
             }
@@ -604,7 +604,7 @@ public class ScrewController : MonoBehaviour
         }
         
         // Timeout reached - apply constraints anyway with warning
-        VRTrainingDebug.LogWarning($"[ScrewController] {gameObject.name} positioning timeout ({timeout}s) - applying constraints anyway");
+        VRTrainingDebug.LogWarning($"[ValveController] {gameObject.name} positioning timeout ({timeout}s) - applying constraints anyway");
         FinalizeLockToSocket();
     }
     
@@ -620,9 +620,9 @@ public class ScrewController : MonoBehaviour
         ResetRotationTracking();
 
         // Now transition to LOCKED-LOOSE state
-        SetState(ScrewState.Locked, ScrewSubstate.Loose);
+        SetState(ValveState.Locked, ValveSubstate.Loose);
         Debug.Log("SET STATE : 2");
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} → LOCKED-LOOSE after confirmed socket positioning");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} → LOCKED-LOOSE after confirmed socket positioning");
     }
     
     /// <summary>
@@ -630,7 +630,7 @@ public class ScrewController : MonoBehaviour
     /// </summary>
     public void OnSocketReleased(GameObject socket)
     {
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} released from socket: {socket.name}");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} released from socket: {socket.name}");
         
         // Clean up socket reference and stop any monitoring
         if (currentSocket == socket)
@@ -639,11 +639,11 @@ public class ScrewController : MonoBehaviour
             StopAllCoroutines();
             
             // Only change state if we're currently unlocked (removable)
-            if (currentState == ScrewState.Unlocked)
+            if (currentState == ValveState.Unlocked)
             {
                 currentSocket = null;
                 currentSocketInteractor = null;
-                OnScrewRemoved?.Invoke();
+                OnValveRemoved?.Invoke();
             }
         }
     }
@@ -714,12 +714,12 @@ public class ScrewController : MonoBehaviour
         
         switch (currentSubstate)
         {
-            case ScrewSubstate.Loose:
+            case ValveSubstate.Loose:
                 // Check if tightened enough to transition to TIGHT
                 float tighteningProgress = totalRotation;
                 if (tighteningProgress >= profile.tightenThreshold - profile.angleTolerance)
                 {
-                    VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} TIGHTENED! {tighteningProgress:F1}° reached (threshold: {profile.tightenThreshold}°)");
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} TIGHTENED! {tighteningProgress:F1}° reached (threshold: {profile.tightenThreshold}°)");
                     TransitionToTight();
                 }
                 else if (tighteningProgress > 0) // Only log positive tightening progress
@@ -727,7 +727,7 @@ public class ScrewController : MonoBehaviour
                     // Log rotation progress periodically
                     if (Mathf.FloorToInt(tighteningProgress / 10f) != Mathf.FloorToInt(lastLoggedRotation / 10f))
                     {
-                        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} tightening: {tighteningProgress:F1}° (threshold: {profile.tightenThreshold}°)");
+                        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} tightening: {tighteningProgress:F1}° (threshold: {profile.tightenThreshold}°)");
                         lastLoggedRotation = tighteningProgress;
                     }
                 }
@@ -736,18 +736,18 @@ public class ScrewController : MonoBehaviour
                     // Only log occasionally to avoid spam
                     if (Mathf.FloorToInt(Mathf.Abs(tighteningProgress) / 20f) != Mathf.FloorToInt(Mathf.Abs(lastLoggedRotation) / 20f))
                     {
-                        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} rotating backwards: {tighteningProgress:F1}° (need positive rotation to tighten)");
+                        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} rotating backwards: {tighteningProgress:F1}° (need positive rotation to tighten)");
                         lastLoggedRotation = tighteningProgress;
                     }
                 }
                 break;
                 
-            case ScrewSubstate.Tight:
+            case ValveSubstate.Tight:
                 // Check if loosened enough to allow removal
                 float looseningProgress = -totalRotation; // Negative rotation becomes positive progress
                 if (looseningProgress >= profile.loosenThreshold - profile.angleTolerance)
                 {
-                    VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} LOOSENED! {looseningProgress:F1}° loosening completed");
+                    VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} LOOSENED! {looseningProgress:F1}° loosening completed");
                     TransitionToLooseAfterTight();
                 }
                 else if (looseningProgress > 0) // Only log positive loosening progress
@@ -755,7 +755,7 @@ public class ScrewController : MonoBehaviour
                     // Log loosening progress periodically
                     if (Mathf.FloorToInt(looseningProgress / 10f) != Mathf.FloorToInt(lastLoggedRotation / 10f))
                     {
-                        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} loosening: {looseningProgress:F1}° (threshold: {profile.loosenThreshold}°)");
+                        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} loosening: {looseningProgress:F1}° (threshold: {profile.loosenThreshold}°)");
                         lastLoggedRotation = looseningProgress;
                     }
                 }
@@ -764,7 +764,7 @@ public class ScrewController : MonoBehaviour
                     // Only log occasionally to avoid spam
                     if (Mathf.FloorToInt(Mathf.Abs(looseningProgress) / 20f) != Mathf.FloorToInt(Mathf.Abs(lastLoggedRotation) / 20f))
                     {
-                        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} tightening further: {totalRotation:F1}° (need negative rotation to loosen)");
+                        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} tightening further: {totalRotation:F1}° (need negative rotation to loosen)");
                         lastLoggedRotation = looseningProgress;
                     }
                 }
@@ -777,10 +777,10 @@ public class ScrewController : MonoBehaviour
     /// </summary>
     private void TransitionToTight()
     {
-        SetState(ScrewState.Locked, ScrewSubstate.Tight);
+        SetState(ValveState.Locked, ValveSubstate.Tight);
         ResetRotationTracking(); // Reset for loosening phase
         Debug.Log("SET STATE : 3");
-        OnScrewTightened?.Invoke();
+        OnValveTightened?.Invoke();
     }
     
     /// <summary>
@@ -792,7 +792,7 @@ public class ScrewController : MonoBehaviour
         // Set flag to enable socket when user releases grab (prevents visual jarring during rotation)
         readyForSocketReEnable = true;
         
-        SetState(ScrewState.Locked, ScrewSubstate.Loose);
+        SetState(ValveState.Locked, ValveSubstate.Loose);
         Debug.Log("SET STATE : 4");
         
         // IMPORTANT: Reset rotation tracking to prevent confusion when back in LOOSE state
@@ -801,9 +801,9 @@ public class ScrewController : MonoBehaviour
         // Set flag to wait for grab release
         isWaitingForGrabRelease = true;
         
-        OnScrewLoosened?.Invoke();
+        OnValveLoosened?.Invoke();
         
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} loosened - ready for socket re-enable on release, rotation tracking reset");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} loosened - ready for socket re-enable on release, rotation tracking reset");
     }
     
     /// <summary>
@@ -811,7 +811,7 @@ public class ScrewController : MonoBehaviour
     /// </summary>
     private IEnumerator TransitionToUnlockedAfterSnap()
     {
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} waiting for snap-back to socket...");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} waiting for snap-back to socket...");
         
         // Wait a moment for physics to settle and object to snap back
         yield return new WaitForEndOfFrame();
@@ -820,7 +820,7 @@ public class ScrewController : MonoBehaviour
         // Transition to unlocked state - object should now be in socket but removable
         TransitionToUnlocked();
         
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} snap-back complete - now UNLOCKED in socket");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} snap-back complete - now UNLOCKED in socket");
     }
     
     /// <summary>
@@ -828,11 +828,11 @@ public class ScrewController : MonoBehaviour
     /// </summary>
     private void TransitionToUnlocked()
     {
-        SetState(ScrewState.Unlocked, ScrewSubstate.None);
+        SetState(ValveState.Unlocked, ValveSubstate.None);
         Debug.Log("SET STATE : 5");
         currentSocket = null;
         
-        VRTrainingDebug.LogEvent($"[ScrewController] {gameObject.name} now UNLOCKED and removable");
+        VRTrainingDebug.LogEvent($"[ValveController] {gameObject.name} now UNLOCKED and removable");
     }
     
     /// <summary>
@@ -842,12 +842,12 @@ public class ScrewController : MonoBehaviour
     {
         switch (currentSubstate)
         {
-            case ScrewSubstate.Loose:
+            case ValveSubstate.Loose:
                 float tighteningProgress = Mathf.Clamp01(totalRotation / profile.tightenThreshold);
                 OnTighteningProgress?.Invoke(tighteningProgress);
                 break;
                 
-            case ScrewSubstate.Tight:
+            case ValveSubstate.Tight:
                 float looseningProgress = Mathf.Clamp01(-totalRotation / profile.loosenThreshold);
                 OnLooseningProgress?.Invoke(looseningProgress);
                 break;
@@ -863,12 +863,12 @@ public class ScrewController : MonoBehaviour
         
         switch (currentSubstate)
         {
-            case ScrewSubstate.Loose:
+            case ValveSubstate.Loose:
                 if (profile.looseMaterial != null)
                     valveRenderer.material = profile.looseMaterial;
                 break;
                 
-            case ScrewSubstate.Tight:
+            case ValveSubstate.Tight:
                 if (profile.tightMaterial != null)
                     valveRenderer.material = profile.tightMaterial;
                 break;
@@ -886,7 +886,7 @@ public class ScrewController : MonoBehaviour
         // Update debug info in editor
         if (profile != null)
         {
-            Debug.Log($"[ScrewController] {gameObject.name} OnValidate() - Profile: {profile.profileName}, State: {currentState}-{currentSubstate}");
+            Debug.Log($"[ValveController] {gameObject.name} OnValidate() - Profile: {profile.profileName}, State: {currentState}-{currentSubstate}");
         }
     }
     
@@ -897,21 +897,21 @@ public class ScrewController : MonoBehaviour
     private void TestForceEnableSocket()
     {
         EnableSocketInteractor();
-        Debug.Log($"[ScrewController] TEST: Manually enabled socket for {gameObject.name}");
+        Debug.Log($"[ValveController] TEST: Manually enabled socket for {gameObject.name}");
     }
     
     [ContextMenu("Test: Force Disable Socket")]
     private void TestForceDisableSocket()
     {
         DisableSocketInteractor();
-        Debug.Log($"[ScrewController] TEST: Manually disabled socket for {gameObject.name}");
+        Debug.Log($"[ValveController] TEST: Manually disabled socket for {gameObject.name}");
     }
     
     [ContextMenu("Test: Transition to Unlocked")]
     private void TestTransitionToUnlocked()
     {
         TransitionToUnlocked();
-        Debug.Log($"[ScrewController] TEST: Manually transitioned to unlocked for {gameObject.name}");
+        Debug.Log($"[ValveController] TEST: Manually transitioned to unlocked for {gameObject.name}");
     }
     #endif
 }
