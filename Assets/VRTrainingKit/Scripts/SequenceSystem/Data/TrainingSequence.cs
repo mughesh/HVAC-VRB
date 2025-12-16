@@ -349,11 +349,11 @@ public class InteractionStep
         WaitForCondition,  // Wait for previous steps
         ShowInstruction,   // Display instruction to user
 
-        // Valve operation step types
-        TightenValve,      // Forward flow: grab → snap → tighten
-        LoosenValve,       // Reverse flow: loosen → remove
-        InstallValve,      // Complete forward flow (grab → snap → tighten)
-        RemoveValve,       // Complete reverse flow (loosen → remove)
+        // Screw operation step types
+        TightenScrew,      // Forward flow: grab → snap → tighten
+        LoosenScrew,       // Reverse flow: loosen → remove
+        InstallScrew,      // Complete forward flow (grab → snap → tighten)
+        RemoveScrew,       // Complete reverse flow (loosen → remove)
 
         // Script-based condition step type
         WaitForScriptCondition,  // Wait for custom condition script (ISequenceCondition)
@@ -393,26 +393,26 @@ public class InteractionStep
     [Tooltip("For TurnKnob: Required rotation direction (uses HingeJoint limits)")]
     public KnobRotationType knobRotationType = KnobRotationType.Any;
     
-    [Header("Valve Settings")]
-    [Tooltip("For valve operations: Rotation axis (X=1,0,0 Y=0,1,0 Z=0,0,1)")]
+    [Header("Screw Settings")]
+    [Tooltip("For screw operations: Rotation axis (X=1,0,0 Y=0,1,0 Z=0,0,1)")]
     public Vector3 rotationAxis = Vector3.up;
 
-    [Tooltip("For TightenValve/InstallValve: Degrees of rotation required to tighten")]
+    [Tooltip("For TightenScrew/InstallScrew: Degrees of rotation required to tighten")]
     [Range(10f, 360f)]
     public float tightenThreshold = 50f;
 
-    [Tooltip("For LoosenValve/RemoveValve: Degrees of reverse rotation required to loosen")]  
+    [Tooltip("For LoosenScrew/RemoveScrew: Degrees of reverse rotation required to loosen")]
     [Range(10f, 360f)]
     public float loosenThreshold = 90f;
 
-    [Tooltip("For valve operations: Angle completion tolerance")]
+    [Tooltip("For screw operations: Angle completion tolerance")]
     [Range(1f, 15f)]
-    public float valveAngleTolerance = 5f;
+    public float screwAngleTolerance = 5f;
 
-    [Tooltip("Socket for valve operations (TightenValve, LoosenValve)")]
+    [Tooltip("Socket for screw operations (TightenScrew, LoosenScrew)")]
     public GameObjectReference targetSocket = new GameObjectReference();
 
-    [Header("Valve Advanced Settings")]
+    [Header("Screw Advanced Settings")]
     [Tooltip("Rotation dampening/friction override (0 = use profile default)")]
     [Range(0f, 10f)]
     public float rotationDampening = 0f; // 0 means use profile default
@@ -493,14 +493,14 @@ public class InteractionStep
             case StepType.TurnKnob:
                 return targetObject != null && targetObject.IsValid; // targetAngle and tolerance have defaults
                 
-            case StepType.TightenValve:
-            case StepType.LoosenValve:
-                return targetObject != null && targetObject.IsValid && 
+            case StepType.TightenScrew:
+            case StepType.LoosenScrew:
+                return targetObject != null && targetObject.IsValid &&
                        targetSocket != null && targetSocket.IsValid;
-                       
-            case StepType.InstallValve:
-            case StepType.RemoveValve:
-                return targetObject != null && targetObject.IsValid && 
+
+            case StepType.InstallScrew:
+            case StepType.RemoveScrew:
+                return targetObject != null && targetObject.IsValid &&
                        targetSocket != null && targetSocket.IsValid;
                 
             case StepType.WaitForCondition:
@@ -549,38 +549,38 @@ public class InteractionStep
                     return "Missing or invalid target object (knob)";
                 break;
                 
-            case StepType.TightenValve:
+            case StepType.TightenScrew:
                 if ((targetObject == null || !targetObject.IsValid) && (targetSocket == null || !targetSocket.IsValid))
-                    return "Missing valve object and socket";
+                    return "Missing screw object and socket";
                 if (targetObject == null || !targetObject.IsValid)
-                    return "Missing or invalid target valve object";
+                    return "Missing or invalid target screw object";
                 if (targetSocket == null || !targetSocket.IsValid)
                     return "Missing or invalid target socket";
                 break;
-                
-            case StepType.LoosenValve:
+
+            case StepType.LoosenScrew:
                 if ((targetObject == null || !targetObject.IsValid) && (targetSocket == null || !targetSocket.IsValid))
-                    return "Missing valve object and socket";
+                    return "Missing screw object and socket";
                 if (targetObject == null || !targetObject.IsValid)
-                    return "Missing or invalid target valve object";
+                    return "Missing or invalid target screw object";
                 if (targetSocket == null || !targetSocket.IsValid)
                     return "Missing or invalid target socket";
                 break;
-                
-            case StepType.InstallValve:
+
+            case StepType.InstallScrew:
                 if ((targetObject == null || !targetObject.IsValid) && (targetSocket == null || !targetSocket.IsValid))
-                    return "Missing valve object and socket for complete installation";
+                    return "Missing screw object and socket for complete installation";
                 if (targetObject == null || !targetObject.IsValid)
-                    return "Missing or invalid target valve object";
+                    return "Missing or invalid target screw object";
                 if (targetSocket == null || !targetSocket.IsValid)
                     return "Missing or invalid target socket";
                 break;
-                
-            case StepType.RemoveValve:
+
+            case StepType.RemoveScrew:
                 if ((targetObject == null || !targetObject.IsValid) && (targetSocket == null || !targetSocket.IsValid))
-                    return "Missing valve object and socket for complete removal";
+                    return "Missing screw object and socket for complete removal";
                 if (targetObject == null || !targetObject.IsValid)
-                    return "Missing or invalid target valve object";
+                    return "Missing or invalid target screw object";
                 if (targetSocket == null || !targetSocket.IsValid)
                     return "Missing or invalid target socket";
                 break;
