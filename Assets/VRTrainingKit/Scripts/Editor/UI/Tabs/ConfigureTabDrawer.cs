@@ -66,7 +66,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(GrabProfile),
                     DefaultAssetName = "GrabProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "✋"
                 }
             },
             {
@@ -79,7 +79,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(KnobProfile),
                     DefaultAssetName = "KnobProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "🔄"
                 }
             },
             {
@@ -92,7 +92,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(SnapProfile),
                     DefaultAssetName = "SnapProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "🔗"
                 }
             },
             {
@@ -105,7 +105,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(ToolProfile),
                     DefaultAssetName = "ToolProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "🔧"
                 }
             },
             {
@@ -118,7 +118,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(ValveProfile),
                     DefaultAssetName = "ValveProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "🔩"
                 }
             },
             {
@@ -131,7 +131,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(ScrewProfile),
                     DefaultAssetName = "ScrewProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "🔩"
                 }
             },
             {
@@ -157,7 +157,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(AutoHandsTeleportProfile),
                     DefaultAssetName = "TeleportProfile",
                     IsAutoHandsOnly = true,
-                    Icon = "🚀 "
+                    Icon = "🚀"
                 }
             }
         };
@@ -209,14 +209,14 @@ public class ConfigureTabDrawer
         DrawProfileSection(ProfileCacheManager.ProfileType.Snap);
         EditorGUILayout.Space(10);
 
-        DrawProfileSection(ProfileCacheManager.ProfileType.Tool);
-        EditorGUILayout.Space(10);
+        // DrawProfileSection(ProfileCacheManager.ProfileType.Tool);
+        // EditorGUILayout.Space(10);
 
         DrawProfileSection(ProfileCacheManager.ProfileType.Valve);
         EditorGUILayout.Space(10);
 
-        DrawProfileSection(ProfileCacheManager.ProfileType.Screw);
-        EditorGUILayout.Space(10);
+        // DrawProfileSection(ProfileCacheManager.ProfileType.Screw);
+        // EditorGUILayout.Space(10);
 
         // Turn By Count Profile - DEPRECATED - Removed from UI
         // DrawProfileSection(ProfileCacheManager.ProfileType.Turn);

@@ -9,7 +9,7 @@ using UnityEngine;
 /// Workflow: grab → snap → tighten → loosen → remove
 /// Uses Grabbable for grabbing and PlacePoint for socket snapping
 /// </summary>
-[CreateAssetMenu(fileName = "AutoHandsValveProfile", menuName = "VR Training/AutoHands/Valve Profile", order = 4)]
+[CreateAssetMenu(fileName = "AutoHandsScrewProfile", menuName = "VR Training/AutoHands/Screw Profile", order = 4)]
 public class AutoHandsValveProfile : AutoHandsInteractionProfile
 {
     [Header("Valve Mechanics")]

@@ -315,10 +315,10 @@ public class SequenceTreeView
             case InteractionStep.StepType.TurnKnob: return "🔄";
             case InteractionStep.StepType.WaitForCondition: return "⏳";
             case InteractionStep.StepType.ShowInstruction: return "💬";
-            case InteractionStep.StepType.TightenScrew: return "🔧";
-            case InteractionStep.StepType.LoosenScrew: return "🔓";
+            case InteractionStep.StepType.TightenScrew: return "🔩";
+            case InteractionStep.StepType.LoosenScrew: return "🔩";
             case InteractionStep.StepType.InstallScrew: return "🔩";
-            case InteractionStep.StepType.RemoveScrew: return "🔧";
+            case InteractionStep.StepType.RemoveScrew: return "🔩";
             case InteractionStep.StepType.WaitForScriptCondition: return "⚙️";
             case InteractionStep.StepType.Teleport: return "🚀";
             default: return "❓";
