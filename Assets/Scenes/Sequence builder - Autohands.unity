@@ -254,11 +254,11 @@ GameObject:
   - component: {fileID: 28685343}
   - component: {fileID: 28685346}
   - component: {fileID: 28685348}
-  - component: {fileID: 28685349}
   - component: {fileID: 28685350}
+  - component: {fileID: 28685349}
   m_Layer: 0
   m_Name: valve Cube _Large
-  m_TagString: valve
+  m_TagString: screw
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -456,10 +456,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 28685340}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
+  m_Script: {fileID: 11500000, guid: 6e553615f209e024589d987841b7621d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profile: {fileID: 269674957}
+  profile: {fileID: 438839372}
   currentState: 0
   currentSubstate: 0
   currentRotationAngle: 0
@@ -1735,7 +1735,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &269674957
+--- !u!114 &260696832
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1744,8 +1744,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
-  m_Name: 
+  m_Script: {fileID: 11500000, guid: 57c152e1e69ad2e46a5b75d9cbee77c8, type: 3}
+  m_Name: valve Cube_SMALL_ScrewProfile
   m_EditorClassIdentifier: 
   profileName: New Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
@@ -1754,7 +1754,8 @@ MonoBehaviour:
   loosenThreshold: 90
   angleTolerance: 5
   compatibleSocketTags:
-  - snap
+  - valve_socket
+  - screw_socket
   specificCompatibleSockets: []
   requireSpecificSockets: 0
   movementType: 0
@@ -1766,7 +1767,7 @@ MonoBehaviour:
   rotationDampening: 5
   dampeningSpeed: 10
   autoConfigureConnectedAnchor: 1
-  useSpring: 1
+  useSpring: 0
   springValue: 0
   springDamper: 0.1
   springTargetPosition: 0
@@ -2961,6 +2962,57 @@ Transform:
   - {fileID: 735494428}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &438839372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c152e1e69ad2e46a5b75d9cbee77c8, type: 3}
+  m_Name: valve Cube _Large_ScrewProfile
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - valve_socket
+  - screw_socket
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 0
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!1 &444798385
 GameObject:
   m_ObjectHideFlags: 0
@@ -7977,7 +8029,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff69ed256991bab48929e233a2d15e7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trainingAsset: {fileID: 11400000, guid: e8160d99aa59aa64cbef2964d33c98a9, type: 2}
+  trainingAsset: {fileID: 11400000, guid: 1052807957877264b975c0ff20d727aa, type: 2}
   arrowRegistry: {fileID: 0}
   enableDebugLogging: 0
   showStepCompletions: 1
@@ -13266,7 +13318,7 @@ MonoBehaviour:
   startPlaced: {fileID: 0}
   placedOffset: {fileID: 1862597855}
   shapeType: 0
-  placeRadius: 0.1
+  placeRadius: 0.09
   placeSize: {x: 0.15, y: 0.15, z: 0.15}
   shapeOffset: {x: 0, y: 0, z: 0}
   grabbablePlacePoint: 1
@@ -13290,7 +13342,7 @@ MonoBehaviour:
   placeNames:
   - grab
   - valve
-  - turn
+  - screw
   blacklistNames: []
   onlyAllows: []
   dontAllows: []
@@ -13639,8 +13691,8 @@ GameObject:
   - component: {fileID: 1694519272}
   - component: {fileID: 1694519271}
   - component: {fileID: 1694519270}
-  - component: {fileID: 1694519269}
   - component: {fileID: 1694519276}
+  - component: {fileID: 1694519277}
   m_Layer: 0
   m_Name: valve Cube_SMALL
   m_TagString: valve
@@ -13648,22 +13700,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1694519269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1694519268}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  profile: {fileID: 1715470691}
-  currentState: 0
-  currentSubstate: 0
-  currentRotationAngle: 0
 --- !u!114 &1694519270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13869,6 +13905,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1694519277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1694519268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e553615f209e024589d987841b7621d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 260696832}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
 --- !u!1 &1699003277
 GameObject:
   m_ObjectHideFlags: 0
@@ -13941,55 +13993,6 @@ Transform:
   - {fileID: 2066446695}
   m_Father: {fileID: 1230820369}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1715470691
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
-  m_Name: valve Cube_SMALL_ValveProfile
-  m_EditorClassIdentifier: 
-  profileName: New Profile
-  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  rotationAxis: {x: 0, y: 1, z: 0}
-  tightenThreshold: 50
-  loosenThreshold: 90
-  angleTolerance: 5
-  compatibleSocketTags:
-  - snap
-  specificCompatibleSockets: []
-  requireSpecificSockets: 0
-  movementType: 0
-  trackPosition: 1
-  trackRotation: 1
-  throwOnDetach: 1
-  throwVelocityScale: 1.5
-  throwAngularVelocityScale: 1
-  rotationDampening: 5
-  dampeningSpeed: 10
-  autoConfigureConnectedAnchor: 1
-  useSpring: 1
-  springValue: 0
-  springDamper: 0.1
-  springTargetPosition: 0
-  bounceMinVelocity: 0.2
-  contactDistance: 0
-  positionTolerance: 0.01
-  velocityThreshold: 0.05
-  positioningTimeout: 3
-  useDynamicAttach: 1
-  attachEaseInTime: 0.15
-  colliderType: 0
-  addColliderToMeshChild: 1
-  lockedRotationSpeed: 1
-  hapticIntensity: 0.3
-  looseMaterial: {fileID: 0}
-  tightMaterial: {fileID: 0}
-  showProgressIndicator: 1
 --- !u!1 &1716617920
 GameObject:
   m_ObjectHideFlags: 0
@@ -16442,55 +16445,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1230820369}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2035123244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2364be5d569118e49a4c701412c51b93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  profileName: New Profile
-  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  rotationAxis: {x: 0, y: 1, z: 0}
-  tightenThreshold: 50
-  loosenThreshold: 90
-  angleTolerance: 5
-  compatibleSocketTags:
-  - snap
-  specificCompatibleSockets: []
-  requireSpecificSockets: 0
-  movementType: 0
-  trackPosition: 1
-  trackRotation: 1
-  throwOnDetach: 1
-  throwVelocityScale: 1.5
-  throwAngularVelocityScale: 1
-  rotationDampening: 5
-  dampeningSpeed: 10
-  autoConfigureConnectedAnchor: 1
-  useSpring: 1
-  springValue: 0
-  springDamper: 0.1
-  springTargetPosition: 0
-  bounceMinVelocity: 0.2
-  contactDistance: 0
-  positionTolerance: 0.01
-  velocityThreshold: 0.05
-  positioningTimeout: 3
-  useDynamicAttach: 1
-  attachEaseInTime: 0.15
-  colliderType: 0
-  addColliderToMeshChild: 1
-  lockedRotationSpeed: 1
-  hapticIntensity: 0.3
-  looseMaterial: {fileID: 0}
-  tightMaterial: {fileID: 0}
-  showProgressIndicator: 1
 --- !u!1001 &2042367221
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17651,10 +17605,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profile: {fileID: 2035123244}
-  currentState: 0
-  currentSubstate: 0
-  currentRotationAngle: 0
 --- !u!54 &2114286736
 Rigidbody:
   m_ObjectHideFlags: 0

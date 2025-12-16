@@ -30,7 +30,7 @@ MonoBehaviour:
             _gameObjectName: suction valve
             _hierarchyPath: Valve Caps/suction valve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 57570
@@ -44,7 +44,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -98,7 +98,7 @@ MonoBehaviour:
             _gameObjectName: GasValve
             _hierarchyPath: Valve Caps/GasValve
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 57444
@@ -112,7 +112,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -171,7 +171,7 @@ MonoBehaviour:
             _gameObjectName: Yellow male snap
             _hierarchyPath: Valve sockets/Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 58994
@@ -185,7 +185,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -235,25 +235,25 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 55670
+            _instanceID: 118896
             _gameObjectName: AllenKey
-            _hierarchyPath: 
+            _hierarchyPath: AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 0
+            _isValid: 1
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 57218
             _gameObjectName: Allen Key
             _hierarchyPath: 
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           targetAngle: 0
           angleTolerance: 5
           knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -312,7 +312,7 @@ MonoBehaviour:
             _gameObjectName: 'Yellow Hose Male '
             _hierarchyPath: 'Hoses/Yellow Hose Male '
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 57210
@@ -326,7 +326,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 0, z: 1}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 55672
@@ -380,7 +380,7 @@ MonoBehaviour:
             _gameObjectName: Yellow hose female
             _hierarchyPath: Hoses/Yellow hose female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 56820
@@ -394,7 +394,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 55310
@@ -453,7 +453,7 @@ MonoBehaviour:
             _gameObjectName: Blue hose male
             _hierarchyPath: Hoses/Blue hose male
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 57218
@@ -467,7 +467,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -521,7 +521,7 @@ MonoBehaviour:
             _gameObjectName: Arrow_rotate_LSV
             _hierarchyPath: 
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 58752
@@ -535,7 +535,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -594,7 +594,7 @@ MonoBehaviour:
             _gameObjectName: Red Hose Male
             _hierarchyPath: Hoses/Red Hose Male
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 58994
@@ -608,7 +608,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -658,7 +658,7 @@ MonoBehaviour:
           type: 1
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 58734
+            _instanceID: 118272
             _gameObjectName: Red_Hose_Female
             _hierarchyPath: Hoses/Red_Hose_Female
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -669,14 +669,14 @@ MonoBehaviour:
             _gameObjectName: Limen
             _hierarchyPath: Others/Limen
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           targetAngle: 0
           angleTolerance: 5
           knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -749,7 +749,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0

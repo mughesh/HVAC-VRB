@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf60d49a565d68242b9c37085eb8d1b1, type: 3}
   m_Name: AutoHandsScrewProfile
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   profileName: Screw Profile
   gizmoColor: {r: 0, g: 1, b: 1, a: 1}
   enableAutoHandsDebugLogging: 0
@@ -22,6 +22,7 @@ MonoBehaviour:
   compatibleSocketTags:
   - valve_socket
   - screw_socket
+  - snap
   specificCompatibleSockets: []
   requireSpecificSockets: 0
   grabType: 0
