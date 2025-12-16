@@ -29,8 +29,8 @@ public class AutoHandsScrewProfile : AutoHandsInteractionProfile
     public float angleTolerance = 5f;
 
     [Header("Socket Compatibility")]
-    [Tooltip("Tags of sockets this screw can work with (supports both 'valve_socket' and 'screw_socket' for backwards compatibility)")]
-    public string[] compatibleSocketTags = {"valve_socket", "screw_socket"};
+    [Tooltip("Tags of sockets this valve can work with")]
+    public string[] compatibleSocketTags = { "valve_socket" };
 
     [Tooltip("Specific socket objects this screw works with")]
     public GameObjectReference[] specificCompatibleSockets;
@@ -202,13 +202,16 @@ public class AutoHandsScrewProfile : AutoHandsInteractionProfile
     }
 
     /// <summary>
-    /// Configure AutoHandsScrewControllerV2 with a temporary ScrewProfile
-    /// We create a ScrewProfile ScriptableObject at runtime to pass settings to AutoHandsScrewControllerV2
+    /// Configure AutoHandsValveControllerV2 with a temporary ValveProfile
+    /// We create a ValveProfile ScriptableObject at runtime to pass settings to AutoHandsValveControllerV2
+    /// NOTE: This profile must persist as the controller stores a reference to it for runtime use
     /// </summary>
     private void ConfigureScrewController(AutoHandsScrewControllerV2 screwController)
     {
-        // Create a temporary ScrewProfile to pass to AutoHandsScrewController
-        ScrewProfile tempProfile = ScriptableObject.CreateInstance<ScrewProfile>();
+        // Create a ValveProfile instance to pass to AutoHandsValveController
+        // This profile will be stored by the controller and used at runtime
+        ValveProfile tempProfile = ScriptableObject.CreateInstance<ValveProfile>();
+        tempProfile.name = $"{valveController.gameObject.name}_ValveProfile";
 
         // Copy settings from AutoHandsScrewProfile to ScrewProfile
         tempProfile.rotationAxis = rotationAxis;
@@ -239,8 +242,9 @@ public class AutoHandsScrewProfile : AutoHandsInteractionProfile
         tempProfile.bounceMinVelocity = bounceMinVelocity;
         tempProfile.contactDistance = contactDistance;
 
-        // Configure AutoHandsScrewControllerV2 with the temp profile
-        screwController.Configure(tempProfile);
+        // Configure AutoHandsValveControllerV2 with the temp profile
+        // The controller will store this reference and use it at runtime
+        valveController.Configure(tempProfile);
 
         LogDebug($"✅ Configured AutoHandsScrewControllerV2 with settings from AutoHandsScrewProfile");
         LogDebug($"   - Rotation Axis: {rotationAxis}");
@@ -294,10 +298,18 @@ public class AutoHandsScrewProfile : AutoHandsInteractionProfile
     }
 
     /// <summary>
-    /// Add collider to target
+    /// Add collider to target (only if no collider exists)
     /// </summary>
     private void AddCollider(GameObject target, ColliderType type)
     {
+        // BUGFIX: Check for existing collider to prevent stacking
+        Collider existingCollider = target.GetComponent<Collider>();
+        if (existingCollider != null)
+        {
+            LogDebug($"✅ Collider already exists on {target.name}, skipping collider creation");
+            return;
+        }
+
         MeshRenderer renderer = target.GetComponent<MeshRenderer>();
         Bounds bounds = renderer != null ? renderer.bounds : new Bounds(Vector3.zero, Vector3.one);
 
@@ -363,7 +375,7 @@ public class AutoHandsScrewProfile : AutoHandsInteractionProfile
         return true;
     }
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     private void OnValidate()
     {
         // Ensure thresholds are reasonable
@@ -377,5 +389,5 @@ public class AutoHandsScrewProfile : AutoHandsInteractionProfile
         if (angleTolerance >= loosenThreshold * 0.5f)
             angleTolerance = loosenThreshold * 0.2f;
     }
-    #endif
+#endif
 }
