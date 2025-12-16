@@ -168,15 +168,15 @@ public class ValveProfile : InteractionProfile
             Debug.Log($"[ValveProfile] Added {colliderType} collider to {colliderTarget.name}");
         }
         
-        // Add ValveController for complex valve behavior
-        ValveController valveController = target.GetComponent<ValveController>();
+        // Add ScrewController for complex valve behavior (using renamed controller)
+        ScrewController valveController = target.GetComponent<ScrewController>();
         if (valveController == null)
         {
-            valveController = target.AddComponent<ValveController>();
-            Debug.Log($"[ValveProfile] Added ValveController to {target.name}");
+            valveController = target.AddComponent<ScrewController>();
+            Debug.Log($"[ValveProfile] Added ScrewController to {target.name}");
         }
-        
-        // Configure the valve controller with this profile
+
+        // Configure the screw controller with this profile
         valveController.Configure(this);
         
         Debug.Log($"[ValveProfile] Successfully configured valve: {target.name}");

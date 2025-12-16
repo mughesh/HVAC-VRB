@@ -609,7 +609,7 @@ public class SequencePropertiesPanel
     }
 
     /// <summary>
-    /// Draw validation for Valve target objects (ValveController/AutoHandsValveController, Grabbable)
+    /// Draw validation for Valve target objects (ScrewController/AutoHandsScrewController, Grabbable)
     /// </summary>
     private void DrawValveTargetValidation(GameObject target)
     {
@@ -631,20 +631,20 @@ public class SequencePropertiesPanel
                 hasErrors = true;
             }
 
-            // Check for AutoHandsValveController (V1 or V2)
-            var valveController = target.GetComponent<AutoHandsValveController>();
-            var valveControllerV2 = target.GetComponent<AutoHandsValveControllerV2>();
-            if (valveController != null)
+            // Check for AutoHandsScrewController (V1 or V2) - renamed from ValveController
+            var screwController = target.GetComponent<AutoHandsScrewController>();
+            var screwControllerV2 = target.GetComponent<AutoHandsScrewControllerV2>();
+            if (screwController != null)
             {
-                validationMessages.Add($"\u2705 AutoHandsValveController found (Current Rotation: {valveController.CurrentRotation:F1}\u00B0)");
+                validationMessages.Add($"\u2705 AutoHandsScrewController found (Current Rotation: {screwController.CurrentRotation:F1}\u00B0)");
             }
-            else if (valveControllerV2 != null)
+            else if (screwControllerV2 != null)
             {
-                validationMessages.Add($"\u2705 AutoHandsValveControllerV2 found (Current Rotation: {valveControllerV2.CurrentRotation:F1}\u00B0)");
+                validationMessages.Add($"\u2705 AutoHandsScrewControllerV2 found (Current Rotation: {screwControllerV2.CurrentRotation:F1}\u00B0)");
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsValveController or V2 component!");
+                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsScrewController or V2 component!");
                 hasErrors = true;
             }
         }
@@ -661,15 +661,15 @@ public class SequencePropertiesPanel
                 hasErrors = true;
             }
 
-            // Check for ValveController
-            var valveController = target.GetComponent<ValveController>();
-            if (valveController != null)
+            // Check for ScrewController (renamed from ValveController)
+            var screwController = target.GetComponent<ScrewController>();
+            if (screwController != null)
             {
-                validationMessages.Add($"\u2705 ValveController found");
+                validationMessages.Add($"\u2705 ScrewController found");
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Missing ValveController component!");
+                validationMessages.Add("\u26A0\uFE0F Missing ScrewController component!");
                 hasErrors = true;
             }
         }

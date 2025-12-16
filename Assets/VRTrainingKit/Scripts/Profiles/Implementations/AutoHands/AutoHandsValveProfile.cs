@@ -164,15 +164,15 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
             AddCollider(target, colliderType);
         }
 
-        // 4. Add AutoHandsValveControllerV2 (Clean HingeJoint-based valve controller)
-        AutoHandsValveControllerV2 valveController = target.GetComponent<AutoHandsValveControllerV2>();
+        // 4. Add AutoHandsScrewControllerV2 (Clean HingeJoint-based screw controller used for valve compatibility)
+        AutoHandsScrewControllerV2 valveController = target.GetComponent<AutoHandsScrewControllerV2>();
         if (valveController == null)
         {
-            valveController = target.AddComponent<AutoHandsValveControllerV2>();
-            LogDebug($"✅ Added AutoHandsValveControllerV2 to {target.name}");
+            valveController = target.AddComponent<AutoHandsScrewControllerV2>();
+            LogDebug($"✅ Added AutoHandsScrewControllerV2 to {target.name}");
         }
 
-        // Configure AutoHandsValveControllerV2 with this profile
+        // Configure AutoHandsScrewControllerV2 with this profile
         ConfigureValveController(valveController);
 
         LogDebug($"✅ Successfully configured AutoHands valve on {target.name}");
@@ -202,18 +202,18 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     }
 
     /// <summary>
-    /// Configure AutoHandsValveControllerV2 with a temporary ValveProfile
-    /// We create a ValveProfile ScriptableObject at runtime to pass settings to AutoHandsValveControllerV2
+    /// Configure AutoHandsScrewControllerV2 with a temporary ScrewProfile
+    /// We create a ScrewProfile ScriptableObject at runtime to pass settings to AutoHandsScrewControllerV2
     /// NOTE: This profile must persist as the controller stores a reference to it for runtime use
     /// </summary>
-    private void ConfigureValveController(AutoHandsValveControllerV2 valveController)
+    private void ConfigureValveController(AutoHandsScrewControllerV2 valveController)
     {
-        // Create a ValveProfile instance to pass to AutoHandsValveController
+        // Create a ScrewProfile instance to pass to AutoHandsScrewController
         // This profile will be stored by the controller and used at runtime
-        ValveProfile tempProfile = ScriptableObject.CreateInstance<ValveProfile>();
-        tempProfile.name = $"{valveController.gameObject.name}_ValveProfile";
+        ScrewProfile tempProfile = ScriptableObject.CreateInstance<ScrewProfile>();
+        tempProfile.name = $"{valveController.gameObject.name}_ScrewProfile";
 
-        // Copy settings from AutoHandsValveProfile to ValveProfile
+        // Copy settings from AutoHandsValveProfile to ScrewProfile
         tempProfile.rotationAxis = rotationAxis;
         tempProfile.tightenThreshold = tightenThreshold;
         tempProfile.loosenThreshold = loosenThreshold;
@@ -242,11 +242,11 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
         tempProfile.bounceMinVelocity = bounceMinVelocity;
         tempProfile.contactDistance = contactDistance;
 
-        // Configure AutoHandsValveControllerV2 with the temp profile
+        // Configure AutoHandsScrewControllerV2 with the temp profile
         // The controller will store this reference and use it at runtime
         valveController.Configure(tempProfile);
 
-        LogDebug($"✅ Configured AutoHandsValveControllerV2 with settings from AutoHandsValveProfile");
+        LogDebug($"✅ Configured AutoHandsScrewControllerV2 with settings from AutoHandsValveProfile");
         LogDebug($"   - Rotation Axis: {rotationAxis}");
         LogDebug($"   - Tighten Threshold: {tightenThreshold}°");
         LogDebug($"   - Loosen Threshold: {loosenThreshold}°");
