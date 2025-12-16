@@ -797,13 +797,13 @@ public class SequencePropertiesPanel
             DrawKnobSettings(step);
         }
 
-        // Valve settings
-        if (step.type == InteractionStep.StepType.TightenValve ||
-            step.type == InteractionStep.StepType.LoosenValve ||
-            step.type == InteractionStep.StepType.InstallValve ||
-            step.type == InteractionStep.StepType.RemoveValve)
+        // Screw settings
+        if (step.type == InteractionStep.StepType.TightenScrew ||
+            step.type == InteractionStep.StepType.LoosenScrew ||
+            step.type == InteractionStep.StepType.InstallScrew ||
+            step.type == InteractionStep.StepType.RemoveScrew)
         {
-            DrawValveSettings(step);
+            DrawScrewSettings(step);
         }
 
         // Teleport settings
@@ -841,7 +841,7 @@ public class SequencePropertiesPanel
         }
     }
 
-    private void DrawValveSettings(InteractionStep step)
+    private void DrawScrewSettings(InteractionStep step)
     {
         EditorGUILayout.Space(5);
         EditorGUILayout.LabelField("\uD83D\uDD27 Valve Settings", EditorStyles.boldLabel);
@@ -892,22 +892,22 @@ public class SequencePropertiesPanel
         EditorGUILayout.EndHorizontal();
 
         // Threshold settings based on step type
-        if (step.type == InteractionStep.StepType.TightenValve ||
-            step.type == InteractionStep.StepType.InstallValve)
+        if (step.type == InteractionStep.StepType.TightenScrew ||
+            step.type == InteractionStep.StepType.InstallScrew)
         {
             EditorGUILayout.Space(3);
             step.tightenThreshold = EditorGUILayout.Slider("Tighten Degrees", step.tightenThreshold, 10f, 360f);
         }
 
-        if (step.type == InteractionStep.StepType.LoosenValve ||
-            step.type == InteractionStep.StepType.RemoveValve)
+        if (step.type == InteractionStep.StepType.LoosenScrew ||
+            step.type == InteractionStep.StepType.RemoveScrew)
         {
             EditorGUILayout.Space(3);
             step.loosenThreshold = EditorGUILayout.Slider("Loosen Degrees", step.loosenThreshold, 10f, 360f);
         }
 
-        if (step.type == InteractionStep.StepType.InstallValve ||
-            step.type == InteractionStep.StepType.RemoveValve)
+        if (step.type == InteractionStep.StepType.InstallScrew ||
+            step.type == InteractionStep.StepType.RemoveScrew)
         {
             // Complete operations show both thresholds
             EditorGUILayout.Space(3);
@@ -917,7 +917,7 @@ public class SequencePropertiesPanel
 
         // Common settings
         EditorGUILayout.Space(3);
-        step.valveAngleTolerance = EditorGUILayout.Slider("Angle Tolerance", step.valveAngleTolerance, 1f, 15f);
+        step.screwAngleTolerance = EditorGUILayout.Slider("Angle Tolerance", step.screwAngleTolerance, 1f, 15f);
 
         // Advanced settings
         EditorGUILayout.Space(3);
