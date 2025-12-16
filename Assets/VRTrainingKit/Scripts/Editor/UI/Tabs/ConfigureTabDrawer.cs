@@ -122,6 +122,19 @@ public class ConfigureTabDrawer
                 }
             },
             {
+                ProfileCacheManager.ProfileType.Screw, new ProfileSectionConfig
+                {
+                    Label = "Screw Profile",
+                    CreateButtonText = "Create New Screw Profile",
+                    EmptyMessage = "No screw profiles found. Create one below.",
+                    InvalidTypeMessage = "is not a screw-type profile",
+                    CreateProfileType = typeof(ScrewProfile),
+                    DefaultAssetName = "ScrewProfile",
+                    IsAutoHandsOnly = false,
+                    Icon = ""
+                }
+            },
+            {
                 ProfileCacheManager.ProfileType.Turn, new ProfileSectionConfig
                 {
                     Label = "Turn By Count Profile",
@@ -200,6 +213,9 @@ public class ConfigureTabDrawer
         EditorGUILayout.Space(10);
 
         DrawProfileSection(ProfileCacheManager.ProfileType.Valve);
+        EditorGUILayout.Space(10);
+
+        DrawProfileSection(ProfileCacheManager.ProfileType.Screw);
         EditorGUILayout.Space(10);
 
         DrawProfileSection(ProfileCacheManager.ProfileType.Turn);
@@ -326,7 +342,8 @@ public class ConfigureTabDrawer
                  profile is KnobProfile ||
                  profile is SnapProfile ||
                  profile is ToolProfile ||
-                 profile is ValveProfile)
+                 profile is ValveProfile ||
+                 profile is ScrewProfile)
             return "[XRI]";
         else
             return "[Unknown]";
@@ -460,6 +477,26 @@ public class ConfigureTabDrawer
 
             AssetDatabase.CreateAsset(valveProfile, $"{folderPath}/DefaultValveProfile.asset");
             _selectedProfiles[ProfileCacheManager.ProfileType.Valve] = valveProfile;
+        }
+
+        // Create Screw Profile
+        if (_selectedProfiles[ProfileCacheManager.ProfileType.Screw] == null)
+        {
+            ScrewProfile screwProfile = ScriptableObject.CreateInstance<ScrewProfile>();
+            screwProfile.profileName = "Default Screw";
+            screwProfile.rotationAxis = Vector3.up;
+            screwProfile.tightenThreshold = 180f;
+            screwProfile.loosenThreshold = 180f;
+            screwProfile.angleTolerance = 10f;
+            screwProfile.compatibleSocketTags = new string[] { "valve_socket", "screw_socket" };
+            screwProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+            screwProfile.trackPosition = true;
+            screwProfile.trackRotation = true;
+            screwProfile.rotationDampening = 3f;
+            screwProfile.dampeningSpeed = 8f;
+
+            AssetDatabase.CreateAsset(screwProfile, $"{folderPath}/DefaultScrewProfile.asset");
+            _selectedProfiles[ProfileCacheManager.ProfileType.Screw] = screwProfile;
         }
 
         AssetDatabase.SaveAssets();
