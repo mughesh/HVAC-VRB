@@ -208,10 +208,8 @@ public class AutoHandsScrewProfile : AutoHandsInteractionProfile
     /// </summary>
     private void ConfigureScrewController(AutoHandsScrewControllerV2 screwController)
     {
-        // Create a ValveProfile instance to pass to AutoHandsValveController
-        // This profile will be stored by the controller and used at runtime
-        ValveProfile tempProfile = ScriptableObject.CreateInstance<ValveProfile>();
-        tempProfile.name = $"{valveController.gameObject.name}_ValveProfile";
+        // Create a temporary ScrewProfile to pass to AutoHandsScrewController
+        ScrewProfile tempProfile = ScriptableObject.CreateInstance<ScrewProfile>(); 
 
         // Copy settings from AutoHandsScrewProfile to ScrewProfile
         tempProfile.rotationAxis = rotationAxis;
