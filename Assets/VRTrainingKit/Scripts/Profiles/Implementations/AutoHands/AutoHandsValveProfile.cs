@@ -364,9 +364,10 @@ public class AutoHandsValveProfile : AutoHandsInteractionProfile
     /// </summary>
     protected override bool ValidateAutoHandsGameObject(GameObject target)
     {
-        if (!target.CompareTag("valve"))
+        // Support both 'valve' and 'screw' tags for backward compatibility
+        if (!target.CompareTag("valve") && !target.CompareTag("screw"))
         {
-            LogError($"GameObject {target.name} must have 'valve' tag for AutoHandsValveProfile");
+            LogError($"GameObject {target.name} must have 'valve' or 'screw' tag for AutoHandsValveProfile");
             return false;
         }
 

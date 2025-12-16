@@ -143,7 +143,7 @@ public class ScrewController : MonoBehaviour
             Debug.Log($"[ScrewController] {gameObject.name} already configured with {valveProfile.profileName}, skipping...");
             return;
         }
-        
+
         var previousProfile = profile?.profileName ?? "NULL";
         profile = valveProfile;
 
@@ -153,21 +153,52 @@ public class ScrewController : MonoBehaviour
             SetState(ScrewState.Unlocked, ScrewSubstate.None);
             Debug.Log("SET STATE : 1");
         }
-        
+
         // Reset rotation tracking
         currentRotationAngle = 0f;
         totalRotation = 0f;
         lastRotation = transform.localEulerAngles;
-        
+
         isInitialized = true;
-        
+
         Debug.Log($"[ScrewController] Configure() called for {gameObject.name}: " +
                  $"Previous={previousProfile} → New={profile.profileName}, " +
                  $"State={currentState}, Substate={currentSubstate}");
-                 
+
         #if UNITY_EDITOR
         UnityEditor.EditorUtility.SetDirty(this);
         #endif
+    }
+
+    /// <summary>
+    /// Configure this controller with a ValveProfile (backward compatibility)
+    /// Converts ValveProfile to ScrewProfile internally
+    /// </summary>
+    public void Configure(ValveProfile valveProfile)
+    {
+        Debug.Log($"[ScrewController] Converting ValveProfile '{valveProfile.profileName}' to ScrewProfile for backward compatibility");
+
+        // Create a temporary ScrewProfile with ValveProfile settings
+        ScrewProfile screwProfile = ScriptableObject.CreateInstance<ScrewProfile>();
+        screwProfile.profileName = valveProfile.profileName;
+        screwProfile.rotationAxis = valveProfile.rotationAxis;
+        screwProfile.tightenThreshold = valveProfile.tightenThreshold;
+        screwProfile.loosenThreshold = valveProfile.loosenThreshold;
+        screwProfile.angleTolerance = valveProfile.angleTolerance;
+        screwProfile.compatibleSocketTags = valveProfile.compatibleSocketTags;
+        screwProfile.specificCompatibleSockets = valveProfile.specificCompatibleSockets;
+        screwProfile.requireSpecificSockets = valveProfile.requireSpecificSockets;
+        screwProfile.movementType = valveProfile.movementType;
+        screwProfile.trackPosition = valveProfile.trackPosition;
+        screwProfile.trackRotation = valveProfile.trackRotation;
+        screwProfile.throwOnDetach = valveProfile.throwOnDetach;
+        screwProfile.rotationDampening = valveProfile.rotationDampening;
+        screwProfile.dampeningSpeed = valveProfile.dampeningSpeed;
+        screwProfile.lockedRotationSpeed = valveProfile.lockedRotationSpeed;
+        screwProfile.hapticIntensity = valveProfile.hapticIntensity;
+
+        // Configure with the converted profile
+        Configure(screwProfile);
     }
     
     private void Update()

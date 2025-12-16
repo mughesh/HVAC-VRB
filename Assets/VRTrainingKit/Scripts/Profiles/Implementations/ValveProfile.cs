@@ -176,7 +176,7 @@ public class ValveProfile : InteractionProfile
             Debug.Log($"[ValveProfile] Added ScrewController to {target.name}");
         }
 
-        // Configure the screw controller with this profile
+        // Configure the screw controller with this ValveProfile (backward compatibility overload)
         valveController.Configure(this);
         
         Debug.Log($"[ValveProfile] Successfully configured valve: {target.name}");
@@ -245,7 +245,8 @@ public class ValveProfile : InteractionProfile
     
     public override bool ValidateGameObject(GameObject target)
     {
-        return target != null && target.CompareTag("valve");
+        // Support both 'valve' and 'screw' tags for backward compatibility
+        return target != null && (target.CompareTag("valve") || target.CompareTag("screw"));
     }
     
     /// <summary>
