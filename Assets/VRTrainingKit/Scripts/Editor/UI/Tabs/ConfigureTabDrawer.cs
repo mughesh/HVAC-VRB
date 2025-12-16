@@ -218,8 +218,9 @@ public class ConfigureTabDrawer
         DrawProfileSection(ProfileCacheManager.ProfileType.Screw);
         EditorGUILayout.Space(10);
 
-        DrawProfileSection(ProfileCacheManager.ProfileType.Turn);
-        EditorGUILayout.Space(10);
+        // Turn By Count Profile - DEPRECATED - Removed from UI
+        // DrawProfileSection(ProfileCacheManager.ProfileType.Turn);
+        // EditorGUILayout.Space(10);
 
         DrawProfileSection(ProfileCacheManager.ProfileType.Teleport);
 
@@ -269,6 +270,12 @@ public class ConfigureTabDrawer
         if (_selectedProfiles[profileType] == null)
         {
             var cachedProfiles = _profileCacheManager.GetCachedProfiles(profileType);
+
+            // Apply framework filtering
+            if (cachedProfiles != null)
+            {
+                cachedProfiles = FilterProfilesByFramework(cachedProfiles, config.IsAutoHandsOnly);
+            }
 
             if (cachedProfiles != null && cachedProfiles.Count > 0)
             {
@@ -347,6 +354,35 @@ public class ConfigureTabDrawer
             return "[XRI]";
         else
             return "[Unknown]";
+    }
+
+    /// <summary>
+    /// Filters profiles based on detected framework
+    /// </summary>
+    private List<InteractionProfile> FilterProfilesByFramework(List<InteractionProfile> profiles, bool isAutoHandsOnly)
+    {
+        var detectedFramework = VRFrameworkDetector.DetectCurrentFramework();
+
+        // If no framework detected, show all profiles
+        if (detectedFramework == VRFramework.None)
+            return profiles;
+
+        // Filter based on framework
+        List<InteractionProfile> filtered = new List<InteractionProfile>();
+        foreach (var profile in profiles)
+        {
+            if (profile == null) continue;
+
+            string frameworkType = GetProfileFrameworkType(profile, isAutoHandsOnly);
+
+            // Match framework
+            if (detectedFramework == VRFramework.AutoHands && frameworkType == "[AutoHands]")
+                filtered.Add(profile);
+            else if (detectedFramework == VRFramework.XRI && frameworkType == "[XRI]")
+                filtered.Add(profile);
+        }
+
+        return filtered;
     }
 
     /// <summary>
@@ -533,7 +569,7 @@ public class ConfigureTabDrawer
                 GUI.color = originalColor;
 
                 EditorGUILayout.LabelField(
-                    "Current profiles are XRI-based. AutoHands profiles will be available in Phase 2.",
+                    "AutoHands framework detected. Showing only AutoHands-compatible profiles.",
                     EditorStyles.wordWrappedLabel);
 
                 EditorGUILayout.Space(3);
