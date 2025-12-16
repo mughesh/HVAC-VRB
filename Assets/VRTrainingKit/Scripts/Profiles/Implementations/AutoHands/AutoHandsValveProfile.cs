@@ -208,7 +208,7 @@ public class AutoHandsScrewProfile : AutoHandsInteractionProfile
     private void ConfigureScrewController(AutoHandsScrewControllerV2 screwController)
     {
         // Create a temporary ScrewProfile to pass to AutoHandsScrewController
-        ScrewProfile tempProfile = ScriptableObject.CreateInstance<ScrewProfile>();
+        ScrewProfile tempProfile = ScriptableObject.CreateInstance<ScrewProfile>(); 
 
         // Copy settings from AutoHandsScrewProfile to ScrewProfile
         tempProfile.rotationAxis = rotationAxis;
