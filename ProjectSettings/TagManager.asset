@@ -19,6 +19,7 @@ TagManager:
   - Coils
   - GuidanceArrow
   - teleportPoint
+  - screw
   layers:
   - Default
   - TransparentFX
