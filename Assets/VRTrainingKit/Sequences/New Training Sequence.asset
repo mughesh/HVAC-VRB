@@ -23,14 +23,14 @@ MonoBehaviour:
         description: 
         steps:
         - stepName: New Step
-          type: 10
+          type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
+            _instanceID: 117486
+            _gameObjectName: valve Cube _Large
+            _hierarchyPath: valve Cube _Large
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
           destination:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -42,16 +42,16 @@ MonoBehaviour:
           angleTolerance: 5
           knobRotationType: 2
           rotationAxis: {x: 0, y: 1, z: 0}
-          tightenThreshold: 50
+          tightenThreshold: 76
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 0
-            _gameObjectName: 
-            _hierarchyPath: 
-            _scenePath: 
-            _isValid: 0
+            _instanceID: 118580
+            _gameObjectName: Socket large
+            _hierarchyPath: Socket large
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
           rotationDampening: 0
           allowParallel: 0
           isOptional: 0
@@ -79,14 +79,82 @@ MonoBehaviour:
             _gameObjectName: Wrist Button
             _hierarchyPath: WristUI/Hide/Show/Canvas/Wrist Button
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           teleportDestination:
-            _gameObject: {fileID: 0}
+            _gameObject: {fileID: 2279970292893774398, guid: 90a955c206988be4ab4c8d8b7ffebe36, type: 3}
             _instanceID: 81572
-            _gameObjectName: GameObject
+            _gameObjectName: r_ring_fingernail_marker
             _hierarchyPath: Teleport points/GameObject
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
+          enableRecentering: 1
+          recenteringDelay: 0.5
+          isCompleted: 0
+        - stepName: New Step
+          type: 6
+          targetObject:
+            _gameObject: {fileID: 0}
+            _instanceID: 117486
+            _gameObjectName: valve Cube _Large
+            _hierarchyPath: valve Cube _Large
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          destination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          targetAngle: 0
+          angleTolerance: 5
+          knobRotationType: 2
+          rotationAxis: {x: 0, y: 1, z: 0}
+          tightenThreshold: 50
+          loosenThreshold: 50
+          screwAngleTolerance: 5
+          targetSocket:
+            _gameObject: {fileID: 0}
+            _instanceID: 118580
+            _gameObjectName: Socket large
+            _hierarchyPath: Socket large
+            _scenePath: Assets/Scenes/Sequence builder - Autohands.unity
+            _isValid: 1
+          rotationDampening: 0
+          allowParallel: 0
+          isOptional: 0
+          waitForSteps: 
+          hint: Step instruction goes here
+          targetArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          hideTargetArrowAfterGrab: 1
+          destinationArrow:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
           enableRecentering: 1
           recenteringDelay: 0.5
           isCompleted: 0

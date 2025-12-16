@@ -609,7 +609,7 @@ public class SequencePropertiesPanel
     }
 
     /// <summary>
-    /// Draw validation for Valve target objects (ValveController/AutoHandsValveController, Grabbable)
+    /// Draw validation for Valve target objects (ScrewController/AutoHandsScrewController, Grabbable)
     /// </summary>
     private void DrawValveTargetValidation(GameObject target)
     {
@@ -631,20 +631,20 @@ public class SequencePropertiesPanel
                 hasErrors = true;
             }
 
-            // Check for AutoHandsValveController (V1 or V2)
-            var valveController = target.GetComponent<AutoHandsValveController>();
-            var valveControllerV2 = target.GetComponent<AutoHandsValveControllerV2>();
-            if (valveController != null)
+            // Check for AutoHandsScrewController (V1 or V2) - renamed from ValveController
+            var screwController = target.GetComponent<AutoHandsScrewController>();
+            var screwControllerV2 = target.GetComponent<AutoHandsScrewControllerV2>();
+            if (screwController != null)
             {
-                validationMessages.Add($"\u2705 AutoHandsValveController found (Current Rotation: {valveController.CurrentRotation:F1}\u00B0)");
+                validationMessages.Add($"\u2705 AutoHandsScrewController found (Current Rotation: {screwController.CurrentRotation:F1}\u00B0)");
             }
-            else if (valveControllerV2 != null)
+            else if (screwControllerV2 != null)
             {
-                validationMessages.Add($"\u2705 AutoHandsValveControllerV2 found (Current Rotation: {valveControllerV2.CurrentRotation:F1}\u00B0)");
+                validationMessages.Add($"\u2705 AutoHandsScrewControllerV2 found (Current Rotation: {screwControllerV2.CurrentRotation:F1}\u00B0)");
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsValveController or V2 component!");
+                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsScrewController or V2 component!");
                 hasErrors = true;
             }
         }
@@ -661,15 +661,15 @@ public class SequencePropertiesPanel
                 hasErrors = true;
             }
 
-            // Check for ValveController
-            var valveController = target.GetComponent<ValveController>();
-            if (valveController != null)
+            // Check for ScrewController (renamed from ValveController)
+            var screwController = target.GetComponent<ScrewController>();
+            if (screwController != null)
             {
-                validationMessages.Add($"\u2705 ValveController found");
+                validationMessages.Add($"\u2705 ScrewController found");
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Missing ValveController component!");
+                validationMessages.Add("\u26A0\uFE0F Missing ScrewController component!");
                 hasErrors = true;
             }
         }
@@ -797,13 +797,13 @@ public class SequencePropertiesPanel
             DrawKnobSettings(step);
         }
 
-        // Valve settings
-        if (step.type == InteractionStep.StepType.TightenValve ||
-            step.type == InteractionStep.StepType.LoosenValve ||
-            step.type == InteractionStep.StepType.InstallValve ||
-            step.type == InteractionStep.StepType.RemoveValve)
+        // Screw settings
+        if (step.type == InteractionStep.StepType.TightenScrew ||
+            step.type == InteractionStep.StepType.LoosenScrew ||
+            step.type == InteractionStep.StepType.InstallScrew ||
+            step.type == InteractionStep.StepType.RemoveScrew)
         {
-            DrawValveSettings(step);
+            DrawScrewSettings(step);
         }
 
         // Teleport settings
@@ -841,7 +841,7 @@ public class SequencePropertiesPanel
         }
     }
 
-    private void DrawValveSettings(InteractionStep step)
+    private void DrawScrewSettings(InteractionStep step)
     {
         EditorGUILayout.Space(5);
         EditorGUILayout.LabelField("\uD83D\uDD27 Valve Settings", EditorStyles.boldLabel);
@@ -892,22 +892,22 @@ public class SequencePropertiesPanel
         EditorGUILayout.EndHorizontal();
 
         // Threshold settings based on step type
-        if (step.type == InteractionStep.StepType.TightenValve ||
-            step.type == InteractionStep.StepType.InstallValve)
+        if (step.type == InteractionStep.StepType.TightenScrew ||
+            step.type == InteractionStep.StepType.InstallScrew)
         {
             EditorGUILayout.Space(3);
             step.tightenThreshold = EditorGUILayout.Slider("Tighten Degrees", step.tightenThreshold, 10f, 360f);
         }
 
-        if (step.type == InteractionStep.StepType.LoosenValve ||
-            step.type == InteractionStep.StepType.RemoveValve)
+        if (step.type == InteractionStep.StepType.LoosenScrew ||
+            step.type == InteractionStep.StepType.RemoveScrew)
         {
             EditorGUILayout.Space(3);
             step.loosenThreshold = EditorGUILayout.Slider("Loosen Degrees", step.loosenThreshold, 10f, 360f);
         }
 
-        if (step.type == InteractionStep.StepType.InstallValve ||
-            step.type == InteractionStep.StepType.RemoveValve)
+        if (step.type == InteractionStep.StepType.InstallScrew ||
+            step.type == InteractionStep.StepType.RemoveScrew)
         {
             // Complete operations show both thresholds
             EditorGUILayout.Space(3);
@@ -917,7 +917,7 @@ public class SequencePropertiesPanel
 
         // Common settings
         EditorGUILayout.Space(3);
-        step.valveAngleTolerance = EditorGUILayout.Slider("Angle Tolerance", step.valveAngleTolerance, 1f, 15f);
+        step.screwAngleTolerance = EditorGUILayout.Slider("Angle Tolerance", step.screwAngleTolerance, 1f, 15f);
 
         // Advanced settings
         EditorGUILayout.Space(3);

@@ -331,7 +331,7 @@ public class StepEnablementService : MonoBehaviour
         if (step == null) return false;
 
         return step.type == InteractionStep.StepType.GrabAndSnap ||
-               step.type == InteractionStep.StepType.InstallValve;
+               step.type == InteractionStep.StepType.InstallScrew;
     }
 
     #endregion

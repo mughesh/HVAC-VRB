@@ -96,7 +96,7 @@ public class SetupTabDrawer
             EditorGUILayout.Space(10);
 
             // Valve objects
-            DrawObjectGroup("Valve Objects", _sceneAnalysis.valveObjects, "valve", ProfileCacheManager.ProfileType.Valve);
+            DrawObjectGroup("Valve Objects", _sceneAnalysis.screwObjects, "valve", ProfileCacheManager.ProfileType.Valve);
             EditorGUILayout.Space(10);
 
             // Turn objects
@@ -476,8 +476,8 @@ public class SetupTabDrawer
 
         if (valveProfile != null)
         {
-            InteractionSetupService.ApplyComponentsToObjects(_sceneAnalysis.valveObjects, valveProfile);
-            appliedCount += _sceneAnalysis.valveObjects.Count;
+            InteractionSetupService.ApplyComponentsToObjects(_sceneAnalysis.screwObjects, valveProfile);
+            appliedCount += _sceneAnalysis.screwObjects.Count;
         }
 
         EditorUtility.DisplayDialog("Setup Complete",

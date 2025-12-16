@@ -29,6 +29,7 @@ public class ProfileCacheManager
         Snap,
         Tool,
         Valve,
+        Screw,
         Turn,
         Teleport
     }
@@ -92,6 +93,14 @@ public class ProfileCacheManager
                     XRITypeName = "ValveProfile",
                     AutoHandsTypeName = "AutoHandsValveProfile",
                     Validator = IsValveProfile
+                }
+            },
+            {
+                ProfileType.Screw, new ProfileTypeConfig
+                {
+                    XRITypeName = "ScrewProfile",
+                    AutoHandsTypeName = "AutoHandsScrewProfile",
+                    Validator = IsScrewProfile
                 }
             },
             {
@@ -252,6 +261,12 @@ public class ProfileCacheManager
     {
         return profile is ValveProfile ||
                (profile != null && profile.GetType().Name.Contains("Valve"));
+    }
+
+    private static bool IsScrewProfile(InteractionProfile profile)
+    {
+        return profile is ScrewProfile ||
+               (profile != null && profile.GetType().Name.Contains("Screw"));
     }
 
     private static bool IsTurnProfile(InteractionProfile profile)

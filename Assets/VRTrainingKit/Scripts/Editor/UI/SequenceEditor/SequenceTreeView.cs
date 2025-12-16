@@ -315,10 +315,10 @@ public class SequenceTreeView
             case InteractionStep.StepType.TurnKnob: return "🔄";
             case InteractionStep.StepType.WaitForCondition: return "⏳";
             case InteractionStep.StepType.ShowInstruction: return "💬";
-            case InteractionStep.StepType.TightenValve: return "🔧";
-            case InteractionStep.StepType.LoosenValve: return "🔓";
-            case InteractionStep.StepType.InstallValve: return "🔩";
-            case InteractionStep.StepType.RemoveValve: return "🔧";
+            case InteractionStep.StepType.TightenScrew: return "🔩";
+            case InteractionStep.StepType.LoosenScrew: return "🔩";
+            case InteractionStep.StepType.InstallScrew: return "🔩";
+            case InteractionStep.StepType.RemoveScrew: return "🔩";
             case InteractionStep.StepType.WaitForScriptCondition: return "⚙️";
             case InteractionStep.StepType.Teleport: return "🚀";
             default: return "❓";
@@ -373,10 +373,10 @@ public class SequenceTreeView
 
         // Valve operation steps
         menu.AddSeparator("");
-        menu.AddItem(new GUIContent("Valve Operations/Tighten Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenValve));
-        menu.AddItem(new GUIContent("Valve Operations/Loosen Valve"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenValve));
-        menu.AddItem(new GUIContent("Valve Operations/Install Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallValve));
-        menu.AddItem(new GUIContent("Valve Operations/Remove Valve (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveValve));
+        menu.AddItem(new GUIContent("Screw Operations/Tighten Screw"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenScrew));
+        menu.AddItem(new GUIContent("Screw Operations/Loosen Screw"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenScrew));
+        menu.AddItem(new GUIContent("Screw Operations/Install Screw (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallScrew));
+        menu.AddItem(new GUIContent("Screw Operations/Remove Screw (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveScrew));
 
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));

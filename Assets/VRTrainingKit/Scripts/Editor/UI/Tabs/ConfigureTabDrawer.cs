@@ -66,7 +66,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(GrabProfile),
                     DefaultAssetName = "GrabProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "✋"
                 }
             },
             {
@@ -79,7 +79,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(KnobProfile),
                     DefaultAssetName = "KnobProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "🔄"
                 }
             },
             {
@@ -92,7 +92,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(SnapProfile),
                     DefaultAssetName = "SnapProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "🔗"
                 }
             },
             {
@@ -105,7 +105,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(ToolProfile),
                     DefaultAssetName = "ToolProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "🔧"
                 }
             },
             {
@@ -118,7 +118,20 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(ValveProfile),
                     DefaultAssetName = "ValveProfile",
                     IsAutoHandsOnly = false,
-                    Icon = ""
+                    Icon = "🔩"
+                }
+            },
+            {
+                ProfileCacheManager.ProfileType.Screw, new ProfileSectionConfig
+                {
+                    Label = "Screw Profile",
+                    CreateButtonText = "Create New Screw Profile",
+                    EmptyMessage = "No screw profiles found. Create one below.",
+                    InvalidTypeMessage = "is not a screw-type profile",
+                    CreateProfileType = typeof(ScrewProfile),
+                    DefaultAssetName = "ScrewProfile",
+                    IsAutoHandsOnly = false,
+                    Icon = "🔩"
                 }
             },
             {
@@ -144,7 +157,7 @@ public class ConfigureTabDrawer
                     CreateProfileType = typeof(AutoHandsTeleportProfile),
                     DefaultAssetName = "TeleportProfile",
                     IsAutoHandsOnly = true,
-                    Icon = "🚀 "
+                    Icon = "🚀"
                 }
             }
         };
@@ -196,14 +209,18 @@ public class ConfigureTabDrawer
         DrawProfileSection(ProfileCacheManager.ProfileType.Snap);
         EditorGUILayout.Space(10);
 
-        DrawProfileSection(ProfileCacheManager.ProfileType.Tool);
-        EditorGUILayout.Space(10);
+        // DrawProfileSection(ProfileCacheManager.ProfileType.Tool);
+        // EditorGUILayout.Space(10);
 
         DrawProfileSection(ProfileCacheManager.ProfileType.Valve);
         EditorGUILayout.Space(10);
 
-        DrawProfileSection(ProfileCacheManager.ProfileType.Turn);
-        EditorGUILayout.Space(10);
+        // DrawProfileSection(ProfileCacheManager.ProfileType.Screw);
+        // EditorGUILayout.Space(10);
+
+        // Turn By Count Profile - DEPRECATED - Removed from UI
+        // DrawProfileSection(ProfileCacheManager.ProfileType.Turn);
+        // EditorGUILayout.Space(10);
 
         DrawProfileSection(ProfileCacheManager.ProfileType.Teleport);
 
@@ -253,6 +270,12 @@ public class ConfigureTabDrawer
         if (_selectedProfiles[profileType] == null)
         {
             var cachedProfiles = _profileCacheManager.GetCachedProfiles(profileType);
+
+            // Apply framework filtering
+            if (cachedProfiles != null)
+            {
+                cachedProfiles = FilterProfilesByFramework(cachedProfiles, config.IsAutoHandsOnly);
+            }
 
             if (cachedProfiles != null && cachedProfiles.Count > 0)
             {
@@ -326,10 +349,40 @@ public class ConfigureTabDrawer
                  profile is KnobProfile ||
                  profile is SnapProfile ||
                  profile is ToolProfile ||
-                 profile is ValveProfile)
+                 profile is ValveProfile ||
+                 profile is ScrewProfile)
             return "[XRI]";
         else
             return "[Unknown]";
+    }
+
+    /// <summary>
+    /// Filters profiles based on detected framework
+    /// </summary>
+    private List<InteractionProfile> FilterProfilesByFramework(List<InteractionProfile> profiles, bool isAutoHandsOnly)
+    {
+        var detectedFramework = VRFrameworkDetector.DetectCurrentFramework();
+
+        // If no framework detected, show all profiles
+        if (detectedFramework == VRFramework.None)
+            return profiles;
+
+        // Filter based on framework
+        List<InteractionProfile> filtered = new List<InteractionProfile>();
+        foreach (var profile in profiles)
+        {
+            if (profile == null) continue;
+
+            string frameworkType = GetProfileFrameworkType(profile, isAutoHandsOnly);
+
+            // Match framework
+            if (detectedFramework == VRFramework.AutoHands && frameworkType == "[AutoHands]")
+                filtered.Add(profile);
+            else if (detectedFramework == VRFramework.XRI && frameworkType == "[XRI]")
+                filtered.Add(profile);
+        }
+
+        return filtered;
     }
 
     /// <summary>
@@ -462,6 +515,26 @@ public class ConfigureTabDrawer
             _selectedProfiles[ProfileCacheManager.ProfileType.Valve] = valveProfile;
         }
 
+        // Create Screw Profile
+        if (_selectedProfiles[ProfileCacheManager.ProfileType.Screw] == null)
+        {
+            ScrewProfile screwProfile = ScriptableObject.CreateInstance<ScrewProfile>();
+            screwProfile.profileName = "Default Screw";
+            screwProfile.rotationAxis = Vector3.up;
+            screwProfile.tightenThreshold = 180f;
+            screwProfile.loosenThreshold = 180f;
+            screwProfile.angleTolerance = 10f;
+            screwProfile.compatibleSocketTags = new string[] { "valve_socket", "screw_socket" };
+            screwProfile.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+            screwProfile.trackPosition = true;
+            screwProfile.trackRotation = true;
+            screwProfile.rotationDampening = 3f;
+            screwProfile.dampeningSpeed = 8f;
+
+            AssetDatabase.CreateAsset(screwProfile, $"{folderPath}/DefaultScrewProfile.asset");
+            _selectedProfiles[ProfileCacheManager.ProfileType.Screw] = screwProfile;
+        }
+
         AssetDatabase.SaveAssets();
 
         // Refresh all caches
@@ -496,7 +569,7 @@ public class ConfigureTabDrawer
                 GUI.color = originalColor;
 
                 EditorGUILayout.LabelField(
-                    "Current profiles are XRI-based. AutoHands profiles will be available in Phase 2.",
+                    "AutoHands framework detected. Showing only AutoHands-compatible profiles.",
                     EditorStyles.wordWrappedLabel);
 
                 EditorGUILayout.Space(3);
