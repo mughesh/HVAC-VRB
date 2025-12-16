@@ -15,12 +15,12 @@ public class InteractionSetupService
             public List<GameObject> knobObjects = new List<GameObject>();
             public List<GameObject> snapObjects = new List<GameObject>();
             public List<GameObject> toolObjects = new List<GameObject>();
-            public List<GameObject> screwObjects = new List<GameObject>();
+            public List<GameObject> valveObjects = new List<GameObject>();
             public List<GameObject> turnObjects = new List<GameObject>();
             public List<GameObject> teleportObjects = new List<GameObject>();
             public List<GameObject> untaggedObjects = new List<GameObject>();
 
-            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count + toolObjects.Count + screwObjects.Count + turnObjects.Count + teleportObjects.Count;
+            public int TotalInteractables => grabObjects.Count + knobObjects.Count + snapObjects.Count + toolObjects.Count + valveObjects.Count + turnObjects.Count + teleportObjects.Count;
         }
         
         /// <summary>
@@ -56,11 +56,10 @@ public class InteractionSetupService
                     analysis.toolObjects.Add(obj);
                     Debug.Log($"[InteractionSetupService] Found tool object: {obj.name} (Tag: {obj.tag})");
                 }
-                else if (obj.CompareTag("valve") || obj.CompareTag("screw"))
+                else if (obj.CompareTag("valve"))
                 {
-                    // Dual tag support: accepts both "valve" and "screw" tags for backwards compatibility
-                    analysis.screwObjects.Add(obj);
-                    Debug.Log($"[InteractionSetupService] Found screw object: {obj.name} (Tag: {obj.tag})");
+                    analysis.valveObjects.Add(obj);
+                    Debug.Log($"[InteractionSetupService] Found valve object: {obj.name} (Tag: {obj.tag})");
                 }
                 else if (obj.CompareTag("turn"))
                 {
@@ -79,7 +78,7 @@ public class InteractionSetupService
             Debug.Log($"  - Knob Objects: {analysis.knobObjects.Count}");
             Debug.Log($"  - Snap Points: {analysis.snapObjects.Count}");
             Debug.Log($"  - Tool Objects: {analysis.toolObjects.Count}");
-            Debug.Log($"  - Screw Objects: {analysis.screwObjects.Count}");
+            Debug.Log($"  - Valve Objects: {analysis.valveObjects.Count}");
             Debug.Log($"  - Turn Objects: {analysis.turnObjects.Count}");
             Debug.Log($"  - Teleport Points: {analysis.teleportObjects.Count}");
             
@@ -268,16 +267,16 @@ public class InteractionSetupService
                 }
             }
 
-            // Check screw objects for XRI components
-            foreach (var obj in analysis.screwObjects)
+            // Check valve objects for XRI components
+            foreach (var obj in analysis.valveObjects)
             {
                 if (obj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>() == null)
                 {
-                    issues.Add($"XRI: Screw object '{obj.name}' missing XRGrabInteractable");
+                    issues.Add($"XRI: Valve object '{obj.name}' missing XRGrabInteractable");
                 }
                 if (obj.GetComponent<Rigidbody>() == null)
                 {
-                    issues.Add($"XRI: Screw object '{obj.name}' missing Rigidbody");
+                    issues.Add($"XRI: Valve object '{obj.name}' missing Rigidbody");
                 }
             }
 
@@ -357,12 +356,12 @@ public class InteractionSetupService
                 }
             }
 
-            // Validate screw objects (screws typically use both Grabbable and may have PlacePoint)
-            foreach (var obj in analysis.screwObjects)
+            // Validate valve objects (valves typically use both Grabbable and may have PlacePoint)
+            foreach (var obj in analysis.valveObjects)
             {
                 if (!HasAutoHandsComponent(obj, "Grabbable"))
                 {
-                    issues.Add($"AutoHands: Screw object '{obj.name}' missing Grabbable component");
+                    issues.Add($"AutoHands: Valve object '{obj.name}' missing Grabbable component");
                 }
             }
 

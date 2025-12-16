@@ -220,19 +220,19 @@ public class ModularTrainingSequenceController : MonoBehaviour
         var grabHandler = new GameObject("GrabStepHandler").AddComponent<GrabStepHandler>();
         var snapHandler = new GameObject("SnapStepHandler").AddComponent<SnapStepHandler>();
         var knobHandler = new GameObject("KnobStepHandler").AddComponent<KnobStepHandler>();
-        var screwHandler = new GameObject("ScrewStepHandler").AddComponent<ScrewStepHandler>();
+        var valveHandler = new GameObject("ValveStepHandler").AddComponent<ValveStepHandler>();
 
         // Set as children of this controller for organization
         grabHandler.transform.SetParent(transform);
         snapHandler.transform.SetParent(transform);
         knobHandler.transform.SetParent(transform);
-        screwHandler.transform.SetParent(transform);
+        valveHandler.transform.SetParent(transform);
 
         // Register the handlers
         RegisterHandler(grabHandler);
         RegisterHandler(snapHandler);
         RegisterHandler(knobHandler);
-        RegisterHandler(screwHandler);
+        RegisterHandler(valveHandler);
     }
 
     /// <summary>
@@ -246,7 +246,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
         var grabHandler = new GameObject("AutoHandsGrabStepHandler").AddComponent<AutoHandsGrabStepHandler>();
         var snapHandler = new GameObject("AutoHandsSnapStepHandler").AddComponent<AutoHandsSnapStepHandler>();
         var knobHandler = new GameObject("AutoHandsKnobStepHandler").AddComponent<AutoHandsKnobStepHandler>();
-        var screwHandler = new GameObject("AutoHandsScrewStepHandler").AddComponent<AutoHandsScrewStepHandler>();
+        var valveHandler = new GameObject("AutoHandsValveStepHandler").AddComponent<AutoHandsValveStepHandler>();
         var waitForScriptConditionHandler = new GameObject("AutoHandsWaitForScriptConditionHandler").AddComponent<AutoHandsWaitForScriptConditionHandler>();
         var teleportHandler = new GameObject("AutoHandsTeleportStepHandler").AddComponent<AutoHandsTeleportStepHandler>();
 
@@ -254,7 +254,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
         grabHandler.transform.SetParent(transform);
         snapHandler.transform.SetParent(transform);
         knobHandler.transform.SetParent(transform);
-        screwHandler.transform.SetParent(transform);
+        valveHandler.transform.SetParent(transform);
         waitForScriptConditionHandler.transform.SetParent(transform);
         teleportHandler.transform.SetParent(transform);
 
@@ -262,7 +262,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
         RegisterHandler(grabHandler);
         RegisterHandler(snapHandler);
         RegisterHandler(knobHandler);
-        RegisterHandler(screwHandler);
+        RegisterHandler(valveHandler);
         RegisterHandler(waitForScriptConditionHandler);
         RegisterHandler(teleportHandler);
     }
@@ -1000,7 +1000,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
     }
 
     /// <summary>
-    /// Get target socket for screw operations (with registry support)
+    /// Get target socket for valve operations (with registry support)
     /// HANDLERS SHOULD USE THIS instead of step.targetSocket.GameObject
     /// </summary>
     public GameObject GetTargetSocketForStep(InteractionStep step)

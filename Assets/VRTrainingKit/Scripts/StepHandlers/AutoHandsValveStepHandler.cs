@@ -1,5 +1,5 @@
-// AutoHandsScrewStepHandler.cs (formerly AutoHandsScrewStepHandler.cs)
-// Handles screw interaction steps in training sequences using AutoHands framework
+// AutoHandsValveStepHandler.cs
+// Handles valve interaction steps in training sequences using AutoHands framework
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
@@ -7,92 +7,92 @@ using System.Reflection;
 // NO NAMESPACE - Follows existing project pattern
 
 /// <summary>
-/// Handler for screw interaction steps (TightenScrew, LoosenScrew) using AutoHands framework
-/// Manages AutoHandsScrewControllerV2 event subscriptions and state-based completion detection
+/// Handler for valve interaction steps (TightenValve, LoosenValve) using AutoHands framework
+/// Manages AutoHandsValveControllerV2 event subscriptions and state-based completion detection
 /// </summary>
-public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
+public class AutoHandsValveStepHandler : BaseAutoHandsStepHandler
 {
-    // Component cache for AutoHands screw controllers
-    private Dictionary<GameObject, AutoHandsScrewControllerV2> screwControllers = new Dictionary<GameObject, AutoHandsScrewControllerV2>();
+    // Component cache for AutoHands valve controllers
+    private Dictionary<GameObject, AutoHandsValveControllerV2> valveControllers = new Dictionary<GameObject, AutoHandsValveControllerV2>();
 
     // Component cache for Grabbable components (for tool grab detection)
     private Dictionary<GameObject, Autohand.Grabbable> grabbableComponents = new Dictionary<GameObject, Autohand.Grabbable>();
 
     // Active step tracking with event delegates for proper cleanup
-    private Dictionary<AutoHandsScrewControllerV2, System.Action> tightenEventDelegates = new Dictionary<AutoHandsScrewControllerV2, System.Action>();
-    private Dictionary<AutoHandsScrewControllerV2, System.Action> loosenEventDelegates = new Dictionary<AutoHandsScrewControllerV2, System.Action>();
-    private Dictionary<InteractionStep, AutoHandsScrewControllerV2> activeStepScrews = new Dictionary<InteractionStep, AutoHandsScrewControllerV2>();
+    private Dictionary<AutoHandsValveControllerV2, System.Action> tightenEventDelegates = new Dictionary<AutoHandsValveControllerV2, System.Action>();
+    private Dictionary<AutoHandsValveControllerV2, System.Action> loosenEventDelegates = new Dictionary<AutoHandsValveControllerV2, System.Action>();
+    private Dictionary<InteractionStep, AutoHandsValveControllerV2> activeStepValves = new Dictionary<InteractionStep, AutoHandsValveControllerV2>();
     private Dictionary<InteractionStep, Autohand.Grabbable> activeStepGrabbables = new Dictionary<InteractionStep, Autohand.Grabbable>();
 
     void Awake()
     {
-        CacheScrewControllers();
+        CacheValveControllers();
         CacheGrabbableComponents();
     }
 
     public override bool CanHandle(InteractionStep.StepType stepType)
     {
-        return stepType == InteractionStep.StepType.TightenScrew ||
-               stepType == InteractionStep.StepType.LoosenScrew ||
-               stepType == InteractionStep.StepType.InstallScrew ||
-               stepType == InteractionStep.StepType.RemoveScrew;
+        return stepType == InteractionStep.StepType.TightenValve ||
+               stepType == InteractionStep.StepType.LoosenValve ||
+               stepType == InteractionStep.StepType.InstallValve ||
+               stepType == InteractionStep.StepType.RemoveValve;
     }
 
     public override void Initialize(ModularTrainingSequenceController controller)
     {
         base.Initialize(controller);
-        LogInfo("🔧 AutoHandsScrewStepHandler initialized");
+        LogInfo("🔧 AutoHandsValveStepHandler initialized");
 
         // Refresh cache in case scene changed
-        CacheScrewControllers();
+        CacheValveControllers();
         CacheGrabbableComponents();
     }
 
     public override void StartStep(InteractionStep step)
     {
-        LogDebug($"🔧 Starting AutoHands screw step: {step.stepName} (Type: {step.type})");
+        LogDebug($"🔧 Starting AutoHands valve step: {step.stepName} (Type: {step.type})");
 
         // Use controller's helper method to get object from registry (reliable!)
         var targetObject = controller.GetTargetObjectForStep(step);
         if (targetObject == null)
         {
-            LogError($"Target object is null for screw step: {step.stepName}");
+            LogError($"Target object is null for valve step: {step.stepName}");
             return;
         }
 
-        if (!screwControllers.ContainsKey(targetObject))
+        if (!valveControllers.ContainsKey(targetObject))
         {
-            LogError($"No screw controller found for object: {targetObject.name} in step: {step.stepName}");
+            LogError($"No valve controller found for object: {targetObject.name} in step: {step.stepName}");
             return;
         }
 
-        var screwController = screwControllers[targetObject];
+        var valveController = valveControllers[targetObject];
 
-        // Apply parameter overrides from InteractionStep to screw controller
-        ApplyStepParameterOverrides(step, screwController);
+        // Apply parameter overrides from InteractionStep to valve controller
+        ApplyStepParameterOverrides(step, valveController);
 
         // Subscribe to appropriate events based on step type
         switch (step.type)
         {
-            case InteractionStep.StepType.TightenScrew:
-                SubscribeToTightenEvent(step, screwController);
+            case InteractionStep.StepType.TightenValve:
+                SubscribeToTightenEvent(step, valveController);
                 break;
 
-            case InteractionStep.StepType.LoosenScrew:
-                SubscribeToLoosenEvent(step, screwController);
+            case InteractionStep.StepType.LoosenValve:
+                SubscribeToLoosenEvent(step, valveController);
                 break;
 
-            case InteractionStep.StepType.InstallScrew:
-                SubscribeToSnapEvent(step, screwController);
+            case InteractionStep.StepType.InstallValve:
+                SubscribeToSnapEvent(step, valveController);
                 break;
 
-            case InteractionStep.StepType.RemoveScrew:
-                SubscribeToRemoveEvent(step, screwController);
+            case InteractionStep.StepType.RemoveValve:
+                SubscribeToRemoveEvent(step, valveController);
                 break;
         }
 
         // Track this active step
-        activeStepScrews[step] = screwController;
+        activeStepValves[step] = valveController;
 
         // ALSO subscribe to grab events on the target object (tool) for arrow transitions
         if (targetObject != null && grabbableComponents.ContainsKey(targetObject))
@@ -103,22 +103,22 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
             LogDebug($"🔧 Subscribed to grab events on tool: {targetObject.name}");
         }
 
-        LogDebug($"🔧 Subscribed to AutoHands valve events for: {targetObject.name} (State: {screwController.CurrentState}-{screwController.CurrentSubstate})");
+        LogDebug($"🔧 Subscribed to AutoHands valve events for: {targetObject.name} (State: {valveController.CurrentState}-{valveController.CurrentSubstate})");
     }
 
     public override void StopStep(InteractionStep step)
     {
-        LogDebug($"🔧 Stopping AutoHands screw step: {step.stepName}");
+        LogDebug($"🔧 Stopping AutoHands valve step: {step.stepName}");
 
-        if (activeStepScrews.ContainsKey(step))
+        if (activeStepValves.ContainsKey(step))
         {
-            var screwController = activeStepScrews[step];
+            var valveController = activeStepValves[step];
 
             // Unsubscribe from all events
-            UnsubscribeFromAllEvents(screwController);
+            UnsubscribeFromAllEvents(valveController);
 
             // Remove from tracking
-            activeStepScrews.Remove(step);
+            activeStepValves.Remove(step);
 
             LogDebug($"🔧 Unsubscribed from AutoHands valve events for step: {step.stepName}");
         }
@@ -135,38 +135,38 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
 
     public override void Cleanup()
     {
-        LogDebug("🔧 Cleaning up AutoHands screw step handler...");
+        LogDebug("🔧 Cleaning up AutoHands valve step handler...");
 
         // Stop all active steps
-        var activeSteps = new List<InteractionStep>(activeStepScrews.Keys);
+        var activeSteps = new List<InteractionStep>(activeStepValves.Keys);
         foreach (var step in activeSteps)
         {
             StopStep(step);
         }
 
         // Clear cache
-        screwControllers.Clear();
+        valveControllers.Clear();
 
         base.Cleanup();
     }
 
     /// <summary>
-    /// Cache all AutoHands screw controllers in the scene
+    /// Cache all AutoHands valve controllers in the scene
     /// </summary>
-    void CacheScrewControllers()
+    void CacheValveControllers()
     {
-        LogDebug("🔧 Caching AutoHands screw controllers...");
+        LogDebug("🔧 Caching AutoHands valve controllers...");
 
-        screwControllers.Clear();
+        valveControllers.Clear();
 
-        var screwControllerComponents = FindObjectsOfType<AutoHandsScrewControllerV2>();
-        foreach (var screwController in screwControllerComponents)
+        var valveControllerComponents = FindObjectsOfType<AutoHandsValveControllerV2>();
+        foreach (var valveController in valveControllerComponents)
         {
-            screwControllers[screwController.gameObject] = screwController;
-            LogDebug($"🔧 Cached AutoHands screw controller: {screwController.name}");
+            valveControllers[valveController.gameObject] = valveController;
+            LogDebug($"🔧 Cached AutoHands valve controller: {valveController.name}");
         }
 
-        LogInfo($"🔧 Cached {screwControllers.Count} AutoHands screw controllers");
+        LogInfo($"🔧 Cached {valveControllers.Count} AutoHands valve controllers");
     }
 
     /// <summary>
@@ -213,18 +213,18 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
     }
 
     /// <summary>
-    /// Apply parameter overrides from InteractionStep to screw controller
+    /// Apply parameter overrides from InteractionStep to valve controller
     /// Creates runtime profile with step-specific parameters (profile values are fallback)
     /// </summary>
-    void ApplyStepParameterOverrides(InteractionStep step, AutoHandsScrewControllerV2 screwController)
+    void ApplyStepParameterOverrides(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
         LogDebug($"🔧 PARAMS: Applying parameter overrides for step {step.stepName}");
 
-        // Get current screw profile
-        var currentProfile = GetScrewProfile(screwController);
+        // Get current valve profile
+        var currentProfile = GetValveProfile(valveController);
         if (currentProfile == null)
         {
-            LogWarning($"🔧 PARAMS: No screw profile found for {screwController.gameObject.name}");
+            LogWarning($"🔧 PARAMS: No valve profile found for {valveController.gameObject.name}");
             return;
         }
 
@@ -234,7 +234,7 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
         if (step.rotationAxis != currentProfile.rotationAxis) needsOverride = true;
         if (step.tightenThreshold != currentProfile.tightenThreshold) needsOverride = true;
         if (step.loosenThreshold != currentProfile.loosenThreshold) needsOverride = true;
-        if (step.screwAngleTolerance != currentProfile.angleTolerance) needsOverride = true;
+        if (step.valveAngleTolerance != currentProfile.angleTolerance) needsOverride = true;
         if (step.rotationDampening != currentProfile.rotationDampening) needsOverride = true;
 
         LogDebug($"🔧 PARAMS: Override check - Step tighten: {step.tightenThreshold}, Profile tighten: {currentProfile.tightenThreshold}");
@@ -247,7 +247,7 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
         }
 
         // Create runtime profile with overrides
-        var runtimeProfile = ScriptableObject.CreateInstance<ScrewProfile>();
+        var runtimeProfile = ScriptableObject.CreateInstance<ValveProfile>();
 
         // Copy base settings from original profile
         runtimeProfile.profileName = $"{currentProfile.profileName}_Runtime_{step.type}";
@@ -278,7 +278,7 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
             }
         }
 
-        runtimeProfile.angleTolerance = step.screwAngleTolerance != currentProfile.angleTolerance ? step.screwAngleTolerance : currentProfile.angleTolerance;
+        runtimeProfile.angleTolerance = step.valveAngleTolerance != currentProfile.angleTolerance ? step.valveAngleTolerance : currentProfile.angleTolerance;
         runtimeProfile.rotationDampening = step.rotationDampening != currentProfile.rotationDampening ? step.rotationDampening : currentProfile.rotationDampening;
 
         // Copy other essential settings
@@ -287,12 +287,12 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
         runtimeProfile.specificCompatibleSockets = currentProfile.specificCompatibleSockets;
 
         // Apply the modified profile to the controller
-        screwController.Configure(runtimeProfile);
+        valveController.Configure(runtimeProfile);
 
         // Update HingeJoint limits if valve is already snapped (for mid-sequence parameter changes)
-        UpdateHingeJointLimits(screwController, runtimeProfile);
+        UpdateHingeJointLimits(valveController, runtimeProfile);
 
-        LogInfo($"🔧 PARAMS: Applied parameter overrides to {screwController.gameObject.name}:");
+        LogInfo($"🔧 PARAMS: Applied parameter overrides to {valveController.gameObject.name}:");
         LogInfo($"🔧   - Rotation Axis: {runtimeProfile.rotationAxis}");
         LogInfo($"🔧   - Tighten Threshold: {runtimeProfile.tightenThreshold}°");
         LogInfo($"🔧   - Loosen Threshold: {runtimeProfile.loosenThreshold}°");
@@ -302,148 +302,148 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
     /// <summary>
     /// Subscribe to valve tighten event
     /// </summary>
-    void SubscribeToTightenEvent(InteractionStep step, AutoHandsScrewControllerV2 screwController)
+    void SubscribeToTightenEvent(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
         // Check if valve is in correct state for tightening
-        if (screwController.CurrentState != ScrewState.Locked)
+        if (valveController.CurrentState != ValveState.Locked)
         {
-            LogWarning($"Screw {screwController.name} is not in Locked state (current: {screwController.CurrentState}). Waiting for snap...");
+            LogWarning($"Valve {valveController.name} is not in Locked state (current: {valveController.CurrentState}). Waiting for snap...");
         }
 
         // Create delegate for this specific step
-        System.Action tightenDelegate = () => OnScrewTightened(step, screwController);
-        tightenEventDelegates[screwController] = tightenDelegate;
-        screwController.OnScrewTightened += tightenDelegate;
+        System.Action tightenDelegate = () => OnValveTightened(step, valveController);
+        tightenEventDelegates[valveController] = tightenDelegate;
+        valveController.OnValveTightened += tightenDelegate;
 
-        LogDebug($"🔧 Subscribed to OnScrewTightened for {screwController.name}");
+        LogDebug($"🔧 Subscribed to OnValveTightened for {valveController.name}");
     }
 
     /// <summary>
     /// Subscribe to valve loosen event
     /// </summary>
-    void SubscribeToLoosenEvent(InteractionStep step, AutoHandsScrewControllerV2 screwController)
+    void SubscribeToLoosenEvent(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
         // Check if valve is in correct state for loosening (should be Tight)
-        if (screwController.CurrentSubstate != ScrewSubstate.Tight)
+        if (valveController.CurrentSubstate != ValveSubstate.Tight)
         {
-            LogWarning($"Screw {screwController.name} is not in Tight state (current: {screwController.CurrentState}-{screwController.CurrentSubstate}). Waiting for tightening...");
+            LogWarning($"Valve {valveController.name} is not in Tight state (current: {valveController.CurrentState}-{valveController.CurrentSubstate}). Waiting for tightening...");
         }
 
         // Create delegate for this specific step
-        System.Action loosenDelegate = () => OnScrewLoosened(step, screwController);
-        loosenEventDelegates[screwController] = loosenDelegate;
-        screwController.OnScrewLoosened += loosenDelegate;
+        System.Action loosenDelegate = () => OnValveLoosened(step, valveController);
+        loosenEventDelegates[valveController] = loosenDelegate;
+        valveController.OnValveLoosened += loosenDelegate;
 
-        LogDebug($"🔧 Subscribed to OnScrewLoosened for {screwController.name}");
+        LogDebug($"🔧 Subscribed to OnValveLoosened for {valveController.name}");
     }
 
     /// <summary>
-    /// Subscribe to valve snap event (InstallScrew step)
+    /// Subscribe to valve snap event (InstallValve step)
     /// </summary>
-    void SubscribeToSnapEvent(InteractionStep step, AutoHandsScrewControllerV2 screwController)
+    void SubscribeToSnapEvent(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
         // Create delegate for snap event
-        System.Action snapDelegate = () => OnScrewSnapped(step, screwController);
+        System.Action snapDelegate = () => OnValveSnapped(step, valveController);
 
         // Store as tighten delegate (reusing dictionary for snap events)
-        tightenEventDelegates[screwController] = snapDelegate;
-        screwController.OnScrewSnapped += snapDelegate;
+        tightenEventDelegates[valveController] = snapDelegate;
+        valveController.OnValveSnapped += snapDelegate;
 
-        LogDebug($"🔧 Subscribed to OnScrewSnapped for {screwController.name}");
+        LogDebug($"🔧 Subscribed to OnValveSnapped for {valveController.name}");
     }
 
     /// <summary>
-    /// Subscribe to valve remove event (RemoveScrew step)
+    /// Subscribe to valve remove event (RemoveValve step)
     /// </summary>
-    void SubscribeToRemoveEvent(InteractionStep step, AutoHandsScrewControllerV2 screwController)
+    void SubscribeToRemoveEvent(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
         // Create delegate for remove event
-        System.Action removeDelegate = () => OnScrewRemoved(step, screwController);
+        System.Action removeDelegate = () => OnValveRemoved(step, valveController);
 
         // Store as loosen delegate (reusing dictionary for remove events)
-        loosenEventDelegates[screwController] = removeDelegate;
-        screwController.OnScrewRemoved += removeDelegate;
+        loosenEventDelegates[valveController] = removeDelegate;
+        valveController.OnValveRemoved += removeDelegate;
 
-        LogDebug($"🔧 Subscribed to OnScrewRemoved for {screwController.name}");
+        LogDebug($"🔧 Subscribed to OnValveRemoved for {valveController.name}");
     }
 
     /// <summary>
     /// Unsubscribe from all valve events for a controller
     /// </summary>
-    void UnsubscribeFromAllEvents(AutoHandsScrewControllerV2 screwController)
+    void UnsubscribeFromAllEvents(AutoHandsValveControllerV2 valveController)
     {
         // Unsubscribe from tighten event
-        if (tightenEventDelegates.ContainsKey(screwController))
+        if (tightenEventDelegates.ContainsKey(valveController))
         {
-            screwController.OnScrewTightened -= tightenEventDelegates[screwController];
-            screwController.OnScrewSnapped -= tightenEventDelegates[screwController];
-            tightenEventDelegates.Remove(screwController);
+            valveController.OnValveTightened -= tightenEventDelegates[valveController];
+            valveController.OnValveSnapped -= tightenEventDelegates[valveController];
+            tightenEventDelegates.Remove(valveController);
         }
 
         // Unsubscribe from loosen event
-        if (loosenEventDelegates.ContainsKey(screwController))
+        if (loosenEventDelegates.ContainsKey(valveController))
         {
-            screwController.OnScrewLoosened -= loosenEventDelegates[screwController];
-            screwController.OnScrewRemoved -= loosenEventDelegates[screwController];
-            loosenEventDelegates.Remove(screwController);
+            valveController.OnValveLoosened -= loosenEventDelegates[valveController];
+            valveController.OnValveRemoved -= loosenEventDelegates[valveController];
+            loosenEventDelegates.Remove(valveController);
         }
     }
 
     /// <summary>
     /// Handle valve tightened event
     /// </summary>
-    void OnScrewTightened(InteractionStep step, AutoHandsScrewControllerV2 screwController)
+    void OnValveTightened(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
         if (step.isCompleted) return;
 
         LogDebug($"🔧 Valve tightened! Completing step: {step.stepName}");
-        CompleteStep(step, $"Screw {screwController.name} tightened to {screwController.CurrentRotation:F1}° with AutoHands");
+        CompleteStep(step, $"Valve {valveController.name} tightened to {valveController.CurrentRotation:F1}° with AutoHands");
     }
 
     /// <summary>
     /// Handle valve loosened event
     /// </summary>
-    void OnScrewLoosened(InteractionStep step, AutoHandsScrewControllerV2 screwController)
+    void OnValveLoosened(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
         if (step.isCompleted) return;
 
         LogDebug($"🔧 Valve loosened! Completing step: {step.stepName}");
-        CompleteStep(step, $"Screw {screwController.name} loosened (unlocked) with AutoHands");
+        CompleteStep(step, $"Valve {valveController.name} loosened (unlocked) with AutoHands");
     }
 
     /// <summary>
-    /// Handle valve snapped event (InstallScrew)
+    /// Handle valve snapped event (InstallValve)
     /// </summary>
-    void OnScrewSnapped(InteractionStep step, AutoHandsScrewControllerV2 screwController)
+    void OnValveSnapped(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
         if (step.isCompleted) return;
 
         LogDebug($"🔧 Valve snapped to socket! Completing step: {step.stepName}");
-        CompleteStep(step, $"Screw {screwController.name} installed in socket with AutoHands");
+        CompleteStep(step, $"Valve {valveController.name} installed in socket with AutoHands");
     }
 
     /// <summary>
-    /// Handle valve removed event (RemoveScrew)
+    /// Handle valve removed event (RemoveValve)
     /// </summary>
-    void OnScrewRemoved(InteractionStep step, AutoHandsScrewControllerV2 screwController)
+    void OnValveRemoved(InteractionStep step, AutoHandsValveControllerV2 valveController)
     {
         if (step.isCompleted) return;
 
         LogDebug($"🔧 Valve removed from socket! Completing step: {step.stepName}");
-        CompleteStep(step, $"Screw {screwController.name} removed from socket with AutoHands");
+        CompleteStep(step, $"Valve {valveController.name} removed from socket with AutoHands");
     }
 
     /// <summary>
-    /// Get screw profile using reflection (helper method)
+    /// Get valve profile using reflection (helper method)
     /// </summary>
-    ScrewProfile GetScrewProfile(AutoHandsScrewControllerV2 screwController)
+    ValveProfile GetValveProfile(AutoHandsValveControllerV2 valveController)
     {
-        var profileField = typeof(AutoHandsScrewControllerV2).GetField("profile",
+        var profileField = typeof(AutoHandsValveControllerV2).GetField("profile",
             BindingFlags.NonPublic | BindingFlags.Instance);
 
         if (profileField != null)
         {
-            return (ScrewProfile)profileField.GetValue(screwController);
+            return (ValveProfile)profileField.GetValue(valveController);
         }
 
         return null;
@@ -453,15 +453,15 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
     /// Update HingeJoint limits if valve is already snapped (for mid-sequence parameter changes)
     /// Uses reflection to access private hingeJoint field
     /// </summary>
-    void UpdateHingeJointLimits(AutoHandsScrewControllerV2 screwController, ScrewProfile profile)
+    void UpdateHingeJointLimits(AutoHandsValveControllerV2 valveController, ValveProfile profile)
     {
         // Use reflection to get private hingeJoint field
-        var hingeJointField = typeof(AutoHandsScrewControllerV2).GetField("hingeJoint",
+        var hingeJointField = typeof(AutoHandsValveControllerV2).GetField("hingeJoint",
             BindingFlags.NonPublic | BindingFlags.Instance);
 
         if (hingeJointField != null)
         {
-            HingeJoint hingeJoint = (HingeJoint)hingeJointField.GetValue(screwController);
+            HingeJoint hingeJoint = (HingeJoint)hingeJointField.GetValue(valveController);
 
             if (hingeJoint != null)
             {
@@ -481,8 +481,8 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
     /// </summary>
     bool IsTightenStep(InteractionStep.StepType stepType)
     {
-        return stepType == InteractionStep.StepType.TightenScrew ||
-               stepType == InteractionStep.StepType.InstallScrew;
+        return stepType == InteractionStep.StepType.TightenValve ||
+               stepType == InteractionStep.StepType.InstallValve;
     }
 
     /// <summary>
@@ -490,7 +490,7 @@ public class AutoHandsScrewStepHandler : BaseAutoHandsStepHandler
     /// </summary>
     bool IsLoosenStep(InteractionStep.StepType stepType)
     {
-        return stepType == InteractionStep.StepType.LoosenScrew ||
-               stepType == InteractionStep.StepType.RemoveScrew;
+        return stepType == InteractionStep.StepType.LoosenValve ||
+               stepType == InteractionStep.StepType.RemoveValve;
     }
 }

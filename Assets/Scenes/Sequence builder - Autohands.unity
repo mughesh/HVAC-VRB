@@ -258,7 +258,7 @@ GameObject:
   - component: {fileID: 28685350}
   m_Layer: 0
   m_Name: valve Cube _Large
-  m_TagString: screw
+  m_TagString: valve
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5584,9 +5584,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profile: {fileID: 901955916}
-  OnKnobRotated:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &727389100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7978,7 +7975,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trainingAsset: {fileID: 11400000, guid: e8160d99aa59aa64cbef2964d33c98a9, type: 2}
-  arrowRegistry: {fileID: 0}
   enableDebugLogging: 0
   showStepCompletions: 1
   restrictionManager: {fileID: 0}
@@ -14242,9 +14238,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profile: {fileID: 727389100}
-  OnKnobRotated:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &1716617928
 MonoBehaviour:
   m_ObjectHideFlags: 0

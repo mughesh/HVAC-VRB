@@ -176,12 +176,12 @@ public class SnapValidator : MonoBehaviour
             toolController.OnSocketSnapped(gameObject);
         }
         
-        // Notify ScrewController if the snapped object is a screw
-        ScrewController screwController = snappedObject.GetComponent<ScrewController>();
-        if (screwController != null)
+        // Notify ValveController if the snapped object is a valve
+        ValveController valveController = snappedObject.GetComponent<ValveController>();
+        if (valveController != null)
         {
-            VRTrainingDebug.LogEvent($"[SnapValidator] Notifying ScrewController on {snappedObject.name}");
-            screwController.OnSocketSnapped(gameObject);
+            VRTrainingDebug.LogEvent($"[SnapValidator] Notifying ValveController on {snappedObject.name}");
+            valveController.OnSocketSnapped(gameObject);
         }
         
         // Fire event for sequence system
@@ -208,11 +208,11 @@ public class SnapValidator : MonoBehaviour
             toolController.OnSocketReleased(gameObject);
         }
         
-        // Notify ScrewController if the removed object is a screw
-        ScrewController screwController = removedObject.GetComponent<ScrewController>();
-        if (screwController != null)
+        // Notify ValveController if the removed object is a valve
+        ValveController valveController = removedObject.GetComponent<ValveController>();
+        if (valveController != null)
         {
-            screwController.OnSocketReleased(gameObject);
+            valveController.OnSocketReleased(gameObject);
         }
         
         // Fire event for sequence system
