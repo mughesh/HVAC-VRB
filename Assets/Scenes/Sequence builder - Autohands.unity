@@ -258,7 +258,7 @@ GameObject:
   - component: {fileID: 28685350}
   m_Layer: 0
   m_Name: valve Cube _Large
-  m_TagString: valve
+  m_TagString: screw
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
