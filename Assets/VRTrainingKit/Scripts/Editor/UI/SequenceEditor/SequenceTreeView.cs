@@ -26,6 +26,7 @@ public class SequenceTreeView
 
     // Reorderable list caches (for drag-and-drop reordering)
     private Dictionary<TaskGroup, ReorderableList> _stepReorderableLists = new Dictionary<TaskGroup, ReorderableList>();
+    private Dictionary<TrainingModule, ReorderableList> _taskGroupReorderableLists = new Dictionary<TrainingModule, ReorderableList>();
 
     public SequenceTreeView(ISequenceTreeViewCallbacks callbacks)
     {
@@ -65,6 +66,7 @@ public class SequenceTreeView
     public void ClearReorderableListCaches()
     {
         _stepReorderableLists.Clear();
+        _taskGroupReorderableLists.Clear();
     }
 
     /// <summary>
@@ -199,13 +201,33 @@ public class SequenceTreeView
             Event.current.Use();
         }
 
-        // Draw task groups
+        // Draw task groups with ReorderableList (for smooth dragging)
         if (module.isExpanded && module.taskGroups != null)
         {
-            for (int groupIndex = 0; groupIndex < module.taskGroups.Count; groupIndex++)
+            EditorGUI.indentLevel++;
+
+            var taskGroupList = GetOrCreateTaskGroupReorderableList(module);
+            if (taskGroupList != null)
             {
-                DrawTaskGroupTreeItem(module.taskGroups[groupIndex], module, groupIndex);
+                taskGroupList.DoLayoutList();
+
+                // Draw expanded children AFTER all task group headers
+                // (This creates smooth drag for TaskGroups while maintaining hierarchy)
+                for (int i = 0; i < module.taskGroups.Count; i++)
+                {
+                    var taskGroup = module.taskGroups[i];
+                    if (taskGroup.isExpanded && taskGroup.steps != null)
+                    {
+                        EditorGUI.indentLevel++;
+                        var stepList = GetOrCreateStepReorderableList(taskGroup);
+                        if (stepList != null)
+                            stepList.DoLayoutList();
+                        EditorGUI.indentLevel--;
+                    }
+                }
             }
+
+            EditorGUI.indentLevel--;
         }
 
         EditorGUI.indentLevel--;
@@ -578,6 +600,95 @@ public class SequenceTreeView
             list.elementHeight = EditorGUIUtility.singleLineHeight + 4;
 
             _stepReorderableLists[taskGroup] = list;
+        }
+
+        return list;
+    }
+
+    /// <summary>
+    /// Get or create reorderable list for a module's task groups
+    /// </summary>
+    private ReorderableList GetOrCreateTaskGroupReorderableList(TrainingModule module)
+    {
+        if (module?.taskGroups == null) return null;
+
+        if (!_taskGroupReorderableLists.TryGetValue(module, out var list) || list == null)
+        {
+            list = new ReorderableList(
+                module.taskGroups,
+                typeof(TaskGroup),
+                true,   // draggable - this gives smooth drag feedback!
+                false,  // displayHeader
+                false,  // displayAddButton
+                false   // displayRemoveButton
+            );
+
+            // Draw TaskGroup header in ReorderableList for smooth dragging
+            list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            {
+                if (index >= module.taskGroups.Count) return;
+                var taskGroup = module.taskGroups[index];
+
+                // Selection highlighting
+                bool isSelected = (_selectedItemType == "taskgroup" && _selectedItem == taskGroup);
+                if (isSelected)
+                {
+                    EditorGUI.DrawRect(rect, Color.blue * 0.3f);
+                }
+
+                // Layout rects (leave space for drag handle, foldout, and buttons)
+                Rect foldoutRect = new Rect(rect.x, rect.y, rect.width - 55, rect.height);
+                Rect addBtnRect = new Rect(rect.x + rect.width - 52, rect.y, 25, rect.height);
+                Rect delBtnRect = new Rect(rect.x + rect.width - 25, rect.y, 25, rect.height);
+
+                // Foldout (toggles isExpanded)
+                taskGroup.isExpanded = EditorGUI.Foldout(
+                    foldoutRect,
+                    taskGroup.isExpanded,
+                    $"📁 {taskGroup.groupName}",
+                    true
+                );
+
+                // Add step button
+                if (GUI.Button(addBtnRect, "➕"))
+                {
+                    ShowAddStepMenu(taskGroup);
+                }
+
+                // Delete button
+                if (GUI.Button(delBtnRect, "❌"))
+                {
+                    if (EditorUtility.DisplayDialog("Delete Task Group",
+                        $"Delete '{taskGroup.groupName}'?", "Delete", "Cancel"))
+                    {
+                        module.taskGroups.RemoveAt(index);
+                        _callbacks?.OnAutoSave();
+                        // Clear caches
+                        _taskGroupReorderableLists.Remove(module);
+                        if (_stepReorderableLists.ContainsKey(taskGroup))
+                            _stepReorderableLists.Remove(taskGroup);
+                    }
+                }
+            };
+
+            // Handle selection
+            list.onSelectCallback = (ReorderableList l) =>
+            {
+                if (l.index >= 0 && l.index < module.taskGroups.Count)
+                {
+                    SelectItem(module.taskGroups[l.index], "taskgroup");
+                }
+            };
+
+            // Handle reorder - auto-save
+            list.onReorderCallback = (ReorderableList l) =>
+            {
+                _callbacks?.OnAutoSave();
+            };
+
+            list.elementHeight = EditorGUIUtility.singleLineHeight + 4;
+
+            _taskGroupReorderableLists[module] = list;
         }
 
         return list;
