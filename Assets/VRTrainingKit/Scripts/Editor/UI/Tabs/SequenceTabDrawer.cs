@@ -19,11 +19,14 @@ public class SequenceTabDrawer
     // State
     private TrainingSequenceAsset _currentTrainingAsset;
     private TrainingProgram _currentProgram;
-    private Vector2 _sequenceScrollPos;
+    private Vector2 _sequenceScrollPos; 
     private TrainingSequenceAsset[] _availableAssets;
     private int _selectedAssetIndex = 0;
     private bool _assetsLoaded = false;
     private float _splitterPosition = 0.4f; // 40% tree view, 60% details panel
+    private bool _isDraggingSplitter = false;
+    private const string SPLITTER_PREF_KEY = "VRTrainingKit.SequenceTab.SplitterPos";
+    private const float SPLITTER_WIDTH = 4f;
 
     // Callbacks
     private readonly System.Action _onRepaint;
@@ -36,6 +39,9 @@ public class SequenceTabDrawer
         _treeView = treeView;
         _propertiesPanel = propertiesPanel;
         _onRepaint = onRepaint;
+
+        // Load saved splitter position
+        _splitterPosition = EditorPrefs.GetFloat(SPLITTER_PREF_KEY, 0.4f);
     }
 
     /// <summary>
@@ -94,24 +100,84 @@ public class SequenceTabDrawer
     }
 
     /// <summary>
-    /// Draw the main two-panel editing interface
+    /// Draw the main two-panel editing interface with draggable splitter
     /// </summary>
     private void DrawTwoPanelLayout(float windowWidth)
     {
-        // Use horizontal layout for simplicity
         EditorGUILayout.BeginHorizontal();
 
-        // Tree view panel (left) - 40% width
-        EditorGUILayout.BeginVertical(GUILayout.Width(windowWidth * _splitterPosition));
+        // Left panel (Hierarchy/Tree view)
+        float leftPanelWidth = (windowWidth * _splitterPosition) - (SPLITTER_WIDTH / 2);
+        EditorGUILayout.BeginVertical(GUILayout.Width(leftPanelWidth));
         _treeView?.Draw(_currentProgram);
         EditorGUILayout.EndVertical();
 
-        // Details panel (right) - 60% width
+        // Splitter (draggable divider) - reserve actual layout space for it
+        DrawSplitter(windowWidth);
+
+        // Right panel (Properties)
         EditorGUILayout.BeginVertical();
         _propertiesPanel?.Draw(_treeView?.SelectedItem, _treeView?.SelectedItemType);
         EditorGUILayout.EndVertical();
 
         EditorGUILayout.EndHorizontal();
+    }
+
+    /// <summary>
+    /// Draw and handle the draggable splitter between panels
+    /// </summary>
+    private void DrawSplitter(float windowWidth)
+    {
+        // Reserve layout space for the splitter - this creates the gap!
+        Rect splitterRect = GUILayoutUtility.GetRect(SPLITTER_WIDTH, 0, GUILayout.ExpandHeight(true));
+
+        // Visual representation (draw semi-transparent bar)
+        if (Event.current.type == EventType.Repaint)
+        {
+            EditorGUI.DrawRect(splitterRect, new Color(0.5f, 0.5f, 0.5f, 0.5f));
+        }
+
+        // Change cursor when hovering over splitter
+        EditorGUIUtility.AddCursorRect(splitterRect, MouseCursor.ResizeHorizontal);
+
+        // Handle mouse events
+        switch (Event.current.type)
+        {
+            case EventType.MouseDown:
+                if (splitterRect.Contains(Event.current.mousePosition))
+                {
+                    _isDraggingSplitter = true;
+                    Event.current.Use();
+                }
+                break;
+
+            case EventType.MouseDrag:
+                if (_isDraggingSplitter)
+                {
+                    // Update splitter position based on mouse X relative to window width
+                    _splitterPosition = Mathf.Clamp(
+                        Event.current.mousePosition.x / windowWidth,
+                        0.2f,  // Min 20%
+                        0.8f   // Max 80%
+                    );
+
+                    // Save to preferences
+                    EditorPrefs.SetFloat(SPLITTER_PREF_KEY, _splitterPosition);
+
+                    // Request repaint
+                    _onRepaint?.Invoke();
+                    Event.current.Use();
+                }
+                break;
+
+            case EventType.MouseUp:
+                if (_isDraggingSplitter)
+                {
+                    _isDraggingSplitter = false;
+                    Event.current.Use();
+                }
+                break;
+        }
     }
 
     /// <summary>
