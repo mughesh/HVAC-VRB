@@ -201,7 +201,7 @@ public class SequenceTreeView
             Event.current.Use();
         }
 
-        // Draw task groups with ReorderableList (for smooth dragging)
+        // Draw task groups with ReorderableList (smooth drag + proper nesting via dynamic heights)
         if (module.isExpanded && module.taskGroups != null)
         {
             EditorGUI.indentLevel++;
@@ -209,22 +209,9 @@ public class SequenceTreeView
             var taskGroupList = GetOrCreateTaskGroupReorderableList(module);
             if (taskGroupList != null)
             {
+                // TaskGroups now draw their Steps inline using dynamic heights
+                // No need for separate loop - Steps are drawn inside drawElementCallback
                 taskGroupList.DoLayoutList();
-
-                // Draw expanded children AFTER all task group headers
-                // (This creates smooth drag for TaskGroups while maintaining hierarchy)
-                for (int i = 0; i < module.taskGroups.Count; i++)
-                {
-                    var taskGroup = module.taskGroups[i];
-                    if (taskGroup.isExpanded && taskGroup.steps != null)
-                    {
-                        EditorGUI.indentLevel++;
-                        var stepList = GetOrCreateStepReorderableList(taskGroup);
-                        if (stepList != null)
-                            stepList.DoLayoutList();
-                        EditorGUI.indentLevel--;
-                    }
-                }
             }
 
             EditorGUI.indentLevel--;
@@ -623,31 +610,72 @@ public class SequenceTreeView
                 false   // displayRemoveButton
             );
 
-            // Draw TaskGroup header in ReorderableList for smooth dragging
+            // Dynamic height callback - calculates height including expanded steps
+            list.elementHeightCallback = (int index) =>
+            {
+                if (index >= module.taskGroups.Count) return EditorGUIUtility.singleLineHeight + 4;
+
+                var taskGroup = module.taskGroups[index];
+                float headerHeight = EditorGUIUtility.singleLineHeight + 4;
+
+                // If expanded, add height for all steps
+                if (taskGroup.isExpanded && taskGroup.steps != null && taskGroup.steps.Count > 0)
+                {
+                    float stepHeight = EditorGUIUtility.singleLineHeight + 4;
+                    float stepsHeight = taskGroup.steps.Count * stepHeight;
+                    return headerHeight + stepsHeight + 4; // +4 for spacing
+                }
+
+                return headerHeight;
+            };
+
+            // Draw TaskGroup header AND steps inside the same element rect
             list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
             {
                 if (index >= module.taskGroups.Count) return;
                 var taskGroup = module.taskGroups[index];
 
-                // Selection highlighting
+                float headerHeight = EditorGUIUtility.singleLineHeight + 4;
+
+                // TaskGroup header rect (top portion)
+                Rect headerRect = new Rect(rect.x, rect.y, rect.width, headerHeight);
+
+                // Selection highlighting for header
                 bool isSelected = (_selectedItemType == "taskgroup" && _selectedItem == taskGroup);
                 if (isSelected)
                 {
-                    EditorGUI.DrawRect(rect, Color.blue * 0.3f);
+                    EditorGUI.DrawRect(headerRect, Color.blue * 0.3f);
                 }
 
-                // Layout rects (leave space for drag handle, foldout, and buttons)
-                Rect foldoutRect = new Rect(rect.x, rect.y, rect.width - 55, rect.height);
-                Rect addBtnRect = new Rect(rect.x + rect.width - 52, rect.y, 25, rect.height);
-                Rect delBtnRect = new Rect(rect.x + rect.width - 25, rect.y, 25, rect.height);
+                // Layout rects for header (leave space for drag handle, foldout, and buttons)
+                Rect foldoutRect = new Rect(headerRect.x, headerRect.y, headerRect.width - 55, headerRect.height);
+                Rect addBtnRect = new Rect(headerRect.x + headerRect.width - 52, headerRect.y, 25, headerRect.height);
+                Rect delBtnRect = new Rect(headerRect.x + headerRect.width - 25, headerRect.y, 25, headerRect.height);
 
                 // Foldout (toggles isExpanded)
-                taskGroup.isExpanded = EditorGUI.Foldout(
+                EditorGUI.BeginChangeCheck();
+                bool newExpanded = EditorGUI.Foldout(
                     foldoutRect,
                     taskGroup.isExpanded,
                     $"📁 {taskGroup.groupName}",
                     true
                 );
+                if (EditorGUI.EndChangeCheck())
+                {
+                    taskGroup.isExpanded = newExpanded;
+                    // Force list recreation to recalculate heights
+                    _taskGroupReorderableLists.Remove(module);
+                }
+
+                // Handle TaskGroup selection on header click
+                if (Event.current.type == EventType.MouseDown &&
+                    headerRect.Contains(Event.current.mousePosition) &&
+                    !addBtnRect.Contains(Event.current.mousePosition) &&
+                    !delBtnRect.Contains(Event.current.mousePosition))
+                {
+                    SelectItem(taskGroup, "taskgroup");
+                    Event.current.Use();
+                }
 
                 // Add step button
                 if (GUI.Button(addBtnRect, "➕"))
@@ -669,6 +697,27 @@ public class SequenceTreeView
                             _stepReorderableLists.Remove(taskGroup);
                     }
                 }
+
+                // Draw Steps ReorderableList INSIDE TaskGroup's rect if expanded (proper nesting + drag!)
+                if (taskGroup.isExpanded && taskGroup.steps != null && taskGroup.steps.Count > 0)
+                {
+                    // Calculate rect for Steps area (below header, indented)
+                    float stepsAreaHeight = rect.height - headerHeight - 2;
+                    Rect stepsAreaRect = new Rect(
+                        rect.x + 20, // Indent steps
+                        rect.y + headerHeight + 2, // Below header with small gap
+                        rect.width - 20,
+                        stepsAreaHeight
+                    );
+
+                    // Get the Step ReorderableList and draw it with absolute rect positioning
+                    var stepList = GetOrCreateStepReorderableList(taskGroup);
+                    if (stepList != null)
+                    {
+                        // Use DoList(Rect) instead of DoLayoutList() for absolute positioning
+                        stepList.DoList(stepsAreaRect);
+                    }
+                }
             };
 
             // Handle selection
@@ -686,7 +735,7 @@ public class SequenceTreeView
                 _callbacks?.OnAutoSave();
             };
 
-            list.elementHeight = EditorGUIUtility.singleLineHeight + 4;
+            // Note: Using elementHeightCallback instead of fixed elementHeight
 
             _taskGroupReorderableLists[module] = list;
         }
