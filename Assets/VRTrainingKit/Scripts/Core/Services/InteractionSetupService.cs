@@ -56,7 +56,7 @@ public class InteractionSetupService
                     analysis.toolObjects.Add(obj);
                     Debug.Log($"[InteractionSetupService] Found tool object: {obj.name} (Tag: {obj.tag})");
                 }
-                else if (obj.CompareTag("valve") || obj.CompareTag("screw"))
+                else if (obj.CompareTag("valve") || obj.CompareTag("screw"))                                
                 {
                     // Dual tag support: accepts both "valve" and "screw" tags for backwards compatibility
                     analysis.screwObjects.Add(obj);

@@ -96,7 +96,7 @@ public class SetupTabDrawer
             EditorGUILayout.Space(10);
 
             // Valve objects
-            DrawObjectGroup("Valve Objects", _sceneAnalysis.screwObjects, "valve", ProfileCacheManager.ProfileType.Valve);
+            DrawObjectGroup("Screw Objects", _sceneAnalysis.screwObjects, "valve", ProfileCacheManager.ProfileType.Valve);
             EditorGUILayout.Space(10);
 
             // Turn objects
