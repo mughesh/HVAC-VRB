@@ -618,12 +618,17 @@ public class SequenceTreeView
                 var taskGroup = module.taskGroups[index];
                 float headerHeight = EditorGUIUtility.singleLineHeight + 4;
 
-                // If expanded, add height for all steps
+                // If expanded, calculate total height needed for nested ReorderableList
                 if (taskGroup.isExpanded && taskGroup.steps != null && taskGroup.steps.Count > 0)
                 {
-                    float stepHeight = EditorGUIUtility.singleLineHeight + 4;
-                    float stepsHeight = taskGroup.steps.Count * stepHeight;
-                    return headerHeight + stepsHeight + 4; // +4 for spacing
+                    // Get the step list to calculate its height
+                    var stepList = GetOrCreateStepReorderableList(taskGroup);
+                    if (stepList != null)
+                    {
+                        // ReorderableList height = header + (count * elementHeight) + footer padding
+                        float stepListHeight = stepList.GetHeight();
+                        return headerHeight + stepListHeight + 8; // +8 for spacing
+                    }
                 }
 
                 return headerHeight;
@@ -701,20 +706,20 @@ public class SequenceTreeView
                 // Draw Steps ReorderableList INSIDE TaskGroup's rect if expanded (proper nesting + drag!)
                 if (taskGroup.isExpanded && taskGroup.steps != null && taskGroup.steps.Count > 0)
                 {
-                    // Calculate rect for Steps area (below header, indented)
-                    float stepsAreaHeight = rect.height - headerHeight - 2;
-                    Rect stepsAreaRect = new Rect(
-                        rect.x + 20, // Indent steps
-                        rect.y + headerHeight + 2, // Below header with small gap
-                        rect.width - 20,
-                        stepsAreaHeight
-                    );
-
-                    // Get the Step ReorderableList and draw it with absolute rect positioning
+                    // Get the Step ReorderableList
                     var stepList = GetOrCreateStepReorderableList(taskGroup);
                     if (stepList != null)
                     {
-                        // Use DoList(Rect) instead of DoLayoutList() for absolute positioning
+                        // Calculate rect for Steps area (below header, indented)
+                        float stepListHeight = stepList.GetHeight();
+                        Rect stepsAreaRect = new Rect(
+                            rect.x + 15, // Indent steps (15px for visual hierarchy)
+                            rect.y + headerHeight + 4, // Below header with small gap
+                            rect.width - 15, // Reduce width for indentation
+                            stepListHeight // Use actual calculated height
+                        );
+
+                        // Draw the Step ReorderableList at the calculated position
                         stepList.DoList(stepsAreaRect);
                     }
                 }
