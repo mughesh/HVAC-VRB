@@ -201,6 +201,8 @@ public class SequenceTabDrawer
         {
             _treeView.SelectedItem = null;
             _treeView.SelectedItemType = null;
+            // Clear reorderable list caches for new asset
+            _treeView.ClearReorderableListCaches();
         }
 
         if (_currentTrainingAsset != null)

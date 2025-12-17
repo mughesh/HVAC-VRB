@@ -5,6 +5,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using UnityEditorInternal;
 using System.Collections.Generic;
 
 /// <summary>
@@ -22,6 +23,9 @@ public class SequenceTreeView
     // Selection state
     private object _selectedItem;
     private string _selectedItemType;
+
+    // Reorderable list caches (for drag-and-drop reordering)
+    private Dictionary<TaskGroup, ReorderableList> _stepReorderableLists = new Dictionary<TaskGroup, ReorderableList>();
 
     public SequenceTreeView(ISequenceTreeViewCallbacks callbacks)
     {
@@ -53,6 +57,14 @@ public class SequenceTreeView
     {
         get => _selectedItemType;
         set => _selectedItemType = value;
+    }
+
+    /// <summary>
+    /// Clears reorderable list caches (call when loading a new asset)
+    /// </summary>
+    public void ClearReorderableListCaches()
+    {
+        _stepReorderableLists.Clear();
     }
 
     /// <summary>
@@ -244,13 +256,16 @@ public class SequenceTreeView
             Event.current.Use();
         }
 
-        // Draw steps
+        // Draw steps with reorderable list
         if (taskGroup.isExpanded && taskGroup.steps != null)
         {
-            for (int stepIndex = 0; stepIndex < taskGroup.steps.Count; stepIndex++)
+            EditorGUI.indentLevel++;
+            var stepList = GetOrCreateStepReorderableList(taskGroup);
+            if (stepList != null)
             {
-                DrawStepTreeItem(taskGroup.steps[stepIndex], taskGroup, stepIndex);
+                stepList.DoLayoutList();
             }
+            EditorGUI.indentLevel--;
         }
 
         EditorGUI.indentLevel--;
@@ -488,6 +503,84 @@ public class SequenceTreeView
             _callbacks?.OnItemSelected(null, null);
             _callbacks?.OnAutoSave();
         }
+    }
+
+    /// <summary>
+    /// Get or create reorderable list for a task group's steps
+    /// </summary>
+    private ReorderableList GetOrCreateStepReorderableList(TaskGroup taskGroup)
+    {
+        if (taskGroup?.steps == null) return null;
+
+        if (!_stepReorderableLists.TryGetValue(taskGroup, out var list) || list == null)
+        {
+            list = new ReorderableList(
+                taskGroup.steps,
+                typeof(InteractionStep),
+                true,   // draggable
+                false,  // displayHeader
+                false,  // displayAddButton
+                false   // displayRemoveButton
+            );
+
+            // Draw each step element
+            list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            {
+                if (index >= taskGroup.steps.Count) return;
+                var step = taskGroup.steps[index];
+
+                string statusIcon = step.IsValid() ? "✅" : "⚠️";
+                string typeIcon = GetStepTypeIcon(step.type);
+
+                // Selection highlighting
+                bool isSelected = (_selectedItemType == "step" && _selectedItem == step);
+                if (isSelected)
+                {
+                    EditorGUI.DrawRect(rect, Color.blue * 0.3f);
+                }
+
+                // Leave space for drag handle (built-in) and delete button
+                Rect labelRect = new Rect(rect.x, rect.y, rect.width - 30, rect.height);
+                Rect deleteRect = new Rect(rect.x + rect.width - 25, rect.y, 25, rect.height);
+
+                // Draw step info
+                EditorGUI.LabelField(labelRect, $"{statusIcon} {typeIcon} {step.stepName}");
+
+                // Delete button
+                if (GUI.Button(deleteRect, "❌"))
+                {
+                    if (EditorUtility.DisplayDialog("Delete Step",
+                        $"Delete step '{step.stepName}'?", "Delete", "Cancel"))
+                    {
+                        taskGroup.steps.RemoveAt(index);
+                        _callbacks?.OnAutoSave();
+                        // Clear the cache to force recreation
+                        _stepReorderableLists.Remove(taskGroup);
+                    }
+                }
+            };
+
+            // Handle selection
+            list.onSelectCallback = (ReorderableList l) =>
+            {
+                if (l.index >= 0 && l.index < taskGroup.steps.Count)
+                {
+                    SelectItem(taskGroup.steps[l.index], "step");
+                }
+            };
+
+            // Handle reorder - auto-save
+            list.onReorderCallback = (ReorderableList l) =>
+            {
+                _callbacks?.OnAutoSave();
+            };
+
+            list.elementHeight = EditorGUIUtility.singleLineHeight + 4;
+
+            _stepReorderableLists[taskGroup] = list;
+        }
+
+        return list;
     }
 
     /// <summary>
