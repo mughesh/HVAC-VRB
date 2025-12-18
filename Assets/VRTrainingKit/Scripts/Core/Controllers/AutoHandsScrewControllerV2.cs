@@ -380,7 +380,8 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
         }
 
         // Track distance from socket when waiting for removal
-        if (isWaitingForRemoval && currentPlacePoint != null)
+        // Note: We use stored socketPosition (Vector3), not currentPlacePoint which may be cleared
+        if (isWaitingForRemoval)
         {
             CheckRemovalDistance();
         }
@@ -506,12 +507,18 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     {
         float distance = Vector3.Distance(transform.position, socketPosition);
 
+        // Log distance every 60 frames for debugging
+        if (Time.frameCount % 60 == 0)
+        {
+            Debug.Log($"[AutoHandsScrewControllerV2] Distance from socket: {distance:F3}m (threshold: {removalDistanceThreshold:F3}m)");
+        }
+
         if (distance >= removalDistanceThreshold)
         {
-            Debug.Log($"[AutoHandsScrewControllerV2] Object removed {distance:F2}m from socket - re-enabling controller");
+            Debug.Log($"[AutoHandsScrewControllerV2] ✅ Object removed {distance:F2}m from socket - re-enabling controller");
             isWaitingForRemoval = false;
             isControllerDisabled = false;
-            Debug.Log($"[AutoHandsScrewControllerV2] Controller fully re-enabled - can be used for another screw interaction");
+            Debug.Log($"[AutoHandsScrewControllerV2] ✅ Controller fully re-enabled - can be used for another screw interaction");
         }
     }
 
