@@ -21,6 +21,7 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     [SerializeField] private ScrewState currentState = ScrewState.Unlocked;
     [SerializeField] private ScrewSubstate currentSubstate = ScrewSubstate.None;
     [SerializeField] private float currentRotationAngle = 0f;
+    [SerializeField] private bool isInverted = false;
 
     // Component references
     private Autohand.Grabbable grabbable;
@@ -30,6 +31,12 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
 
     // State tracking
     private bool isGrabbed = false;
+    private bool isWaitingForRemoval = false;
+    [SerializeField] private bool isControllerDisabled = false;  // Flag to ignore snap events without disabling component
+    private Vector3 socketPosition;
+
+    [Header("Removal Settings")]
+    [SerializeField] private float removalDistanceThreshold = 0.3f; // Distance from socket to re-enable controller
 
     // Events
     public event Action OnScrewSnapped;
@@ -154,6 +161,13 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     private void OnSocketSnapped(Component placePoint, Component snappedGrabbable)
     {
         if (snappedGrabbable.gameObject != gameObject) return;
+
+        // CRITICAL: Ignore snap events when controller is disabled (during removal sequence)
+        if (isControllerDisabled)
+        {
+            Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} controller disabled - ignoring PlacePoint snap event (preventing re-snap)");
+            return;
+        }
 
         // CRITICAL: Only process snap if valve is Unlocked (first-time snap)
         // If valve is already Locked, it's already in socket - ignore this event
@@ -355,14 +369,21 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     }
 
     /// <summary>
-    /// Update - Track rotation when grabbed and locked
+    /// Update - Track rotation when grabbed and locked, OR track distance when waiting for removal
     /// </summary>
     private void Update()
     {
-        if (!isGrabbed || currentState != ScrewState.Locked || hingeJoint == null) return;
+        // Track rotation when grabbed and locked
+        if (isGrabbed && currentState == ScrewState.Locked && hingeJoint != null)
+        {
+            TrackRotation();
+        }
 
-        // Track rotation from HingeJoint
-        TrackRotation();
+        // Track distance from socket when waiting for removal
+        if (isWaitingForRemoval && currentPlacePoint != null)
+        {
+            CheckRemovalDistance();
+        }
     }
 
     /// <summary>
@@ -385,6 +406,8 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     private void CheckRotationThresholds()
     {
         if (profile == null) return;
+        
+        float effectiveRotationAngle = isInverted ? currentRotationAngle * -1 : currentRotationAngle;
 
         switch (currentSubstate)
         {
@@ -403,13 +426,15 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
                 if (currentRotationAngle <= -(profile.loosenThreshold - profile.angleTolerance))
                 {
                     Debug.Log($"[AutoHandsScrewControllerV2] ✅ LOOSENED! Angle: {currentRotationAngle:F1}° (threshold: -{profile.loosenThreshold}°)");
-                    Debug.Log($"[AutoHandsScrewControllerV2] Removing HingeJoint immediately - valve comes free in hand");
+                    Debug.Log($"[AutoHandsScrewControllerV2] Starting removal sequence - disabling components");
 
-                    // Remove HingeJoint immediately while grabbed (realistic behavior)
+                    // Remove HingeJoint immediately
                     RemoveHingeJoint();
                     SetState(ScrewState.Unlocked, ScrewSubstate.None);
                     OnScrewLoosened?.Invoke();
-                    Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} is now UNLOCKED - valve will come free with hand");
+
+                    // Start removal sequence: disable controller, force release, enable grabbable back
+                    StartCoroutine(HandleObjectRemovalSequence());
                 }
                 break;
         }
@@ -434,6 +459,59 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
             Destroy(hingeJoint);
             hingeJoint = null;
             Debug.Log($"[AutoHandsScrewControllerV2] ✅ Removed HingeJoint - screw can now be removed from socket");
+        }
+    }
+
+    /// <summary>
+    /// Handle the object removal sequence: disable controller, force release, enable grabbable
+    /// </summary>
+    private IEnumerator HandleObjectRemovalSequence()
+    {
+        // Store socket position for distance tracking
+        if (currentPlacePoint != null)
+        {
+            socketPosition = currentPlacePoint.transform.position;
+        }
+
+        // Set flag to prevent re-snapping (without disabling component)
+        isControllerDisabled = true;
+        Debug.Log($"[AutoHandsScrewControllerV2] Disabled snap processing to prevent re-snap");
+
+        // Disable grabbable to force release
+        if (grabbable != null)
+        {
+            grabbable.enabled = false;
+            Debug.Log($"[AutoHandsScrewControllerV2] Disabled grabbable - forcing release");
+        }
+
+        // Wait a frame
+        yield return null;
+
+        // Re-enable grabbable immediately
+        if (grabbable != null)
+        {
+            grabbable.enabled = true;
+            Debug.Log($"[AutoHandsScrewControllerV2] Re-enabled grabbable - object can be grabbed again");
+        }
+
+        // Start distance tracking
+        isWaitingForRemoval = true;
+        Debug.Log($"[AutoHandsScrewControllerV2] Started distance tracking - controller will re-enable at {removalDistanceThreshold}m from socket");
+    }
+
+    /// <summary>
+    /// Check distance from socket and re-enable controller when far enough
+    /// </summary>
+    private void CheckRemovalDistance()
+    {
+        float distance = Vector3.Distance(transform.position, socketPosition);
+
+        if (distance >= removalDistanceThreshold)
+        {
+            Debug.Log($"[AutoHandsScrewControllerV2] Object removed {distance:F2}m from socket - re-enabling controller");
+            isWaitingForRemoval = false;
+            isControllerDisabled = false;
+            Debug.Log($"[AutoHandsScrewControllerV2] Controller fully re-enabled - can be used for another screw interaction");
         }
     }
 

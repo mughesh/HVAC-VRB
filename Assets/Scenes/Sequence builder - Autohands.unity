@@ -463,6 +463,9 @@ MonoBehaviour:
   currentState: 0
   currentSubstate: 0
   currentRotationAngle: 0
+  isInverted: 1
+  isControllerDisabled: 0
+  removalDistanceThreshold: 0.3
 --- !u!1 &47009519
 GameObject:
   m_ObjectHideFlags: 0
@@ -11579,6 +11582,57 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1487977989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c152e1e69ad2e46a5b75d9cbee77c8, type: 3}
+  m_Name: Female_ScrewProfile
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - valve_socket
+  - screw_socket
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 0
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!114 &1495009633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13921,6 +13975,9 @@ MonoBehaviour:
   currentState: 0
   currentSubstate: 0
   currentRotationAngle: 0
+  isInverted: 0
+  isControllerDisabled: 0
+  removalDistanceThreshold: 0.3
 --- !u!1 &1699003277
 GameObject:
   m_ObjectHideFlags: 0
@@ -15440,6 +15497,71 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1863884518}
   m_Mesh: {fileID: -272649033117200850, guid: ee10b173034645145974420f6b5d1aea, type: 3}
+--- !u!1001 &1877500908
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1908238882596626015, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_Name
+      value: Auto Hand Player Container_optimized
+      objectReference: {fileID: 0}
+    - target: {fileID: 1908238882596626015, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.013
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.456
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460873539489624018, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7836925454129492293, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
+      propertyPath: 'bendOffsets.Array.data[0]'
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1be1b648ad901f24ca17d390e61c8481, type: 3}
 --- !u!1 &1882453639
 GameObject:
   m_ObjectHideFlags: 0
@@ -17495,7 +17617,7 @@ GameObject:
   - component: {fileID: 2114286732}
   - component: {fileID: 2114286737}
   - component: {fileID: 2114286736}
-  - component: {fileID: 2114286735}
+  - component: {fileID: 2114286738}
   m_Layer: 0
   m_Name: Female
   m_TagString: valve
@@ -17593,18 +17715,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2114286730}
   m_Mesh: {fileID: -2351356549074205088, guid: 105f555847bbbb84a83fea981ab7125f, type: 3}
---- !u!114 &2114286735
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2114286730}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &2114286736
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -17699,6 +17809,25 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   lockHandOnGrab: 0
+--- !u!114 &2114286738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114286730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e553615f209e024589d987841b7621d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 1487977989}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
+  isInverted: 0
+  isControllerDisabled: 0
+  removalDistanceThreshold: 0.3
 --- !u!1 &2118740258
 GameObject:
   m_ObjectHideFlags: 0
@@ -18262,3 +18391,4 @@ SceneRoots:
   - {fileID: 1064883871}
   - {fileID: 1892110671}
   - {fileID: 459816537}
+  - {fileID: 1877500908}
