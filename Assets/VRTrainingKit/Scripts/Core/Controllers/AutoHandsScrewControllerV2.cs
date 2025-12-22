@@ -21,7 +21,9 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     [SerializeField] private ScrewState currentState = ScrewState.Unlocked;
     [SerializeField] private ScrewSubstate currentSubstate = ScrewSubstate.None;
     [SerializeField] private float currentRotationAngle = 0f;
-
+    [SerializeField] private bool isInverted = false;
+    [SerializeField] private bool releaseOnTight = false;
+    [SerializeField] private bool invertThresholds = false;
     // Component references
     private Autohand.Grabbable grabbable;
     private Rigidbody rb;
@@ -30,6 +32,12 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
 
     // State tracking
     private bool isGrabbed = false;
+    private bool isWaitingForRemoval = false;
+    [SerializeField] private bool isControllerDisabled = false;  // Flag to ignore snap events without disabling component
+    private Vector3 socketPosition;
+
+    [Header("Removal Settings")]
+    [SerializeField] private float removalDistanceThreshold = 0.3f; // Distance from socket to re-enable controller
 
     // Events
     public event Action OnScrewSnapped;
@@ -155,6 +163,13 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     {
         if (snappedGrabbable.gameObject != gameObject) return;
 
+        // CRITICAL: Ignore snap events when controller is disabled (during removal sequence)
+        if (isControllerDisabled)
+        {
+            Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} controller disabled - ignoring PlacePoint snap event (preventing re-snap)");
+            return;
+        }
+
         // CRITICAL: Only process snap if valve is Unlocked (first-time snap)
         // If valve is already Locked, it's already in socket - ignore this event
         if (currentState != ScrewState.Unlocked)
@@ -236,9 +251,18 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
         // Max = +tightenThreshold (how far forward you can tighten)
         hingeJoint.useLimits = true;
         JointLimits limits = new JointLimits();
-        limits.min = -profile.loosenThreshold;
-        limits.max = profile.tightenThreshold;
-        limits.bounceMinVelocity = profile.bounceMinVelocity;
+        if (invertThresholds)
+        {
+            limits.min = profile.loosenThreshold;
+            limits.max = -profile.tightenThreshold;
+        }
+        else
+        {
+            limits.min = -profile.loosenThreshold;
+            limits.max = profile.tightenThreshold;
+        }
+
+            limits.bounceMinVelocity = profile.bounceMinVelocity;
         limits.contactDistance = profile.contactDistance;
         hingeJoint.limits = limits;
 
@@ -355,14 +379,22 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     }
 
     /// <summary>
-    /// Update - Track rotation when grabbed and locked
+    /// Update - Track rotation when grabbed and locked, OR track distance when waiting for removal
     /// </summary>
     private void Update()
     {
-        if (!isGrabbed || currentState != ScrewState.Locked || hingeJoint == null) return;
+        // Track rotation when grabbed and locked
+        if (isGrabbed && currentState == ScrewState.Locked && hingeJoint != null)
+        {
+            TrackRotation();
+        }
 
-        // Track rotation from HingeJoint
-        TrackRotation();
+        // Track distance from socket when waiting for removal
+        // Note: We use stored socketPosition (Vector3), not currentPlacePoint which may be cleared
+        if (isWaitingForRemoval)
+        {
+            CheckRemovalDistance();
+        }
     }
 
     /// <summary>
@@ -385,31 +417,41 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     private void CheckRotationThresholds()
     {
         if (profile == null) return;
+        
+        currentRotationAngle = isInverted ? currentRotationAngle * -1 : currentRotationAngle;
 
         switch (currentSubstate)
         {
             case ScrewSubstate.Loose:
                 // Check if tightened enough (positive rotation)
-                if (currentRotationAngle >= profile.tightenThreshold - profile.angleTolerance)
+                if (currentRotationAngle >= (invertThresholds ? profile.loosenThreshold : profile.tightenThreshold) - profile.angleTolerance)
                 {
                     Debug.Log($"[AutoHandsScrewControllerV2] ✅ TIGHTENED! Angle: {currentRotationAngle:F1}° (threshold: {profile.tightenThreshold}°)");
                     TransitionToTight();
+                    if (releaseOnTight)
+                    {
+                        SetState(ScrewState.Unlocked, ScrewSubstate.None);
+                        RemoveHingeJoint();
+                        StartCoroutine(HandleObjectRemovalSequence());
+                    }
                 }
                 break;
 
             case ScrewSubstate.Tight:
                 // Check if loosened enough (negative rotation from tight position)
                 // After tight, angle goes back towards 0, then negative
-                if (currentRotationAngle <= -(profile.loosenThreshold - profile.angleTolerance))
+                if (currentRotationAngle <= -((invertThresholds ? profile.tightenThreshold : profile.loosenThreshold) - profile.angleTolerance))
                 {
                     Debug.Log($"[AutoHandsScrewControllerV2] ✅ LOOSENED! Angle: {currentRotationAngle:F1}° (threshold: -{profile.loosenThreshold}°)");
-                    Debug.Log($"[AutoHandsScrewControllerV2] Removing HingeJoint immediately - valve comes free in hand");
+                    Debug.Log($"[AutoHandsScrewControllerV2] Starting removal sequence - disabling components");
 
-                    // Remove HingeJoint immediately while grabbed (realistic behavior)
+                    // Remove HingeJoint immediately
                     RemoveHingeJoint();
                     SetState(ScrewState.Unlocked, ScrewSubstate.None);
                     OnScrewLoosened?.Invoke();
-                    Debug.Log($"[AutoHandsScrewControllerV2] {gameObject.name} is now UNLOCKED - valve will come free with hand");
+
+                    // Start removal sequence: disable controller, force release, enable grabbable back
+                    StartCoroutine(HandleObjectRemovalSequence());
                 }
                 break;
         }
@@ -434,6 +476,65 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
             Destroy(hingeJoint);
             hingeJoint = null;
             Debug.Log($"[AutoHandsScrewControllerV2] ✅ Removed HingeJoint - screw can now be removed from socket");
+        }
+    }
+
+    /// <summary>
+    /// Handle the object removal sequence: disable controller, force release, enable grabbable
+    /// </summary>
+    private IEnumerator HandleObjectRemovalSequence()
+    {
+        // Store socket position for distance tracking
+        if (currentPlacePoint != null)
+        {
+            socketPosition = currentPlacePoint.transform.position;
+        }
+
+        // Set flag to prevent re-snapping (without disabling component)
+        isControllerDisabled = true;
+        Debug.Log($"[AutoHandsScrewControllerV2] Disabled snap processing to prevent re-snap");
+
+        // Disable grabbable to force release
+        if (grabbable != null)
+        {
+            grabbable.enabled = false;
+            Debug.Log($"[AutoHandsScrewControllerV2] Disabled grabbable - forcing release");
+        }
+
+        // Wait a frame
+        yield return null;
+
+        // Re-enable grabbable immediately
+        if (grabbable != null)
+        {
+            grabbable.enabled = true;
+            Debug.Log($"[AutoHandsScrewControllerV2] Re-enabled grabbable - object can be grabbed again");
+        }
+
+        // Start distance tracking
+        isWaitingForRemoval = true;
+        Debug.Log($"[AutoHandsScrewControllerV2] Started distance tracking - controller will re-enable at {removalDistanceThreshold}m from socket");
+    }
+
+    /// <summary>
+    /// Check distance from socket and re-enable controller when far enough
+    /// </summary>
+    private void CheckRemovalDistance()
+    {
+        float distance = Vector3.Distance(transform.position, socketPosition);
+
+        // Log distance every 60 frames for debugging
+        if (Time.frameCount % 60 == 0)
+        {
+            Debug.Log($"[AutoHandsScrewControllerV2] Distance from socket: {distance:F3}m (threshold: {removalDistanceThreshold:F3}m)");
+        }
+
+        if (distance >= removalDistanceThreshold)
+        {
+            Debug.Log($"[AutoHandsScrewControllerV2] ✅ Object removed {distance:F2}m from socket - re-enabling controller");
+            isWaitingForRemoval = false;
+            isControllerDisabled = false;
+            Debug.Log($"[AutoHandsScrewControllerV2] ✅ Controller fully re-enabled - can be used for another screw interaction");
         }
     }
 
