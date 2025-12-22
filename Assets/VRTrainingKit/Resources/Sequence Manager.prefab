@@ -315,7 +315,7 @@ GameObject:
   m_Component:
   - component: {fileID: 701363267499589996}
   m_Layer: 0
-  m_Name: ------------ Scripts ------------
+  m_Name: Sequence Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
