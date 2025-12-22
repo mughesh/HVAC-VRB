@@ -5,6 +5,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using UnityEditorInternal;
 using System.Collections.Generic;
 
 /// <summary>
@@ -22,6 +23,10 @@ public class SequenceTreeView
     // Selection state
     private object _selectedItem;
     private string _selectedItemType;
+
+    // Reorderable list caches (for drag-and-drop reordering)
+    private Dictionary<TaskGroup, ReorderableList> _stepReorderableLists = new Dictionary<TaskGroup, ReorderableList>();
+    private Dictionary<TrainingModule, ReorderableList> _taskGroupReorderableLists = new Dictionary<TrainingModule, ReorderableList>();
 
     public SequenceTreeView(ISequenceTreeViewCallbacks callbacks)
     {
@@ -53,6 +58,15 @@ public class SequenceTreeView
     {
         get => _selectedItemType;
         set => _selectedItemType = value;
+    }
+
+    /// <summary>
+    /// Clears reorderable list caches (call when loading a new asset)
+    /// </summary>
+    public void ClearReorderableListCaches()
+    {
+        _stepReorderableLists.Clear();
+        _taskGroupReorderableLists.Clear();
     }
 
     /// <summary>
@@ -187,13 +201,20 @@ public class SequenceTreeView
             Event.current.Use();
         }
 
-        // Draw task groups
+        // Draw task groups with ReorderableList (smooth drag + proper nesting via dynamic heights)
         if (module.isExpanded && module.taskGroups != null)
         {
-            for (int groupIndex = 0; groupIndex < module.taskGroups.Count; groupIndex++)
+            EditorGUI.indentLevel++;
+
+            var taskGroupList = GetOrCreateTaskGroupReorderableList(module);
+            if (taskGroupList != null)
             {
-                DrawTaskGroupTreeItem(module.taskGroups[groupIndex], module, groupIndex);
+                // TaskGroups now draw their Steps inline using dynamic heights
+                // No need for separate loop - Steps are drawn inside drawElementCallback
+                taskGroupList.DoLayoutList();
             }
+
+            EditorGUI.indentLevel--;
         }
 
         EditorGUI.indentLevel--;
@@ -244,13 +265,16 @@ public class SequenceTreeView
             Event.current.Use();
         }
 
-        // Draw steps
+        // Draw steps with reorderable list
         if (taskGroup.isExpanded && taskGroup.steps != null)
         {
-            for (int stepIndex = 0; stepIndex < taskGroup.steps.Count; stepIndex++)
+            EditorGUI.indentLevel++;
+            var stepList = GetOrCreateStepReorderableList(taskGroup);
+            if (stepList != null)
             {
-                DrawStepTreeItem(taskGroup.steps[stepIndex], taskGroup, stepIndex);
+                stepList.DoLayoutList();
             }
+            EditorGUI.indentLevel--;
         }
 
         EditorGUI.indentLevel--;
@@ -488,6 +512,240 @@ public class SequenceTreeView
             _callbacks?.OnItemSelected(null, null);
             _callbacks?.OnAutoSave();
         }
+    }
+
+    /// <summary>
+    /// Get or create reorderable list for a task group's steps
+    /// </summary>
+    private ReorderableList GetOrCreateStepReorderableList(TaskGroup taskGroup)
+    {
+        if (taskGroup?.steps == null) return null;
+
+        if (!_stepReorderableLists.TryGetValue(taskGroup, out var list) || list == null)
+        {
+            list = new ReorderableList(
+                taskGroup.steps,
+                typeof(InteractionStep),
+                true,   // draggable
+                false,  // displayHeader
+                false,  // displayAddButton
+                false   // displayRemoveButton
+            );
+
+            // Draw each step element
+            list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            {
+                if (index >= taskGroup.steps.Count) return;
+                var step = taskGroup.steps[index];
+
+                string statusIcon = step.IsValid() ? "✅" : "⚠️";
+                string typeIcon = GetStepTypeIcon(step.type);
+
+                // Selection highlighting
+                bool isSelected = (_selectedItemType == "step" && _selectedItem == step);
+                if (isSelected)
+                {
+                    EditorGUI.DrawRect(rect, Color.blue * 0.3f);
+                }
+
+                // Leave space for drag handle (built-in) and delete button
+                Rect labelRect = new Rect(rect.x, rect.y, rect.width - 30, rect.height);
+                Rect deleteRect = new Rect(rect.x + rect.width - 25, rect.y, 25, rect.height);
+
+                // Draw step info
+                EditorGUI.LabelField(labelRect, $"{statusIcon} {typeIcon} {step.stepName}");
+
+                // Delete button
+                if (GUI.Button(deleteRect, "❌"))
+                {
+                    if (EditorUtility.DisplayDialog("Delete Step",
+                        $"Delete step '{step.stepName}'?", "Delete", "Cancel"))
+                    {
+                        taskGroup.steps.RemoveAt(index);
+                        _callbacks?.OnAutoSave();
+                        // Clear the cache to force recreation
+                        _stepReorderableLists.Remove(taskGroup);
+                    }
+                }
+            };
+
+            // Handle selection
+            list.onSelectCallback = (ReorderableList l) =>
+            {
+                if (l.index >= 0 && l.index < taskGroup.steps.Count)
+                {
+                    SelectItem(taskGroup.steps[l.index], "step");
+                }
+            };
+
+            // Handle reorder - auto-save
+            list.onReorderCallback = (ReorderableList l) =>
+            {
+                _callbacks?.OnAutoSave();
+            };
+
+            list.elementHeight = EditorGUIUtility.singleLineHeight + 4;
+
+            _stepReorderableLists[taskGroup] = list;
+        }
+
+        return list;
+    }
+
+    /// <summary>
+    /// Get or create reorderable list for a module's task groups
+    /// </summary>
+    private ReorderableList GetOrCreateTaskGroupReorderableList(TrainingModule module)
+    {
+        if (module?.taskGroups == null) return null;
+
+        if (!_taskGroupReorderableLists.TryGetValue(module, out var list) || list == null)
+        {
+            list = new ReorderableList(
+                module.taskGroups,
+                typeof(TaskGroup),
+                true,   // draggable - this gives smooth drag feedback!
+                false,  // displayHeader
+                false,  // displayAddButton
+                false   // displayRemoveButton
+            );
+
+            // Dynamic height callback - calculates height including expanded steps
+            list.elementHeightCallback = (int index) =>
+            {
+                if (index >= module.taskGroups.Count) return EditorGUIUtility.singleLineHeight + 4;
+
+                var taskGroup = module.taskGroups[index];
+                float headerHeight = EditorGUIUtility.singleLineHeight + 4;
+
+                // If expanded, calculate total height needed for nested ReorderableList
+                if (taskGroup.isExpanded && taskGroup.steps != null && taskGroup.steps.Count > 0)
+                {
+                    // Get the step list to calculate its height
+                    var stepList = GetOrCreateStepReorderableList(taskGroup);
+                    if (stepList != null)
+                    {
+                        // ReorderableList height = header + (count * elementHeight) + footer padding
+                        float stepListHeight = stepList.GetHeight();
+                        return headerHeight + stepListHeight + 8; // +8 for spacing
+                    }
+                }
+
+                return headerHeight;
+            };
+
+            // Draw TaskGroup header AND steps inside the same element rect
+            list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            {
+                if (index >= module.taskGroups.Count) return;
+                var taskGroup = module.taskGroups[index];
+
+                float headerHeight = EditorGUIUtility.singleLineHeight + 4;
+
+                // TaskGroup header rect (top portion)
+                Rect headerRect = new Rect(rect.x, rect.y, rect.width, headerHeight);
+
+                // Selection highlighting for header
+                bool isSelected = (_selectedItemType == "taskgroup" && _selectedItem == taskGroup);
+                if (isSelected)
+                {
+                    EditorGUI.DrawRect(headerRect, Color.blue * 0.3f);
+                }
+
+                // Layout rects for header (leave space for drag handle, foldout, and buttons)
+                Rect foldoutRect = new Rect(headerRect.x, headerRect.y, headerRect.width - 55, headerRect.height);
+                Rect addBtnRect = new Rect(headerRect.x + headerRect.width - 52, headerRect.y, 25, headerRect.height);
+                Rect delBtnRect = new Rect(headerRect.x + headerRect.width - 25, headerRect.y, 25, headerRect.height);
+
+                // Foldout (toggles isExpanded)
+                EditorGUI.BeginChangeCheck();
+                bool newExpanded = EditorGUI.Foldout(
+                    foldoutRect,
+                    taskGroup.isExpanded,
+                    $"📁 {taskGroup.groupName}",
+                    true
+                );
+                if (EditorGUI.EndChangeCheck())
+                {
+                    taskGroup.isExpanded = newExpanded;
+                    // Force list recreation to recalculate heights
+                    _taskGroupReorderableLists.Remove(module);
+                }
+
+                // Handle TaskGroup selection on header click
+                if (Event.current.type == EventType.MouseDown &&
+                    headerRect.Contains(Event.current.mousePosition) &&
+                    !addBtnRect.Contains(Event.current.mousePosition) &&
+                    !delBtnRect.Contains(Event.current.mousePosition))
+                {
+                    SelectItem(taskGroup, "taskgroup");
+                    Event.current.Use();
+                }
+
+                // Add step button
+                if (GUI.Button(addBtnRect, "➕"))
+                {
+                    ShowAddStepMenu(taskGroup);
+                }
+
+                // Delete button
+                if (GUI.Button(delBtnRect, "❌"))
+                {
+                    if (EditorUtility.DisplayDialog("Delete Task Group",
+                        $"Delete '{taskGroup.groupName}'?", "Delete", "Cancel"))
+                    {
+                        module.taskGroups.RemoveAt(index);
+                        _callbacks?.OnAutoSave();
+                        // Clear caches
+                        _taskGroupReorderableLists.Remove(module);
+                        if (_stepReorderableLists.ContainsKey(taskGroup))
+                            _stepReorderableLists.Remove(taskGroup);
+                    }
+                }
+
+                // Draw Steps ReorderableList INSIDE TaskGroup's rect if expanded (proper nesting + drag!)
+                if (taskGroup.isExpanded && taskGroup.steps != null && taskGroup.steps.Count > 0)
+                {
+                    // Get the Step ReorderableList
+                    var stepList = GetOrCreateStepReorderableList(taskGroup);
+                    if (stepList != null)
+                    {
+                        // Calculate rect for Steps area (below header, indented)
+                        float stepListHeight = stepList.GetHeight();
+                        Rect stepsAreaRect = new Rect(
+                            rect.x + 15, // Indent steps (15px for visual hierarchy)
+                            rect.y + headerHeight + 4, // Below header with small gap
+                            rect.width - 15, // Reduce width for indentation
+                            stepListHeight // Use actual calculated height
+                        );
+
+                        // Draw the Step ReorderableList at the calculated position
+                        stepList.DoList(stepsAreaRect);
+                    }
+                }
+            };
+
+            // Handle selection
+            list.onSelectCallback = (ReorderableList l) =>
+            {
+                if (l.index >= 0 && l.index < module.taskGroups.Count)
+                {
+                    SelectItem(module.taskGroups[l.index], "taskgroup");
+                }
+            };
+
+            // Handle reorder - auto-save
+            list.onReorderCallback = (ReorderableList l) =>
+            {
+                _callbacks?.OnAutoSave();
+            };
+
+            // Note: Using elementHeightCallback instead of fixed elementHeight
+
+            _taskGroupReorderableLists[module] = list;
+        }
+
+        return list;
     }
 
     /// <summary>
