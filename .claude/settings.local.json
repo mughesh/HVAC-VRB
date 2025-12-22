@@ -12,7 +12,6 @@
       "Bash(findstr:*)",
       "Read(//c/Users/SKILLVERI DEV/AppData/Local/Unity/Editor/**)",
       "Bash(cd:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nPhase 1: Update VRInteractionSetupWindow to use centralized styles\n\n- Changed style fields to property accessors delegating to VRTrainingEditorStyles\n- Simplified InitializeStyles() to call VRTrainingEditorStyles.EnsureInitialized()\n- Removed 209 lines of duplicate style initialization code\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(mkdir:*)",
       "Bash(git commit:*)",
       "Bash(git checkout:*)",
