@@ -22,8 +22,11 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
     [SerializeField] private ScrewSubstate currentSubstate = ScrewSubstate.None;
     [SerializeField] private float currentRotationAngle = 0f;
     [SerializeField] private bool isInverted = false;
-    [SerializeField] private bool releaseOnTight = false;
     [SerializeField] private bool invertThresholds = false;
+
+    [Header("Auto-Release Settings")]
+    [Tooltip("Automatically release object from socket when threshold is reached (works for both tightening and loosening)")]
+    [SerializeField] private bool autoReleaseOnCompletion = false;
     // Component references
     private Autohand.Grabbable grabbable;
     private Rigidbody rb;
@@ -428,8 +431,11 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
                 {
                     Debug.Log($"[AutoHandsScrewControllerV2] ✅ TIGHTENED! Angle: {currentRotationAngle:F1}° (threshold: {profile.tightenThreshold}°)");
                     TransitionToTight();
-                    if (releaseOnTight)
+
+                    // Auto-release if enabled
+                    if (autoReleaseOnCompletion)
                     {
+                        Debug.Log($"[AutoHandsScrewControllerV2] Auto-release enabled - starting removal sequence after tightening");
                         SetState(ScrewState.Unlocked, ScrewSubstate.None);
                         RemoveHingeJoint();
                         StartCoroutine(HandleObjectRemovalSequence());
@@ -443,15 +449,19 @@ public class AutoHandsScrewControllerV2 : MonoBehaviour
                 if (currentRotationAngle <= -((invertThresholds ? profile.tightenThreshold : profile.loosenThreshold) - profile.angleTolerance))
                 {
                     Debug.Log($"[AutoHandsScrewControllerV2] ✅ LOOSENED! Angle: {currentRotationAngle:F1}° (threshold: -{profile.loosenThreshold}°)");
-                    Debug.Log($"[AutoHandsScrewControllerV2] Starting removal sequence - disabling components");
 
-                    // Remove HingeJoint immediately
-                    RemoveHingeJoint();
-                    SetState(ScrewState.Unlocked, ScrewSubstate.None);
+                    // Transition to loose state
+                    SetState(ScrewState.Locked, ScrewSubstate.Loose);
                     OnScrewLoosened?.Invoke();
 
-                    // Start removal sequence: disable controller, force release, enable grabbable back
-                    StartCoroutine(HandleObjectRemovalSequence());
+                    // Auto-release if enabled
+                    if (autoReleaseOnCompletion)
+                    {
+                        Debug.Log($"[AutoHandsScrewControllerV2] Auto-release enabled - starting removal sequence after loosening");
+                        RemoveHingeJoint();
+                        SetState(ScrewState.Unlocked, ScrewSubstate.None);
+                        StartCoroutine(HandleObjectRemovalSequence());
+                    }
                 }
                 break;
         }
