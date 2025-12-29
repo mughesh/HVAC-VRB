@@ -415,10 +415,17 @@ public class SequencePropertiesPanel
             hasErrors = true;
         }
 
-        // Check for grab tag
-        if (!target.CompareTag("grab"))
+        // Check for any valid interaction tag
+        string[] validTags = { "grab", "knob", "screw", "valve" };
+        bool hasValidTag = System.Array.Exists(validTags, tag => target.CompareTag(tag));
+
+        if (hasValidTag)
         {
-            validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'grab' for consistency");
+            validationMessages.Add($"\u2705 Tagged as '{target.tag}'");
+        }
+        else
+        {
+            validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'grab', 'knob', 'screw', or 'valve'");
         }
 
         // Display validation result
@@ -428,6 +435,7 @@ public class SequencePropertiesPanel
 
     /// <summary>
     /// Draw validation for TurnKnob target objects (Grabbable + KnobController + HingeJoint)
+    /// Simplified validation - AutoHands focuses on controller script presence
     /// </summary>
     private void DrawKnobTargetValidation(GameObject target)
     {
@@ -449,7 +457,7 @@ public class SequencePropertiesPanel
                 hasErrors = true;
             }
 
-            // Check for AutoHandsKnobController
+            // Check for AutoHandsKnobController (CRITICAL)
             var autoKnobController = target.GetComponent<AutoHandsKnobController>();
             if (autoKnobController != null)
             {
@@ -457,8 +465,18 @@ public class SequencePropertiesPanel
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsKnobController component!");
+                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsKnobController component! (CRITICAL)");
                 hasErrors = true;
+            }
+
+            // Check for knob tag
+            if (!target.CompareTag("knob"))
+            {
+                validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'knob' for consistency");
+            }
+            else
+            {
+                validationMessages.Add("\u2705 Tagged as 'knob'");
             }
         }
         else // XRI
@@ -474,7 +492,7 @@ public class SequencePropertiesPanel
                 hasErrors = true;
             }
 
-            // Check for KnobController
+            // Check for KnobController (CRITICAL)
             var knobController = target.GetComponent<KnobController>();
             if (knobController != null)
             {
@@ -482,30 +500,30 @@ public class SequencePropertiesPanel
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Missing KnobController component!");
+                validationMessages.Add("\u26A0\uFE0F Missing KnobController component! (CRITICAL)");
                 hasErrors = true;
             }
-        }
 
-        // Check for HingeJoint
-        var hingeJoint = target.GetComponent<HingeJoint>();
-        if (hingeJoint != null)
-        {
-            string limitInfo = hingeJoint.useLimits
-                ? $"Limits: {hingeJoint.limits.min:F0}\u00B0 to {hingeJoint.limits.max:F0}\u00B0"
-                : "No limits set";
-            validationMessages.Add($"\u2705 HingeJoint found ({limitInfo})");
-        }
-        else
-        {
-            validationMessages.Add("\u26A0\uFE0F Missing HingeJoint component!");
-            hasErrors = true;
-        }
+            // Check for HingeJoint
+            var hingeJoint = target.GetComponent<HingeJoint>();
+            if (hingeJoint != null)
+            {
+                string limitInfo = hingeJoint.useLimits
+                    ? $"Limits: {hingeJoint.limits.min:F0}\u00B0 to {hingeJoint.limits.max:F0}\u00B0"
+                    : "No limits set";
+                validationMessages.Add($"\u2705 HingeJoint found ({limitInfo})");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing HingeJoint component!");
+                hasErrors = true;
+            }
 
-        // Check for knob tag
-        if (!target.CompareTag("knob"))
-        {
-            validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'knob' for consistency");
+            // Check for knob tag
+            if (!target.CompareTag("knob"))
+            {
+                validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'knob' for consistency");
+            }
         }
 
         // Display validation result
@@ -514,7 +532,8 @@ public class SequencePropertiesPanel
     }
 
     /// <summary>
-    /// Draw validation for Snap destination objects (XRSocketInteractor/PlacePoint, SnapValidator)
+    /// Draw validation for Snap destination objects (XRSocketInteractor/PlacePoint)
+    /// Simplified validation - AutoHands only checks PlacePoint + tag
     /// </summary>
     private void DrawSnapDestinationValidation(GameObject destination)
     {
@@ -525,7 +544,7 @@ public class SequencePropertiesPanel
         // Check for socket component based on framework
         if (framework == VRFramework.AutoHands)
         {
-            // Check for PlacePoint using reflection (AutoHands component)
+            // AutoHands validation: Only check PlacePoint component
             var placePoint = GetAutoHandsPlacePoint(destination);
             if (placePoint != null)
             {
@@ -535,6 +554,16 @@ public class SequencePropertiesPanel
             {
                 validationMessages.Add("\u26A0\uFE0F Missing PlacePoint component!");
                 hasErrors = true;
+            }
+
+            // Check for snap tag
+            if (!destination.CompareTag("snap"))
+            {
+                validationMessages.Add("\u26A0\uFE0F Destination should be tagged as 'snap' for consistency");
+            }
+            else
+            {
+                validationMessages.Add("\u2705 Tagged as 'snap'");
             }
         }
         else // XRI
@@ -549,42 +578,42 @@ public class SequencePropertiesPanel
                 validationMessages.Add("\u26A0\uFE0F Missing XRSocketInteractor component!");
                 hasErrors = true;
             }
-        }
 
-        // Check for SnapValidator
-        var snapValidator = destination.GetComponent<SnapValidator>();
-        if (snapValidator != null)
-        {
-            validationMessages.Add("\u2705 SnapValidator found");
-        }
-        else
-        {
-            validationMessages.Add("\u26A0\uFE0F Missing SnapValidator component (recommended for sequence validation)");
-        }
-
-        // Check for Collider with isTrigger
-        var collider = destination.GetComponent<Collider>();
-        if (collider != null)
-        {
-            if (collider.isTrigger)
+            // Check for SnapValidator (XRI-specific)
+            var snapValidator = destination.GetComponent<SnapValidator>();
+            if (snapValidator != null)
             {
-                validationMessages.Add("\u2705 Trigger Collider found");
+                validationMessages.Add("\u2705 SnapValidator found");
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Collider should be set as Trigger for socket detection");
+                validationMessages.Add("\u26A0\uFE0F Missing SnapValidator component (recommended for sequence validation)");
             }
-        }
-        else
-        {
-            validationMessages.Add("\u26A0\uFE0F Missing Collider component!");
-            hasErrors = true;
-        }
 
-        // Check for snap tag
-        if (!destination.CompareTag("snap"))
-        {
-            validationMessages.Add("\u26A0\uFE0F Destination should be tagged as 'snap' for consistency");
+            // Check for Collider with isTrigger
+            var collider = destination.GetComponent<Collider>();
+            if (collider != null)
+            {
+                if (collider.isTrigger)
+                {
+                    validationMessages.Add("\u2705 Trigger Collider found");
+                }
+                else
+                {
+                    validationMessages.Add("\u26A0\uFE0F Collider should be set as Trigger for socket detection");
+                }
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing Collider component!");
+                hasErrors = true;
+            }
+
+            // Check for snap tag
+            if (!destination.CompareTag("snap"))
+            {
+                validationMessages.Add("\u26A0\uFE0F Destination should be tagged as 'snap' for consistency");
+            }
         }
 
         // Display validation result
@@ -610,6 +639,7 @@ public class SequencePropertiesPanel
 
     /// <summary>
     /// Draw validation for Valve target objects (ScrewController/AutoHandsScrewController, Grabbable)
+    /// Simplified validation - AutoHands focuses on controller script presence
     /// </summary>
     private void DrawValveTargetValidation(GameObject target)
     {
@@ -631,7 +661,7 @@ public class SequencePropertiesPanel
                 hasErrors = true;
             }
 
-            // Check for AutoHandsScrewController (V1 or V2) - renamed from ValveController
+            // Check for AutoHandsScrewController (V1 or V2) - CRITICAL
             var screwController = target.GetComponent<AutoHandsScrewController>();
             var screwControllerV2 = target.GetComponent<AutoHandsScrewControllerV2>();
             if (screwController != null)
@@ -644,8 +674,18 @@ public class SequencePropertiesPanel
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsScrewController or V2 component!");
+                validationMessages.Add("\u26A0\uFE0F Missing AutoHandsScrewController or V2 component! (CRITICAL)");
                 hasErrors = true;
+            }
+
+            // Check for valve/screw tag
+            if (target.CompareTag("valve") || target.CompareTag("screw"))
+            {
+                validationMessages.Add($"\u2705 Tagged as '{target.tag}'");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'valve' or 'screw' for consistency");
             }
         }
         else // XRI
@@ -661,7 +701,7 @@ public class SequencePropertiesPanel
                 hasErrors = true;
             }
 
-            // Check for ScrewController (renamed from ValveController)
+            // Check for ScrewController - CRITICAL
             var screwController = target.GetComponent<ScrewController>();
             if (screwController != null)
             {
@@ -669,27 +709,27 @@ public class SequencePropertiesPanel
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Missing ScrewController component!");
+                validationMessages.Add("\u26A0\uFE0F Missing ScrewController component! (CRITICAL)");
                 hasErrors = true;
             }
-        }
 
-        // Check for Rigidbody
-        var rigidbody = target.GetComponent<Rigidbody>();
-        if (rigidbody != null)
-        {
-            validationMessages.Add("\u2705 Rigidbody found");
-        }
-        else
-        {
-            validationMessages.Add("\u26A0\uFE0F Missing Rigidbody component!");
-            hasErrors = true;
-        }
+            // Check for Rigidbody
+            var rigidbody = target.GetComponent<Rigidbody>();
+            if (rigidbody != null)
+            {
+                validationMessages.Add("\u2705 Rigidbody found");
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing Rigidbody component!");
+                hasErrors = true;
+            }
 
-        // Check for valve tag
-        if (!target.CompareTag("valve"))
-        {
-            validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'valve' for consistency");
+            // Check for valve tag
+            if (!target.CompareTag("valve"))
+            {
+                validationMessages.Add("\u26A0\uFE0F Object should be tagged as 'valve' for consistency");
+            }
         }
 
         // Display validation result
@@ -699,6 +739,7 @@ public class SequencePropertiesPanel
 
     /// <summary>
     /// Draw validation for Valve socket objects (XRSocketInteractor/PlacePoint)
+    /// Simplified validation - AutoHands only checks PlacePoint + tag
     /// </summary>
     private void DrawValveSocketValidation(GameObject socket)
     {
@@ -709,7 +750,7 @@ public class SequencePropertiesPanel
         // Check for socket component based on framework
         if (framework == VRFramework.AutoHands)
         {
-            // Check for PlacePoint using reflection
+            // AutoHands validation: Only check PlacePoint component
             var placePoint = GetAutoHandsPlacePoint(socket);
             if (placePoint != null)
             {
@@ -719,6 +760,16 @@ public class SequencePropertiesPanel
             {
                 validationMessages.Add("\u26A0\uFE0F Missing PlacePoint component!");
                 hasErrors = true;
+            }
+
+            // Check for snap tag
+            if (!socket.CompareTag("snap"))
+            {
+                validationMessages.Add("\u26A0\uFE0F Socket should be tagged as 'snap' for consistency");
+            }
+            else
+            {
+                validationMessages.Add("\u2705 Tagged as 'snap'");
             }
         }
         else // XRI
@@ -733,42 +784,42 @@ public class SequencePropertiesPanel
                 validationMessages.Add("\u26A0\uFE0F Missing XRSocketInteractor component!");
                 hasErrors = true;
             }
-        }
 
-        // Check for SnapValidator
-        var snapValidator = socket.GetComponent<SnapValidator>();
-        if (snapValidator != null)
-        {
-            validationMessages.Add("\u2705 SnapValidator found");
-        }
-        else
-        {
-            validationMessages.Add("\u26A0\uFE0F Missing SnapValidator component (recommended for sequence validation)");
-        }
-
-        // Check for Collider with isTrigger
-        var collider = socket.GetComponent<Collider>();
-        if (collider != null)
-        {
-            if (collider.isTrigger)
+            // Check for SnapValidator (XRI-specific)
+            var snapValidator = socket.GetComponent<SnapValidator>();
+            if (snapValidator != null)
             {
-                validationMessages.Add("\u2705 Trigger Collider found");
+                validationMessages.Add("\u2705 SnapValidator found");
             }
             else
             {
-                validationMessages.Add("\u26A0\uFE0F Collider should be set as Trigger for socket detection");
+                validationMessages.Add("\u26A0\uFE0F Missing SnapValidator component (recommended for sequence validation)");
             }
-        }
-        else
-        {
-            validationMessages.Add("\u26A0\uFE0F Missing Collider component!");
-            hasErrors = true;
-        }
 
-        // Check for snap tag
-        if (!socket.CompareTag("snap"))
-        {
-            validationMessages.Add("\u26A0\uFE0F Socket should be tagged as 'snap' for consistency");
+            // Check for Collider with isTrigger
+            var collider = socket.GetComponent<Collider>();
+            if (collider != null)
+            {
+                if (collider.isTrigger)
+                {
+                    validationMessages.Add("\u2705 Trigger Collider found");
+                }
+                else
+                {
+                    validationMessages.Add("\u26A0\uFE0F Collider should be set as Trigger for socket detection");
+                }
+            }
+            else
+            {
+                validationMessages.Add("\u26A0\uFE0F Missing Collider component!");
+                hasErrors = true;
+            }
+
+            // Check for snap tag
+            if (!socket.CompareTag("snap"))
+            {
+                validationMessages.Add("\u26A0\uFE0F Socket should be tagged as 'snap' for consistency");
+            }
         }
 
         // Display validation result

@@ -26,7 +26,7 @@ EDITING TIME (Before Play):
 
 2. YOU CLICK "Sync from Sequence Asset"
    - Reads all refs from asset (while still in memory)
-   - Copies them to SequenceArrowRegistry (MonoBehaviour in scene)
+   - Copies them to SequenceRegistry (MonoBehaviour in scene)
    - Registry saves properly because it's scene data!
 
 3. YOU SAVE SCENE (Ctrl+S)
@@ -39,7 +39,7 @@ RUNTIME (During Play):
 
 4. Controller Starts
    - Loads TrainingSequenceAsset (has step logic, names, settings)
-   - Finds SequenceArrowRegistry in scene
+   - Finds SequenceRegistry in scene
    - Links the two together
 
 5. Controller Executes Steps
@@ -55,7 +55,7 @@ RUNTIME (During Play):
    - ALL handlers now use controller methods (not step.targetObject directly!)
 
 7. Controller Looks Up References
-   - FIRST: Check SequenceArrowRegistry (reliable!)
+   - FIRST: Check SequenceRegistry (reliable!)
    - FALLBACK: Check step.targetObject.GameObject (in case registry not set)
    - Returns the GameObject to handler
 
@@ -65,13 +65,13 @@ DATA FLOW DIAGRAM
 =====================================================================
 
 COMPILE TIME (Editing):
-[Sequence Builder UI] → [TrainingSequenceAsset] → [Sync Button] → [SequenceArrowRegistry] → [Scene File]
+[Sequence Builder UI] → [TrainingSequenceAsset] → [Sync Button] → [SequenceRegistry] → [Scene File]
      (Edit here)         (Temporary storage)      (Transfer)      (Permanent storage)       (Saved to disk)
 
 
 RUNTIME (Playing):
 
-  TrainingSequenceAsset                    SequenceArrowRegistry
+  TrainingSequenceAsset                    SequenceRegistry
           ↓                                          ↓
     [Step Logic]                            [GameObject References]
     [Step Names]                            [Arrows]
@@ -125,7 +125,7 @@ ANSWERING YOUR SPECIFIC QUESTIONS
 =====================================================================
 
 Q: "Does the controller take references from GUI or from the script?"
-A: At RUNTIME, it takes from the SCRIPT (SequenceArrowRegistry).
+A: At RUNTIME, it takes from the SCRIPT (SequenceRegistry).
    The GUI (Sequence Builder) is ONLY for editing.
 
 Q: "Does syncing communicate to the ScriptableObject?"
@@ -175,7 +175,7 @@ TrainingSequenceAsset (ScriptableObject):
 - Runtime: Provides step logic and metadata
 - GameObject refs: Temporary workspace (not reliable)
 
-SequenceArrowRegistry (MonoBehaviour):
+SequenceRegistry (MonoBehaviour):
 - Stores: All GameObject references (targets, destinations, arrows)
 - Purpose: Defines WHICH objects to interact with
 - Editing: Auto-populated via sync

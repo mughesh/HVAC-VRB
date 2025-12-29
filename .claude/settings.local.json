@@ -15,7 +15,8 @@
       "Bash(mkdir:*)",
       "Bash(git commit:*)",
       "Bash(git checkout:*)",
-      "Bash(powershell -Command \"Get-Content ''Assets\\VRTrainingKit\\Scripts\\Editor\\UI\\SequenceEditor\\SequenceTreeView.cs'' | Select-String -Pattern ''using|class SequenceTreeView'' | Select-Object -First 10\")"
+      "Bash(powershell -Command \"Get-Content ''Assets\\VRTrainingKit\\Scripts\\Editor\\UI\\SequenceEditor\\SequenceTreeView.cs'' | Select-String -Pattern ''using|class SequenceTreeView'' | Select-Object -First 10\")",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

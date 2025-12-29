@@ -4,10 +4,10 @@ using UnityEditor;
 using System.Linq;
 
 /// <summary>
-/// Custom editor for SequenceArrowRegistry with better UX for arrow assignment
+/// Custom editor for SequenceRegistry with better UX for arrow assignment
 /// </summary>
-[CustomEditor(typeof(SequenceArrowRegistry))]
-public class SequenceArrowRegistryEditor : Editor
+[CustomEditor(typeof(SequenceRegistry))]
+public class SequenceRegistryEditor : Editor
 {
     private SerializedProperty sequenceAssetProp;
     private SerializedProperty arrowMappingsProp;
@@ -25,7 +25,7 @@ public class SequenceArrowRegistryEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        var registry = (SequenceArrowRegistry)target;
+        var registry = (SequenceRegistry)target;
         serializedObject.Update();
 
         // Help box

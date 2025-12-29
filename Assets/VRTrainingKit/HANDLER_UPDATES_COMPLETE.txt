@@ -47,7 +47,7 @@ var destinationObject = controller.GetDestinationObjectForStep(step);
 var socketObject = controller.GetTargetSocketForStep(step);
 
 These methods:
-1. FIRST check SequenceArrowRegistry (reliable!)
+1. FIRST check SequenceRegistry (reliable!)
 2. FALLBACK to step reference (if registry not set)
 3. Return the GameObject
 

@@ -317,9 +317,12 @@ public static class VRFrameworkDetector
     /// </summary>
     private static bool ValidateAutoHandsSetup()
     {
-        // Basic validation - check for AutoHandPlayer
-        var autoHandPlayer = Object.FindObjectOfType<MonoBehaviour>();
-        if (autoHandPlayer == null || autoHandPlayer.GetType().Name != "AutoHandPlayer")
+        // Find AutoHandPlayer using reflection (framework-agnostic)
+        var allMonoBehaviours = Object.FindObjectsOfType<MonoBehaviour>();
+        var autoHandPlayer = System.Array.Find(allMonoBehaviours,
+            mb => mb.GetType().Name == "AutoHandPlayer");
+
+        if (autoHandPlayer == null)
         {
             return false;
         }

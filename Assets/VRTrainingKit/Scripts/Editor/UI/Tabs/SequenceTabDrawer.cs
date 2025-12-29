@@ -26,6 +26,7 @@ public class SequenceTabDrawer
     private float _splitterPosition = 0.4f; // 40% tree view, 60% details panel
     private bool _isDraggingSplitter = false;
     private const string SPLITTER_PREF_KEY = "VRTrainingKit.SequenceTab.SplitterPos";
+    private const string LAST_SEQUENCE_PREF_KEY = "VRTrainingKit.LastSequenceAssetPath";
     private const float SPLITTER_WIDTH = 4f;
 
     // Callbacks
@@ -205,12 +206,22 @@ public class SequenceTabDrawer
                 if (_selectedAssetIndex >= 0 && _selectedAssetIndex < _availableAssets.Length)
                 {
                     LoadTrainingAsset(_availableAssets[_selectedAssetIndex]);
+
+                    // Save to EditorPrefs for persistence
+                    string assetPath = AssetDatabase.GetAssetPath(_availableAssets[_selectedAssetIndex]);
+                    EditorPrefs.SetString(LAST_SEQUENCE_PREF_KEY, assetPath);
                 }
             }
         }
         else
         {
             EditorGUILayout.LabelField("No training sequence assets found in project");
+        }
+
+        // Use Controller Asset button
+        if (GUILayout.Button("Use Controller Asset", GUILayout.Width(140)))
+        {
+            UseControllerAsset();
         }
 
         // Control buttons
@@ -240,17 +251,49 @@ public class SequenceTabDrawer
 
     /// <summary>
     /// Load available training assets from the project
+    /// Priority: 1) ModularTrainingController asset, 2) Last seen asset, 3) First asset
     /// </summary>
     public void LoadAvailableTrainingAssets()
     {
         _availableAssets = TrainingSequenceAssetManager.LoadAllSequenceAssets();
         _assetsLoaded = true;
 
-        // Auto-select first asset if available
         if (_availableAssets.Length > 0 && _currentTrainingAsset == null)
         {
+            // Priority 1: Check ModularTrainingController in scene
+            var controller = Object.FindObjectOfType<ModularTrainingSequenceController>();
+            if (controller != null && controller.trainingAsset != null)
+            {
+                int index = System.Array.FindIndex(_availableAssets,
+                    asset => asset == controller.trainingAsset);
+                if (index >= 0)
+                {
+                    _selectedAssetIndex = index;
+                    LoadTrainingAsset(_availableAssets[index]);
+                    Debug.Log($"[SequenceTab] Loaded sequence from ModularTrainingController: {controller.trainingAsset.name}");
+                    return;
+                }
+            }
+
+            // Priority 2: Check EditorPrefs for last seen sequence
+            string lastAssetPath = EditorPrefs.GetString(LAST_SEQUENCE_PREF_KEY, "");
+            if (!string.IsNullOrEmpty(lastAssetPath))
+            {
+                int index = System.Array.FindIndex(_availableAssets,
+                    asset => AssetDatabase.GetAssetPath(asset) == lastAssetPath);
+                if (index >= 0)
+                {
+                    _selectedAssetIndex = index;
+                    LoadTrainingAsset(_availableAssets[index]);
+                    Debug.Log($"[SequenceTab] Loaded last seen sequence: {_availableAssets[index].name}");
+                    return;
+                }
+            }
+
+            // Priority 3: Default to first asset
             _selectedAssetIndex = 0;
             LoadTrainingAsset(_availableAssets[0]);
+            Debug.Log($"[SequenceTab] Defaulted to first sequence: {_availableAssets[0].name}");
         }
     }
 
@@ -300,6 +343,51 @@ public class SequenceTabDrawer
 
         // Reload assets list
         LoadAvailableTrainingAssets();
+    }
+
+    /// <summary>
+    /// Load the asset assigned to ModularTrainingController in the scene
+    /// </summary>
+    private void UseControllerAsset()
+    {
+        var controller = Object.FindObjectOfType<ModularTrainingSequenceController>();
+        if (controller != null && controller.trainingAsset != null)
+        {
+            // Ensure assets are loaded
+            if (!_assetsLoaded)
+            {
+                LoadAvailableTrainingAssets();
+            }
+
+            int index = System.Array.FindIndex(_availableAssets,
+                asset => asset == controller.trainingAsset);
+            if (index >= 0)
+            {
+                _selectedAssetIndex = index;
+                LoadTrainingAsset(_availableAssets[index]);
+
+                // Save to EditorPrefs
+                string assetPath = AssetDatabase.GetAssetPath(_availableAssets[index]);
+                EditorPrefs.SetString(LAST_SEQUENCE_PREF_KEY, assetPath);
+
+                Debug.Log($"[SequenceTab] Loaded asset from controller: {controller.trainingAsset.name}");
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("Asset Not Found",
+                    "Controller's training asset not found in project assets.\n\n" +
+                    $"Controller has: {controller.trainingAsset.name}\n" +
+                    "Make sure this asset exists in your Assets folder.",
+                    "OK");
+            }
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("No Controller Found",
+                "ModularTrainingSequenceController not found in scene or has no asset assigned.\n\n" +
+                "Add a ModularTrainingSequenceController to your scene and assign a training asset to it.",
+                "OK");
+        }
     }
 
     /// <summary>

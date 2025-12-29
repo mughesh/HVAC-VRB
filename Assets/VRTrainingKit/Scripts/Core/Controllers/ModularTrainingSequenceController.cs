@@ -20,7 +20,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
 
     [Header("Arrow Registry")]
     [Tooltip("Scene-based arrow registry (optional - if not set, will search for one in scene)")]
-    public SequenceArrowRegistry arrowRegistry;
+    public SequenceRegistry arrowRegistry;
 
     [Header("Debug Settings")]
     [Tooltip("Log detailed debug information")]
@@ -70,15 +70,15 @@ public class ModularTrainingSequenceController : MonoBehaviour
         // Find arrow registry if not assigned
         if (arrowRegistry == null)
         {
-            arrowRegistry = FindObjectOfType<SequenceArrowRegistry>();
+            arrowRegistry = FindObjectOfType<SequenceRegistry>();
             if (arrowRegistry == null)
             {
-                LogWarning("⚠️ No SequenceArrowRegistry found in scene. Arrows will not be displayed. " +
-                    "Add a SequenceArrowRegistry component to a GameObject to enable arrow guidance.");
+                LogWarning("⚠️ No SequenceRegistry found in scene. Arrows will not be displayed. " +
+                    "Add a SequenceRegistry component to a GameObject to enable arrow guidance.");
             }
             else
             {
-                LogInfo($"✓ Found SequenceArrowRegistry: {arrowRegistry.gameObject.name}");
+                LogInfo($"✓ Found SequenceRegistry: {arrowRegistry.gameObject.name}");
             }
         }
 
@@ -806,7 +806,7 @@ public class ModularTrainingSequenceController : MonoBehaviour
         if (targetArrowObj == null && step.targetArrow != null && step.targetArrow.IsValid)
         {
             targetArrowObj = step.targetArrow.GameObject;
-            LogDebug($"⚠️ Using arrow from step direct reference (legacy mode). Consider using SequenceArrowRegistry instead.");
+            LogDebug($"⚠️ Using arrow from step direct reference (legacy mode). Consider using SequenceRegistry instead.");
         }
 
         // Show target arrow if found
