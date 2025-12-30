@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 345551606824205453}
+  - component: {fileID: 4011103412846397761}
   - component: {fileID: 4033016293243208339}
   m_Layer: 0
   m_Name: Arrows registry
@@ -32,6 +33,99 @@ Transform:
   m_Children: []
   m_Father: {fileID: 701363267499589996}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4011103412846397761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009905308495660625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07117289e338a904f92fb99c410a652b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sequenceAsset: {fileID: 11400000, guid: e6141690c4cd29142838b96e2d21fd49, type: 2}
+  arrowMappings:
+  - stepPath: Phase 1 - Hose connections/Blue Hose/Blue male
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Blue Hose/Blue female
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Red hose/Red male
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 4780946016640062729, guid: 90a955c206988be4ab4c8d8b7ffebe36, type: 3}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Red hose/Red Female
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/GSV allen key/Allen key snap - LSV
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 4780946016640062729, guid: 90a955c206988be4ab4c8d8b7ffebe36, type: 3}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/GSV allen key/Allenkey snap - GSV
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Yellow Hose/Yellow female
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: 'Phase 1 - Hose connections/Yellow Hose/Yellow male '
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Cap Removal/LSV cap
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/Cap Removal/GSV Cap
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  - stepPath: Phase 1 - Hose connections/New Task Group/New Step
+    targetObject: {fileID: 0}
+    destinationObject: {fileID: 0}
+    targetArrow: {fileID: 0}
+    destinationArrow: {fileID: 0}
+    hideTargetArrowAfterGrab: 1
+    showDestinationAfterGrab: 1
+  autoSyncOnPlayMode: 1
+  arrowTag: Arrow
 --- !u!114 &4033016293243208339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,7 +409,7 @@ GameObject:
   m_Component:
   - component: {fileID: 701363267499589996}
   m_Layer: 0
-  m_Name: ------------ Scripts ------------
+  m_Name: Sequence Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

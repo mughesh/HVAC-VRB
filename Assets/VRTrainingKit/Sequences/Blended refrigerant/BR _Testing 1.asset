@@ -30,10 +30,10 @@ MonoBehaviour:
             _gameObjectName: AllenKey
             _hierarchyPath: AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
-            _isValid: 1
+            _isValid: 0
           destination:
             _gameObject: {fileID: 0}
-            _instanceID: 58690
+            _instanceID: 82414
             _gameObjectName: LSV valve_socket_pick
             _hierarchyPath: Valve sockets/LSV valve_socket_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -44,7 +44,7 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 1, z: 0}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
             _instanceID: 0
@@ -59,20 +59,36 @@ MonoBehaviour:
           hint: Step instruction goes here
           targetArrow:
             _gameObject: {fileID: 0}
-            _instanceID: -10138
+            _instanceID: 81508
             _gameObjectName: Arrow_AllenKey
-            _hierarchyPath: Arrow_AllenKey
+            _hierarchyPath: ----------- Arrows ---------------------/Arrow_AllenKey
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           hideTargetArrowAfterGrab: 1
           destinationArrow:
             _gameObject: {fileID: 0}
-            _instanceID: -10052
+            _instanceID: -25770
             _gameObjectName: Arrow_LSV_pick
-            _hierarchyPath: Arrow_LSV_pick
+            _hierarchyPath: ----------- Arrows ---------------------/Arrow_LSV_pick
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 0
         enforceSequentialFlow: 0
         isExpanded: 1
@@ -87,7 +103,7 @@ MonoBehaviour:
           type: 5
           targetObject:
             _gameObject: {fileID: 0}
-            _instanceID: 58178
+            _instanceID: 81862
             _gameObjectName: 'Yellow Hose Male '
             _hierarchyPath: 'Hoses/Yellow Hose Male '
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -105,10 +121,10 @@ MonoBehaviour:
           rotationAxis: {x: 0, y: 0, z: 1}
           tightenThreshold: 50
           loosenThreshold: 90
-          valveAngleTolerance: 5
+          screwAngleTolerance: 5
           targetSocket:
             _gameObject: {fileID: 0}
-            _instanceID: 56944
+            _instanceID: 80594
             _gameObjectName: Yellow male snap
             _hierarchyPath: Valve sockets/Yellow male snap
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
@@ -120,23 +136,39 @@ MonoBehaviour:
           hint: Step instruction goes here
           targetArrow:
             _gameObject: {fileID: 0}
-            _instanceID: -12798
+            _instanceID: 80124
             _gameObjectName: Arrow_Yhose_male
-            _hierarchyPath: Arrow_Yhose_male
+            _hierarchyPath: ----------- Arrows ---------------------/Arrow_Yhose_male
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           hideTargetArrowAfterGrab: 1
           destinationArrow:
             _gameObject: {fileID: 0}
-            _instanceID: -10092
+            _instanceID: -25006
             _gameObjectName: Arrow_cylinder_valve_tight
-            _hierarchyPath: Arrow_cylinder_valve_tight
+            _hierarchyPath: ----------- Arrows ---------------------/Arrow_cylinder_valve_tight
             _scenePath: Assets/Scenes/Blended Refrigerant Charging.unity
             _isValid: 1
           showDestinationAfterGrab: 1
+          wristButton:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          teleportDestination:
+            _gameObject: {fileID: 0}
+            _instanceID: 0
+            _gameObjectName: 
+            _hierarchyPath: 
+            _scenePath: 
+            _isValid: 0
+          enableRecentering: 1
+          recenteringDelay: 0.5
           isCompleted: 0
         enforceSequentialFlow: 0
-        isExpanded: 0
+        isExpanded: 1
       isExpanded: 1
     isExpanded: 1
   assetDescription: Custom training sequence

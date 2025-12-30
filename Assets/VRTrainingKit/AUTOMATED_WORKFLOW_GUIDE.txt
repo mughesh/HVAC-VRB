@@ -38,7 +38,7 @@ STEP 1: One-Time Setup (30 seconds)
 ------------------------------------
 1. Open your training scene
 2. Create empty GameObject → Name it "ArrowRegistry"
-3. Add Component → "SequenceArrowRegistry"
+3. Add Component → "SequenceRegistry"
 4. Drag your sequence asset into "Training Sequence Asset" field
 5. Check "Auto Sync On Play Mode" checkbox (should be on by default)
 
@@ -284,7 +284,7 @@ GameObjectReference System:
 - Works "well enough" during edit session
 - BUT: Unity strips scene refs when saving asset
 
-SequenceArrowRegistry:
+SequenceRegistry:
 - MonoBehaviour living in scene
 - Direct GameObject references (fully supported)
 - Acts as "compiled" version of references

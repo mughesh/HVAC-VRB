@@ -564,16 +564,10 @@ public class ConfigureTabDrawer
                 break;
 
             case VRFramework.AutoHands:
-                GUI.color = new Color(1f, 0.8f, 0f); // Orange
-                EditorGUILayout.LabelField("⚠️ AutoHands Framework Detected", EditorStyles.boldLabel);
-                GUI.color = originalColor;
-
+                EditorGUILayout.LabelField("✅ AutoHands Framework Detected", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField(
                     "AutoHands framework detected. Showing only AutoHands-compatible profiles.",
                     EditorStyles.wordWrappedLabel);
-
-                EditorGUILayout.Space(3);
-                EditorGUILayout.HelpBox("Use VR Training > Framework Validator for detailed framework analysis.", MessageType.Info);
                 break;
 
             case VRFramework.None:

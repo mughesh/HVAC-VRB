@@ -11,7 +11,7 @@ using UnityEditor;
 /// This MonoBehaviour lives in the scene and CAN save scene GameObject references.
 /// This solves the ScriptableObject limitation where scene refs are stripped on save.
 /// </summary>
-public class SequenceArrowRegistry : MonoBehaviour
+public class SequenceRegistry : MonoBehaviour
 {
     [System.Serializable]
     public class ArrowMapping
@@ -57,14 +57,14 @@ public class SequenceArrowRegistry : MonoBehaviour
     public string arrowTag = "Arrow";
 
     // Singleton pattern for easy access
-    private static SequenceArrowRegistry _instance;
-    public static SequenceArrowRegistry Instance
+    private static SequenceRegistry _instance;
+    public static SequenceRegistry Instance
     {
         get
         {
             if (_instance == null)
             {
-                _instance = FindObjectOfType<SequenceArrowRegistry>();
+                _instance = FindObjectOfType<SequenceRegistry>();
             }
             return _instance;
         }
@@ -79,7 +79,7 @@ public class SequenceArrowRegistry : MonoBehaviour
         }
         else if (_instance != this)
         {
-            Debug.LogWarning($"Multiple SequenceArrowRegistry instances found! Using the first one.");
+            Debug.LogWarning($"Multiple SequenceRegistry instances found! Using the first one.");
         }
 
 #if UNITY_EDITOR

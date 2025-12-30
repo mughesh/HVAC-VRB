@@ -8,7 +8,7 @@ Unity cannot save scene GameObject references inside ScriptableObjects.
 This is why arrows disappeared after builds and Unity restarts.
 
 SOLUTION:
-Use a scene-based MonoBehaviour (SequenceArrowRegistry) to store arrow
+Use a scene-based MonoBehaviour (SequenceRegistry) to store arrow
 references. MonoBehaviours CAN save scene references!
 
 =====================================================================
@@ -20,11 +20,11 @@ STEP 1: Add the Registry Component to Your Scene
 1. Open your training scene
 2. Create a new empty GameObject (or use an existing manager object)
    - Right-click in Hierarchy → Create Empty
-   - Name it "SequenceArrowRegistry" (or any name you like)
+   - Name it "SequenceRegistry" (or any name you like)
 
-3. Add the SequenceArrowRegistry component:
+3. Add the SequenceRegistry component:
    - Select the GameObject
-   - Inspector → Add Component → "SequenceArrowRegistry"
+   - Inspector → Add Component → "SequenceRegistry"
 
 4. Assign your Training Sequence Asset:
    - In the Inspector, find "Training Sequence Asset" field
@@ -33,7 +33,7 @@ STEP 1: Add the Registry Component to Your Scene
 
 STEP 2: Generate Arrow Mappings
 -------------------------------------------------
-1. With SequenceArrowRegistry selected, look for these buttons:
+1. With SequenceRegistry selected, look for these buttons:
    - Click "Generate Mappings from Sequence"
 
    This will create entries for ALL your steps automatically!
@@ -76,7 +76,7 @@ STEP 5: Connect to Your Controller
 -------------------------------------------------
 1. Find your ModularTrainingSequenceController in the scene
 2. In Inspector, find the new "Arrow Registry" field
-3. Drag your SequenceArrowRegistry GameObject into this field
+3. Drag your SequenceRegistry GameObject into this field
 
 (If you don't assign it, the controller will auto-find it at runtime)
 
@@ -114,7 +114,7 @@ If you have multiple sequence assets in the same scene:
 
 Option A: One Registry Per Sequence
 ------------------------------------
-1. Create multiple SequenceArrowRegistry GameObjects
+1. Create multiple SequenceRegistry GameObjects
 2. Name them clearly (e.g., "Registry_LeakTest", "Registry_Charging")
 3. Assign different sequence assets to each registry
 4. Manually assign the correct registry to each controller
@@ -122,7 +122,7 @@ Option A: One Registry Per Sequence
 
 Option B: One Registry, Switch Sequence at Runtime
 ---------------------------------------------------
-1. Create one SequenceArrowRegistry
+1. Create one SequenceRegistry
 2. Assign arrows for ONE sequence asset
 3. To switch sequences, you'll need to either:
    - Clear and reassign arrows via script, or
@@ -130,7 +130,7 @@ Option B: One Registry, Switch Sequence at Runtime
 
 
 RECOMMENDED: Use separate scenes for each training module.
-Each scene has its own SequenceArrowRegistry with its own arrows.
+Each scene has its own SequenceRegistry with its own arrows.
 
 
 =====================================================================
@@ -140,7 +140,7 @@ MAINTENANCE TIPS
 Adding New Steps:
 -----------------
 1. Add steps to your Training Sequence Asset
-2. Select SequenceArrowRegistry in scene
+2. Select SequenceRegistry in scene
 3. Click "Generate Mappings from Sequence" again
    (It will only add NEW steps, won't duplicate existing ones)
 4. Assign arrows to the new steps
@@ -179,9 +179,9 @@ Solution:
 - Save scene!
 
 
-Problem: "No SequenceArrowRegistry found" warning
+Problem: "No SequenceRegistry found" warning
 Solution:
-- Make sure SequenceArrowRegistry is in the SAME scene as the controller
+- Make sure SequenceRegistry is in the SAME scene as the controller
 - Assign it manually to the controller's "Arrow Registry" field
 
 
