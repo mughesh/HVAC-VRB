@@ -42,10 +42,10 @@ public class VRInteractionSetupWindow : EditorWindow, ISequenceTreeViewCallbacks
     // Legacy sequence system (kept for backward compatibility)
     private LegacySequenceController sequenceController;
 
-    [MenuItem("VR Training/Setup Assistant")]
+    [MenuItem("Sequence Builder/Setup Assistant")]
     public static void ShowWindow()
     {
-        var window = GetWindow<VRInteractionSetupWindow>("VR Training Setup");
+        var window = GetWindow<VRInteractionSetupWindow>("Sequence Builder");
         window.minSize = new Vector2(400, 500);
     }
 

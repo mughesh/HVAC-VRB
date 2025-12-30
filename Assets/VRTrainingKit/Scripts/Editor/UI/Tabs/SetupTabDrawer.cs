@@ -429,7 +429,7 @@ public class SetupTabDrawer
         // Framework validation issues
         if (detectedFramework != VRFramework.None && !isFrameworkValid)
         {
-            EditorGUILayout.HelpBox($"Framework setup issues detected. Use VR Training > Framework Validator for details.", MessageType.Warning);
+            EditorGUILayout.HelpBox($"Framework setup issues detected. Use Sequence Builder > Framework Validator for details.", MessageType.Warning);
         }
 
         EditorGUILayout.EndVertical();

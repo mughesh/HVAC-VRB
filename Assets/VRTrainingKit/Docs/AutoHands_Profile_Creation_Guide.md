@@ -913,7 +913,7 @@ else
 
 #### Test Steps:
 
-1. **Open Setup Assistant**: Window → VR Training → Setup Assistant
+1. **Open Setup Assistant**: Window → Sequence Builder → Setup Assistant
 2. **Go to Setup Tab**
 3. **Click "Scan Scene"**
 4. **Check Object List**:

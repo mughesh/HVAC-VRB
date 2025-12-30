@@ -585,7 +585,7 @@ public class CustomCondition : MonoBehaviour, ISequenceCondition
 
 ### For Scene Setup:
 1. Tag your objects: `grab`, `knob`, `snap`, `valve`, `tool`, `teleportPoint`
-2. Open `VR Training > Setup Assistant`
+2. Open `Sequence Builder > Setup Assistant`
 3. Click `Scan Scene`
 4. Select profiles in Configure tab
 5. Click `Apply All Components`

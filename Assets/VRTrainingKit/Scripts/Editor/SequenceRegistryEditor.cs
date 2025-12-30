@@ -34,7 +34,7 @@ public class SequenceRegistryEditor : Editor
             EditorGUILayout.HelpBox(
                 "AUTOMATED WORKFLOW:\n\n" +
                 "1. Assign your Training Sequence Asset below\n" +
-                "2. Edit references in Sequence Builder UI (Window > VR Training > Setup Assistant > Sequence tab)\n" +
+                "2. Edit references in Sequence Builder UI (Window > Sequence Builder > Setup Assistant > Sequence tab)\n" +
                 "3. Click 'Sync from Sequence Asset' button to transfer ALL references here automatically\n" +
                 "4. Save scene (Ctrl+S)\n\n" +
                 "Benefits:\n" +

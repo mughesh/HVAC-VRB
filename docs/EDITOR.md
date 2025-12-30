@@ -8,10 +8,10 @@ The Unity Editor Integration provides comprehensive tools for creating, configur
 
 ### VRInteractionSetupWindow
 
-The central hub for VR Training Kit configuration, accessible via `Window > VR Training > Setup Assistant`.
+The central hub for VR Training Kit configuration, accessible via `Window > Sequence Builder > Setup Assistant`.
 
 ```csharp
-[MenuItem("VR Training/Setup Assistant")]
+[MenuItem("Sequence Builder/Setup Assistant")]
 public static void ShowWindow()
 {
     var window = GetWindow<VRInteractionSetupWindow>("VR Training Setup");
@@ -795,7 +795,7 @@ EditorUtility.SetDirty(currentTrainingAsset);
 
 ### Quick Setup Workflow
 
-1. **Window Access**: `Window > VR Training > Setup Assistant`
+1. **Window Access**: `Window > Sequence Builder > Setup Assistant`
 2. **Scene Scan**: Automatic detection of tagged objects
 3. **Profile Selection**: Choose or create appropriate profiles
 4. **Bulk Application**: Apply configurations to multiple objects
