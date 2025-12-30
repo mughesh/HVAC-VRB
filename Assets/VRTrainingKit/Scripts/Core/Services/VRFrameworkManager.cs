@@ -7,7 +7,7 @@ using UnityEngine;
 /// ScriptableObject for managing VR framework preferences and settings
 /// Provides centralized framework selection and configuration
 /// </summary>
-[CreateAssetMenu(fileName = "VRFrameworkManager", menuName = "VR Training/Framework Manager", order = 1)]
+[CreateAssetMenu(fileName = "VRFrameworkManager", menuName = "Sequence Builder/Framework Manager", order = 1)]
 public class VRFrameworkManager : ScriptableObject
 {
     [Header("Framework Settings")]
@@ -57,7 +57,7 @@ public class VRFrameworkManager : ScriptableObject
                     _instance.autoDetect = true;
 
                     Debug.LogWarning("[VRFrameworkManager] No VRFrameworkManager found in Resources. Using default settings. " +
-                                   "Create one via: Assets > Create > VR Training > Framework Manager");
+                                   "Create one via: Assets > Create > Sequence Builder > Framework Manager");
                 }
             }
             return _instance;

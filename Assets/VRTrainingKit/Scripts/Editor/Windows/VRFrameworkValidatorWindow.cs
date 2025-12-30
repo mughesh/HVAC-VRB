@@ -22,7 +22,7 @@ public class VRFrameworkValidatorWindow : EditorWindow
     private GUIStyle warningStyle;
     private GUIStyle successStyle;
 
-    [MenuItem("VR Training/Framework Validator")]
+    [MenuItem("Sequence Builder/Framework Validator")]
     public static void ShowWindow()
     {
         var window = GetWindow<VRFrameworkValidatorWindow>("Framework Validator");
@@ -153,7 +153,7 @@ public class VRFrameworkValidatorWindow : EditorWindow
         }
         else
         {
-            EditorGUILayout.HelpBox("No VRFrameworkManager found. Create one via:\nAssets > Create > VR Training > Framework Manager", MessageType.Warning);
+            EditorGUILayout.HelpBox("No VRFrameworkManager found. Create one via:\nAssets > Create > Sequence Builder > Framework Manager", MessageType.Warning);
 
             if (GUILayout.Button("Create Framework Manager"))
             {
@@ -252,7 +252,7 @@ public class VRFrameworkValidatorWindow : EditorWindow
 
         if (GUILayout.Button("Test Framework Detection"))
         {
-            VRFrameworkDetectorTest.TestFrameworkDetection();
+           // VRFrameworkDetectorTest.TestFrameworkDetection();
         }
 
         EditorGUILayout.EndHorizontal();

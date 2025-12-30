@@ -12,7 +12,7 @@ using System.IO;
 /// </summary>
 public static class VRTrainingKitInit
 {
-    private const string MENU_PATH = "VR Training/Setup/";
+    private const string MENU_PATH = "Sequence Builder/Setup/";
     private const string VR_TRAINING_KIT_PATH = "Assets/VRTrainingKit";
     private const string RESOURCES_PATH = "Assets/VRTrainingKit/Resources";
     
@@ -42,8 +42,8 @@ public static class VRTrainingKitInit
         }
         else
         {
-            EditorUtility.DisplayDialog("VR Training Kit", 
-                "VR Training Kit is already initialized!\n\nUse the VR Training Setup Assistant to configure your scene.", 
+            EditorUtility.DisplayDialog("VR Training Kit",
+                "VR Training Kit is already initialized!\n\nUse the Sequence Builder Setup Assistant to configure your scene.",
                 "OK");
         }
     }
@@ -113,12 +113,6 @@ public static class VRTrainingKitInit
         }
     }
     
-    [MenuItem(MENU_PATH + "Open Setup Window", false, 60)]
-    public static void OpenSetupWindow()
-    {
-        VRInteractionSetupWindow.ShowWindow();
-    }
-    
     private static void PerformInitialization()
     {
         Debug.Log("[VR Training Kit] Starting initialization...");
@@ -139,10 +133,10 @@ public static class VRTrainingKitInit
         AssetDatabase.Refresh();
         
         Debug.Log("[VR Training Kit] Initialization complete!");
-        EditorUtility.DisplayDialog("Initialization Complete", 
+        EditorUtility.DisplayDialog("Initialization Complete",
             "VR Training Kit has been successfully initialized!\n\nNext steps:\n" +
             "1. Tag your objects with 'grab', 'knob', or 'snap'\n" +
-            "2. Open the Setup Assistant (VR Training > Setup Assistant)\n" +
+            "2. Open the Setup Assistant (Sequence Builder > Setup Assistant)\n" +
             "3. Scan your scene and apply configurations", "OK");
     }
     
@@ -292,9 +286,9 @@ public static class VRTrainingKitInit
         string docText = @"VR Training Kit - Quick Start Guide
 
 SETUP:
-1. Initialize the toolkit: VR Training > Setup > Initialize VR Training Kit
+1. Initialize the toolkit: Sequence Builder > Setup > Initialize VR Training Kit
 2. Tag your objects: 'grab', 'knob', or 'snap'
-3. Open Setup Assistant: VR Training > Setup Assistant
+3. Open Setup Assistant: Sequence Builder > Setup Assistant
 
 WORKFLOW:
 1. Setup Tab: Scan scene for tagged objects

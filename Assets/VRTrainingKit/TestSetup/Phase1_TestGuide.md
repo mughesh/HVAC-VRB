@@ -29,7 +29,7 @@ This guide helps you create a basic test scene to validate the architectural cle
 
 3. **Apply Profile to Tool:**
    - Select TestWrench in scene
-   - Use VR Training → Setup Assistant → Setup Tab
+   - Use Sequence Builder → Setup Assistant → Setup Tab
    - Scan Scene → Apply Components
 
 #### Socket Object Setup
@@ -48,7 +48,7 @@ This guide helps you create a basic test scene to validate the architectural cle
 
 3. **Apply Profile to Socket:**
    - Select TestBoltSocket in scene
-   - Use VR Training → Setup Assistant → Setup Tab
+   - Use Sequence Builder → Setup Assistant → Setup Tab
    - Scan Scene → Apply Components
 
 ## Validation Checklist
@@ -109,7 +109,7 @@ Look for these log messages:
 4. **Check Console**: Look for compatibility messages
 
 ### Editor Testing
-Use VR Training → Setup Assistant:
+Use Sequence Builder → Setup Assistant:
 1. **Setup Tab**: Scan scene, verify objects found correctly
 2. **Validate Tab**: Check for any configuration issues
 3. **Configure Tab**: Verify profiles load correctly

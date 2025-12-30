@@ -19,7 +19,7 @@ The Runtime Monitor tab can be hidden/shown using a simple GameObject component.
 2. Check the box: ☑ **Show Runtime Monitor Tab**
 
 ### Result:
-✅ The "Runtime Monitor" tab will now appear in: **VR Training → Setup Assistant**
+✅ The "Runtime Monitor" tab will now appear in: **Sequence Builder → Setup Assistant**
 
 ---
 

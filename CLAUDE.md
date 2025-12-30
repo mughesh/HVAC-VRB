@@ -131,7 +131,7 @@ Comprehensive socket validation and event handling:
 ### Editor Integration
 
 #### VRInteractionSetupWindow.cs
-Multi-tab editor window accessed via `VR Training > Setup Assistant`:
+Multi-tab editor window accessed via `Sequence Builder > Setup Assistant`:
 
 **Setup Tab:**
 - Real-time scene scanning with object categorization
@@ -202,7 +202,7 @@ The framework includes a complete sequence management system for training progre
 - Use `profile.ApplyToGameObject(target)` for programmatic application
 
 #### Editor Window Access
-- `Window > VR Training > Setup Assistant` - Main configuration interface
+- `Window > Sequence Builder > Setup Assistant` - Main configuration interface
 - Setup tab: Scene scanning and object configuration
 - Configure tab: Profile selection and creation
 - Validate tab: Issue identification and troubleshooting
@@ -439,7 +439,7 @@ The hierarchical system complements the existing profile-based interaction setup
 - Validation system checks for proper interaction component setup
 
 ### Development Commands
-- **Access GUI:** `Window > VR Training > Setup Assistant` → Sequence Tab
+- **Access GUI:** `Window > Sequence Builder > Setup Assistant` → Sequence Tab
 - **Create Assets:** Right-click in Project → Create → VR Training → Training Sequence Asset
 - **Load Template:** Use "New" button in Sequence tab → Select "HVAC Template"
 - **Edit Elements:** Select items in tree view to edit properties in right panel

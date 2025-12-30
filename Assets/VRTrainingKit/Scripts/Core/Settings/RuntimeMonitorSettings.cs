@@ -5,7 +5,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Controls visibility of the Runtime Monitor tab in VR Training Setup Assistant
+/// Controls visibility of the Runtime Monitor tab in Sequence Builder Setup Assistant
 /// Add this component to any GameObject in your scene to enable the tab
 /// Remove or disable this component to hide the tab
 /// </summary>
@@ -17,7 +17,7 @@ public class RuntimeMonitorSettings : MonoBehaviour
 
     [Header("Info")]
     [TextArea(3, 5)]
-    public string info = "The Runtime Monitor tab will be visible in the VR Training Setup Assistant window only when this component exists in the scene and 'showRuntimeMonitorTab' is enabled.";
+    public string info = "The Runtime Monitor tab will be visible in the Sequence Builder Setup Assistant window only when this component exists in the scene and 'showRuntimeMonitorTab' is enabled.";
 
     // Singleton pattern for easy access from editor
     private static RuntimeMonitorSettings instance;

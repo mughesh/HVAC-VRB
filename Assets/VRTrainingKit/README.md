@@ -37,7 +37,7 @@ An automated XR interaction setup system for Unity that streamlines the process 
 
 1. **Initialize**: `VR Training > Setup > Initialize VR Training Kit`
 2. **Tag Objects**: Apply `grab`, `knob`, or `snap` tags to scene objects
-3. **Open Setup Assistant**: `VR Training > Setup Assistant`
+3. **Open Setup Assistant**: `Sequence Builder > Setup Assistant`
 4. **Scan Scene**: Click "Scan Scene" in Setup tab
 5. **Configure**: Select profiles and apply to objects
 6. **Validate**: Check for issues in Validate tab
