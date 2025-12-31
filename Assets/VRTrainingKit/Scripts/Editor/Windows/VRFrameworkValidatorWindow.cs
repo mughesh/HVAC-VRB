@@ -301,7 +301,7 @@ public class VRFrameworkValidatorWindow : EditorWindow
             AssetDatabase.CreateFolder("Assets/VRTrainingKit", "Resources");
         }
 
-        var assetPath = $"{resourcesPath}/VRFrameworkManager.asset";
+        var assetPath = $"{resourcesPath}/VRFrameworkManager.asset"; 
         AssetDatabase.CreateAsset(manager, assetPath);
         AssetDatabase.SaveAssets();
 

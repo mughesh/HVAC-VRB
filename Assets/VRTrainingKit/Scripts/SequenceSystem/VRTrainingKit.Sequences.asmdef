@@ -1,0 +1,21 @@
+{
+    "name": "VRTrainingKit.Sequences",
+    "rootNamespace": "",
+    "references": [
+        "VRTrainingKit.Runtime",
+        "VRTrainingKit.Profiles",
+        "Unity.XR.Interaction.Toolkit",
+        "Unity.XR.CoreUtils",
+        "Unity.TextMeshPro",
+        "AutoHandAssembly"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

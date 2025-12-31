@@ -1,0 +1,22 @@
+{
+    "name": "VRTrainingKit.StepHandlers",
+    "rootNamespace": "",
+    "references": [
+        "VRTrainingKit.Profiles",
+        "VRTrainingKit.Runtime",
+        "VRTrainingKit.Sequences",
+        "Unity.XR.Interaction.Toolkit",
+        "Unity.XR.CoreUtils",
+        "Unity.TextMeshPro",
+        "AutoHandAssembly"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
