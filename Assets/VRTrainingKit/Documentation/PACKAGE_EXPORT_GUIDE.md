@@ -1135,3 +1135,47 @@ Discord: discord.gg/yourserver
 
 **Questions?**
 Refer to this guide anytime you need to export the package!
+
+---
+
+## ⚠️ Known Issue: Prefabs with Missing Scripts (DLL Export Only)
+
+### The Problem
+
+When exporting with DLLs, prefabs that reference scripts from deleted source folders will show "Missing Script" errors. This is because Unity prefabs store script references by GUID, and when we delete the source scripts, those GUIDs break - even though the classes exist in the DLLs.
+
+**Affected Prefabs:**
+- `Resources/Sequence Manager.prefab`
+- Any custom prefabs you created that reference VR Training Kit scripts
+
+### The Solution: Sequence Manager Creator
+
+Instead of distributing broken prefabs, we provide a menu item that creates the Sequence Manager with correct DLL references:
+
+**For Users (Include in your distribution documentation):**
+
+1. Don't use the "Sequence Manager" prefab
+2. Instead, use the menu: `Sequence Builder > Create Sequence Manager`
+3. This creates a fresh GameObject with all step handlers and utilities
+4. All references point correctly to DLL types
+
+**Created by menu:**
+- ModularTrainingSequenceController (main controller)
+- All step handlers (Grab, Snap, Knob, Valve, AutoHands variants)
+- SequenceRegistry (arrow/object registry)
+- VRTrainingDebug (debug UI)
+- VRHandColliderRegistry (hand collision registry)
+
+### User Documentation
+
+A complete USER_SETUP_GUIDE.md has been created that explains this to users. Make sure to include it in your distribution package.
+
+**Key points for users:**
+- ✅ Use `Sequence Builder > Create Sequence Manager` menu item
+- ❌ Don't use the "Sequence Manager" prefab
+- ✅ Fresh creation ensures correct DLL references
+- ✅ Can recreate anytime if needed
+
+### Alternative Solution (Not Recommended)
+
+You could manually remap prefab references after export, but this is error-prone and time-consuming. The menu item approach is cleaner and more user-friendly.
