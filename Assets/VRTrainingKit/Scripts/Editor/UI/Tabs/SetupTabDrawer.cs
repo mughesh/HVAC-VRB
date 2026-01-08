@@ -61,6 +61,10 @@ public class SetupTabDrawer
         EditorGUILayout.LabelField("Scene Setup", VRTrainingEditorStyles.HeaderStyle);
         EditorGUILayout.Space(5);
 
+        // Sequence Manager Setup Section
+        DrawSequenceManagerSetup();
+        EditorGUILayout.Space(10);
+
         // Framework Status Section
         DrawFrameworkStatus();
         EditorGUILayout.Space(10);
@@ -356,6 +360,85 @@ public class SetupTabDrawer
         {
             EditorGUILayout.LabelField("Configure first", EditorStyles.miniLabel, GUILayout.Width(150));
         }
+    }
+
+    /// <summary>
+    /// Draws Sequence Manager setup section
+    /// </summary>
+    private void DrawSequenceManagerSetup()
+    {
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        EditorGUILayout.LabelField("📋 Sequence Manager", EditorStyles.boldLabel);
+        EditorGUILayout.Space(3);
+
+        // Check if Sequence Manager exists in scene
+        var existingManager = Object.FindObjectOfType<ModularTrainingSequenceController>();
+
+        if (existingManager != null)
+        {
+            // Show status - already exists
+            EditorGUILayout.BeginHorizontal();
+            GUI.color = Color.green;
+            EditorGUILayout.LabelField("✅ Sequence Manager exists in scene", EditorStyles.boldLabel);
+            GUI.color = Color.white;
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Select in Hierarchy", GUILayout.Height(25)))
+            {
+                Selection.activeGameObject = existingManager.transform.root.gameObject;
+                EditorGUIUtility.PingObject(existingManager.transform.root.gameObject);
+            }
+
+            if (GUILayout.Button("Replace with New", GUILayout.Height(25)))
+            {
+                if (EditorUtility.DisplayDialog(
+                    "Replace Sequence Manager",
+                    "This will delete the existing Sequence Manager and create a new one.\n\nContinue?",
+                    "Yes, Replace",
+                    "Cancel"))
+                {
+                    SequenceManagerCreator.CreateSequenceManagerInScene();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        else
+        {
+            // Show status - doesn't exist
+            EditorGUILayout.BeginHorizontal();
+            GUI.color = Color.yellow;
+            EditorGUILayout.LabelField("⚠️ No Sequence Manager in scene", EditorStyles.boldLabel);
+            GUI.color = Color.white;
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.HelpBox(
+                "The Sequence Manager is required to run training sequences.\n\n" +
+                "Click the button below to add it to your scene.",
+                MessageType.Info);
+
+            EditorGUILayout.Space(5);
+
+            if (GUILayout.Button("➕ Create Sequence Manager", GUILayout.Height(35)))
+            {
+                var created = SequenceManagerCreator.CreateSequenceManagerInScene();
+                if (created != null)
+                {
+                    EditorUtility.DisplayDialog(
+                        "Success!",
+                        "Sequence Manager created successfully!\n\n" +
+                        "Next step: Assign a Training Sequence Asset in the Inspector.",
+                        "OK");
+                }
+            }
+        }
+
+        EditorGUILayout.EndVertical();
     }
 
     /// <summary>

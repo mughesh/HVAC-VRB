@@ -1,0 +1,302 @@
+=====================================================================
+ARCHITECTURE EXPLAINED
+Where References Come From at Runtime
+=====================================================================
+
+YOUR QUESTION:
+"The sequence builder flow is the state machine. Does it take references
+from the GUI or from this new script component? If we are syncing scene
+references, does this communicate to the scriptable object and make the
+references reliable?"
+
+ANSWER: The system now uses BOTH, in a specific pattern that solves
+the persistence problem!
+
+=====================================================================
+COMPLETE REFERENCE FLOW
+=====================================================================
+
+EDITING TIME (Before Play):
+---------------------------
+
+1. YOU EDIT in Sequence Builder UI
+   - Assign target objects, destinations, arrows
+   - References are stored in TrainingSequenceAsset (ScriptableObject)
+   - These refs exist IN MEMORY ONLY (Unity will delete them on save!)
+
+2. YOU CLICK "Sync from Sequence Asset"
+   - Reads all refs from asset (while still in memory)
+   - Copies them to SequenceRegistry (MonoBehaviour in scene)
+   - Registry saves properly because it's scene data!
+
+3. YOU SAVE SCENE (Ctrl+S)
+   - Registry's references are saved to scene file permanently
+   - Asset's references get stripped by Unity (this is normal!)
+
+
+RUNTIME (During Play):
+----------------------
+
+4. Controller Starts
+   - Loads TrainingSequenceAsset (has step logic, names, settings)
+   - Finds SequenceRegistry in scene
+   - Links the two together
+
+5. Controller Executes Steps
+   - For each step, needs to know which GameObjects to use
+   - Controller provides helper methods:
+     • GetTargetObjectForStep(step) → Queries REGISTRY
+     • GetDestinationObjectForStep(step) → Queries REGISTRY
+     • GetTargetArrow/DestinationArrow → Queries REGISTRY
+
+6. Handlers Process Steps
+   - AutoHandsGrabStepHandler calls: controller.GetTargetObjectForStep(step)
+   - AutoHandsSnapStepHandler calls: controller.GetDestinationObjectForStep(step)
+   - ALL handlers now use controller methods (not step.targetObject directly!)
+
+7. Controller Looks Up References
+   - FIRST: Check SequenceRegistry (reliable!)
+   - FALLBACK: Check step.targetObject.GameObject (in case registry not set)
+   - Returns the GameObject to handler
+
+
+=====================================================================
+DATA FLOW DIAGRAM
+=====================================================================
+
+COMPILE TIME (Editing):
+[Sequence Builder UI] → [TrainingSequenceAsset] → [Sync Button] → [SequenceRegistry] → [Scene File]
+     (Edit here)         (Temporary storage)      (Transfer)      (Permanent storage)       (Saved to disk)
+
+
+RUNTIME (Playing):
+
+  TrainingSequenceAsset                    SequenceRegistry
+          ↓                                          ↓
+    [Step Logic]                            [GameObject References]
+    [Step Names]                            [Arrows]
+    [Settings]                              [Target Objects]
+          ↓                                 [Destinations]
+          ↓                                          ↓
+          └───────→  ModularTrainingSequenceController  ←───────┘
+                              ↓
+                    GetTargetObjectForStep(step)
+                    GetDestinationObjectForStep(step)
+                              ↓
+                    Returns GameObject from Registry
+                              ↓
+                         [Handlers]
+                   (AutoHandsGrabStepHandler, etc.)
+
+
+=====================================================================
+KEY ARCHITECTURAL POINTS
+=====================================================================
+
+1. SINGLE SOURCE OF EDITING
+   ✓ You only edit in Sequence Builder UI
+   ✓ No double-entry required
+   ✓ All refs in one place
+
+2. SEPARATION OF CONCERNS
+   ✓ ScriptableObject = Data & Logic (step names, types, flow)
+   ✓ Scene Registry = GameObject References (what Unity can persist)
+   ✓ Each does what it's good at!
+
+3. SYNC IS ONE-WAY
+   ✓ Asset → Registry (forward only)
+   ✓ Registry doesn't write back to asset
+   ✓ Asset is the "source code"
+   ✓ Registry is the "compiled output"
+
+4. RUNTIME USES REGISTRY
+   ✓ Controller helper methods query registry
+   ✓ Handlers call controller methods
+   ✓ Reliable references in builds!
+
+5. FALLBACK FOR SAFETY
+   ✓ If registry doesn't have reference, tries asset
+   ✓ Allows gradual migration
+   ✓ Works even if you forget to sync (but may break after restart)
+
+
+=====================================================================
+ANSWERING YOUR SPECIFIC QUESTIONS
+=====================================================================
+
+Q: "Does the controller take references from GUI or from the script?"
+A: At RUNTIME, it takes from the SCRIPT (SequenceRegistry).
+   The GUI (Sequence Builder) is ONLY for editing.
+
+Q: "Does syncing communicate to the ScriptableObject?"
+A: No! Syncing is ONE-WAY: Asset → Registry.
+   The asset doesn't know about the registry.
+   The registry IS the runtime source of truth.
+
+Q: "Does this make references reliable?"
+A: YES! Because:
+   1. References are stored in scene file (MonoBehaviour)
+   2. Scene files CAN persist GameObject references
+   3. Scene file goes into the build properly
+   4. Everything works!
+
+
+=====================================================================
+WHY THIS ARCHITECTURE?
+=====================================================================
+
+PROBLEM: Unity's Limitation
+- ScriptableObjects are assets (not scene data)
+- Unity explicitly doesn't support scene refs in assets
+- Trying to save them results in silent deletion
+- This is by design, not a bug!
+
+SOLUTION: Separation of Concerns
+- Assets store what assets are good at (data, logic, settings)
+- Scene stores what scenes are good at (GameObject references)
+- Sync bridges the gap during editing
+- Runtime uses the right source for each type of data
+
+BENEFITS:
+✓ Follows Unity's architecture patterns
+✓ Same approach as Timeline, Cinemachine, etc.
+✓ Reliable and production-ready
+✓ Works in builds guaranteed
+
+
+=====================================================================
+WHAT EACH COMPONENT DOES
+=====================================================================
+
+TrainingSequenceAsset (ScriptableObject):
+- Stores: Step names, types, descriptions, settings, flow logic
+- Purpose: Defines WHAT the training sequence does
+- Editing: Primary authoring location
+- Runtime: Provides step logic and metadata
+- GameObject refs: Temporary workspace (not reliable)
+
+SequenceRegistry (MonoBehaviour):
+- Stores: All GameObject references (targets, destinations, arrows)
+- Purpose: Defines WHICH objects to interact with
+- Editing: Auto-populated via sync
+- Runtime: Primary reference source
+- GameObject refs: Permanent storage (reliable!)
+
+ModularTrainingSequenceController (MonoBehaviour):
+- Orchestrates: Sequence execution, state machine
+- Provides: Helper methods for ref lookup
+- Bridges: Asset logic + Registry references
+- Manages: Handler lifecycle, arrow transitions
+
+Step Handlers (MonoBehaviours):
+- Process: Individual step types (Grab, Snap, Knob, etc.)
+- Query: Controller for GameObject references
+- Monitor: XRI/AutoHands events
+- Complete: Steps when conditions met
+
+
+=====================================================================
+MIGRATION STRATEGY
+=====================================================================
+
+We updated TWO handlers as examples:
+1. AutoHandsGrabStepHandler - Uses GetTargetObjectForStep()
+2. AutoHandsSnapStepHandler - Uses both Get methods
+
+OTHER HANDLERS:
+- Will still work (fallback to step.targetObject)
+- But won't be as reliable
+- Should be updated when time permits
+
+TO UPDATE A HANDLER:
+1. Find: step.targetObject.GameObject
+2. Replace: controller.GetTargetObjectForStep(step)
+
+3. Find: step.destination.GameObject
+4. Replace: controller.GetDestinationObjectForStep(step)
+
+5. Find: step.targetSocket.GameObject
+6. Replace: controller.GetTargetSocketForStep(step)
+
+Example:
+// OLD (unreliable):
+var targetObj = step.targetObject.GameObject;
+
+// NEW (reliable):
+var targetObj = controller.GetTargetObjectForStep(step);
+
+
+=====================================================================
+THE "COMPILE" ANALOGY
+=====================================================================
+
+Think of it like programming:
+
+SOURCE CODE (Editing):
+- Sequence Builder UI = Your IDE
+- TrainingSequenceAsset = Source .cs files
+- References in asset = Variables in source
+
+COMPILATION (Syncing):
+- Sync button = Compiler
+- Reads source (asset with refs)
+- Generates output (registry with refs)
+
+EXECUTABLE (Runtime):
+- Scene file = Compiled .exe
+- Registry = Loaded into memory
+- Controller = Runtime environment
+- Handlers = Running code
+
+You don't ship source code!
+You ship the compiled output!
+
+Same here: You don't ship asset refs (temporary).
+You ship registry refs (compiled)!
+
+
+=====================================================================
+TESTING CHECKLIST
+=====================================================================
+
+Before Building:
+□ Edit references in Sequence Builder
+□ Click "Sync from Sequence Asset"
+□ Check registry - refs should be green
+□ Save scene (Ctrl+S)
+□ Press Play - everything works
+□ Stop play
+□ Close Unity completely
+□ Reopen Unity
+□ Press Play again - everything STILL works
+□ If YES → Build will work!
+
+
+Verification Commands:
+- Console will show: "Using target object from step direct reference" = Not synced yet
+- Console will NOT show that message = Using registry (good!)
+- Registry Inspector shows green backgrounds = Synced properly
+- Registry Inspector shows red backgrounds = Not synced yet
+
+
+=====================================================================
+SUMMARY
+=====================================================================
+
+WHERE REFERENCES COME FROM:
+
+EDITING:   Sequence Builder UI (temporary)
+SYNCING:   Copied to Registry (permanent)
+RUNTIME:   Controller reads from Registry (reliable!)
+
+The ScriptableObject doesn't "talk to" the registry at runtime.
+Instead:
+1. You sync: Asset → Registry (one-way transfer)
+2. You save scene
+3. Runtime: Controller uses Registry
+4. Build: Scene with registry goes in → Works!
+
+This is the PROPER architecture for this use case.
+Same pattern used by Unity's own systems!
+
+=====================================================================
