@@ -268,7 +268,9 @@ public class SequencePropertiesPanel
 
         // Basic properties
         step.stepName = EditorGUILayout.TextField("Step Name", step.stepName);
-        step.type = (InteractionStep.StepType)EditorGUILayout.EnumPopup("Type", step.type);
+
+        // Filtered step type dropdown (hides certain types)
+        step.type = DrawFilteredStepTypeDropdown("Type", step.type);
 
         EditorGUILayout.Space(10);
 
@@ -286,6 +288,49 @@ public class SequencePropertiesPanel
 
         // Validation
         DrawValidationStatus(step);
+    }
+
+    /// <summary>
+    /// Draws a filtered step type dropdown that excludes certain step types
+    /// </summary>
+    private InteractionStep.StepType DrawFilteredStepTypeDropdown(string label, InteractionStep.StepType currentType)
+    {
+        // Define hidden step types
+        var hiddenTypes = new System.Collections.Generic.HashSet<InteractionStep.StepType>
+        {
+            InteractionStep.StepType.WaitForCondition,
+            InteractionStep.StepType.ShowInstruction,
+            InteractionStep.StepType.InstallScrew,
+            InteractionStep.StepType.RemoveScrew
+        };
+
+        // Get all step types
+        var allTypes = System.Enum.GetValues(typeof(InteractionStep.StepType));
+        var displayedTypes = new System.Collections.Generic.List<InteractionStep.StepType>();
+        var displayNames = new System.Collections.Generic.List<string>();
+
+        foreach (InteractionStep.StepType type in allTypes)
+        {
+            // Skip hidden types
+            if (hiddenTypes.Contains(type))
+                continue;
+
+            displayedTypes.Add(type);
+            displayNames.Add(type.ToString());
+        }
+
+        // Find current selection index
+        int selectedIndex = displayedTypes.IndexOf(currentType);
+        if (selectedIndex == -1)
+        {
+            // Current type is hidden, default to GrabAndSnap
+            selectedIndex = displayedTypes.IndexOf(InteractionStep.StepType.GrabAndSnap);
+        }
+
+        // Draw dropdown
+        int newIndex = EditorGUILayout.Popup(label, selectedIndex, displayNames.ToArray());
+
+        return displayedTypes[newIndex];
     }
 
     private void DrawTargetObjectFields(InteractionStep step)

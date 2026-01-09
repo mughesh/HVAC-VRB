@@ -399,13 +399,15 @@ public class SequenceTreeView
         menu.AddSeparator("");
         menu.AddItem(new GUIContent("Screw Operations/Tighten Screw"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.TightenScrew));
         menu.AddItem(new GUIContent("Screw Operations/Loosen Screw"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.LoosenScrew));
-        menu.AddItem(new GUIContent("Screw Operations/Install Screw (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallScrew));
-        menu.AddItem(new GUIContent("Screw Operations/Remove Screw (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveScrew));
+        // Hidden for now - uncomment to enable
+        // menu.AddItem(new GUIContent("Screw Operations/Install Screw (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.InstallScrew));
+        // menu.AddItem(new GUIContent("Screw Operations/Remove Screw (Complete)"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.RemoveScrew));
 
         menu.AddSeparator("");
-        menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
+        // Hidden for now - uncomment to enable
+        // menu.AddItem(new GUIContent("Wait Condition Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForCondition));
         menu.AddItem(new GUIContent("Wait For Script Condition"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.WaitForScriptCondition));
-        menu.AddItem(new GUIContent("Show Instruction Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.ShowInstruction));
+        // menu.AddItem(new GUIContent("Show Instruction Step"), false, () => AddNewStep(taskGroup, InteractionStep.StepType.ShowInstruction));
         menu.ShowAsContext();
     }
 
