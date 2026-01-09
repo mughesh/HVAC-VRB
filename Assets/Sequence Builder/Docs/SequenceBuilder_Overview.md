@@ -71,8 +71,9 @@ The tool currently supports the following AutoHands-based interactions:
 ### 5. Wait for Step Condition
 *   **Use Case**: Waiting for a custom script event (e.g., "Wait for wire cut", "Wait for button press").
 *   **Features**:
-    *   Allows any custom logic to block the sequence.
-    *   Great for interactions not covered by standard physics profiles.
+    *   **Extensible**: Create any custom C# condition by inheriting from `BaseSequenceCondition`.
+    *   **Integration**: Simply call `SetConditionMet()` in your script to tell the Sequence Builder to proceed.
+    *   **Flexible Blocks**: Perfectly handles complex logic that simple physics triggers can't catch.
 
 ---
 

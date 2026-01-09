@@ -5327,6 +5327,57 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2148399077504677471, guid: c3485102de526b643b3a90046c6457b6, type: 3}
   m_PrefabInstance: {fileID: 1569418340}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &282877455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c152e1e69ad2e46a5b75d9cbee77c8, type: 3}
+  m_Name: Yellow hose female_ScrewProfile
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - valve_socket
+  - screw_socket
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 0
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!1 &286659040
 GameObject:
   m_ObjectHideFlags: 0
@@ -9493,6 +9544,57 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 52fcb083473c28942aba1966c85bbb0a, type: 3}
   m_PrefabInstance: {fileID: 258364399}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &473642733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c152e1e69ad2e46a5b75d9cbee77c8, type: 3}
+  m_Name: Yellow Hose Male _ScrewProfile
+  m_EditorClassIdentifier: 
+  profileName: New Profile
+  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
+  rotationAxis: {x: 0, y: 0, z: 1}
+  tightenThreshold: 50
+  loosenThreshold: 90
+  angleTolerance: 5
+  compatibleSocketTags:
+  - valve_socket
+  - screw_socket
+  - snap
+  specificCompatibleSockets: []
+  requireSpecificSockets: 0
+  movementType: 0
+  trackPosition: 1
+  trackRotation: 1
+  throwOnDetach: 1
+  throwVelocityScale: 1.5
+  throwAngularVelocityScale: 1
+  rotationDampening: 5
+  dampeningSpeed: 10
+  autoConfigureConnectedAnchor: 1
+  useSpring: 0
+  springValue: 0
+  springDamper: 0.1
+  springTargetPosition: 0
+  bounceMinVelocity: 0.2
+  contactDistance: 0
+  positionTolerance: 0.01
+  velocityThreshold: 0.05
+  positioningTimeout: 3
+  useDynamicAttach: 1
+  attachEaseInTime: 0.15
+  colliderType: 0
+  addColliderToMeshChild: 1
+  lockedRotationSpeed: 1
+  hapticIntensity: 0.3
+  looseMaterial: {fileID: 0}
+  tightMaterial: {fileID: 0}
+  showProgressIndicator: 1
 --- !u!4 &476602006 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3795146908795432126, guid: 790d29666b4ace245808ea65a200e9ff, type: 3}
@@ -10376,7 +10478,7 @@ MonoBehaviour:
   startPlaced: {fileID: 0}
   placedOffset: {fileID: 1963948190}
   shapeType: 0
-  placeRadius: 0.035
+  placeRadius: 0.02
   placeSize: {x: 0.15, y: 0.15, z: 0.15}
   shapeOffset: {x: 0, y: 0, z: 0}
   grabbablePlacePoint: 1
@@ -10400,7 +10502,7 @@ MonoBehaviour:
   placeNames:
   - grab
   - valve
-  - turn
+  - screw
   blacklistNames: []
   onlyAllows: []
   dontAllows: []
@@ -12005,7 +12107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e553615f209e024589d987841b7621d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profile: {fileID: 1318165893}
+  profile: {fileID: 282877455}
   currentState: 0
   currentSubstate: 0
   currentRotationAngle: 0
@@ -23825,57 +23927,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1317151192}
   m_CullTransparentMesh: 0
---- !u!114 &1318165893
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57c152e1e69ad2e46a5b75d9cbee77c8, type: 3}
-  m_Name: Yellow hose female_ScrewProfile
-  m_EditorClassIdentifier: 
-  profileName: New Profile
-  gizmoColor: {r: 0, g: 1, b: 1, a: 1}
-  rotationAxis: {x: 0, y: 1, z: 0}
-  tightenThreshold: 50
-  loosenThreshold: 90
-  angleTolerance: 5
-  compatibleSocketTags:
-  - valve_socket
-  - screw_socket
-  - snap
-  specificCompatibleSockets: []
-  requireSpecificSockets: 0
-  movementType: 0
-  trackPosition: 1
-  trackRotation: 1
-  throwOnDetach: 1
-  throwVelocityScale: 1.5
-  throwAngularVelocityScale: 1
-  rotationDampening: 5
-  dampeningSpeed: 10
-  autoConfigureConnectedAnchor: 1
-  useSpring: 0
-  springValue: 0
-  springDamper: 0.1
-  springTargetPosition: 0
-  bounceMinVelocity: 0.2
-  contactDistance: 0
-  positionTolerance: 0.01
-  velocityThreshold: 0.05
-  positioningTimeout: 3
-  useDynamicAttach: 1
-  attachEaseInTime: 0.15
-  colliderType: 0
-  addColliderToMeshChild: 1
-  lockedRotationSpeed: 1
-  hapticIntensity: 0.3
-  looseMaterial: {fileID: 0}
-  tightMaterial: {fileID: 0}
-  showProgressIndicator: 1
 --- !u!1 &1321832889
 GameObject:
   m_ObjectHideFlags: 0
@@ -31620,7 +31671,7 @@ GameObject:
   - component: {fileID: 1526925845}
   m_Layer: 0
   m_Name: 'Yellow Hose Male '
-  m_TagString: valve
+  m_TagString: screw
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -31745,9 +31796,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1526925841}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2427a09fc7436a44f8185f9c0f523ae5, type: 3}
+  m_Script: {fileID: 11500000, guid: 6e553615f209e024589d987841b7621d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile: {fileID: 473642733}
+  currentState: 0
+  currentSubstate: 0
+  currentRotationAngle: 0
+  isInverted: 0
+  invertThresholds: 0
+  autoReleaseOnCompletion: 0
+  isControllerDisabled: 0
+  removalDistanceThreshold: 0.3
 --- !u!1 &1529397029
 GameObject:
   m_ObjectHideFlags: 0
