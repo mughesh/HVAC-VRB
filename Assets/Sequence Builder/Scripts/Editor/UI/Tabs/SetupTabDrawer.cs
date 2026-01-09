@@ -418,20 +418,22 @@ public class SetupTabDrawer
             EditorGUILayout.Space(5);
 
             EditorGUILayout.HelpBox(
-                "The Sequence Manager is required to run training sequences.\n\n" +
-                "Click the button below to add it to your scene.",
+                "The Sequence Manager and Auto Hand rig are required for VR training.\n\n" +
+                "Click the button below to add both to your scene automatically.",
                 MessageType.Info);
 
             EditorGUILayout.Space(5);
 
-            if (GUILayout.Button("➕ Create Sequence Manager", GUILayout.Height(35)))
+            if (GUILayout.Button("➕ Create Sequence Manager + Auto Hand Rig", GUILayout.Height(35)))
             {
                 var created = SequenceManagerCreator.CreateSequenceManagerInScene();
                 if (created != null)
                 {
                     EditorUtility.DisplayDialog(
-                        "Success!",
-                        "Sequence Manager created successfully!\n\n" +
+                        "Scene Setup Complete!",
+                        "The following have been added to your scene:\n" +
+                        "✅ Sequence Manager (with all step handlers)\n" +
+                        "✅ Auto Hand Player Container (VR rig)\n\n" +
                         "Next step: Assign a Training Sequence Asset in the Inspector.",
                         "OK");
                 }

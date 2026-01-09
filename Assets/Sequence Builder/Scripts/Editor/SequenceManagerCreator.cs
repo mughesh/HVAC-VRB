@@ -49,7 +49,45 @@ public class SequenceManagerCreator : EditorWindow
 
         Debug.Log("✅ Sequence Manager created successfully!");
 
+        // Also create Auto Hand rig
+        CreateAutoHandRig();
+
         return sequenceManager;
+    }
+
+    /// <summary>
+    /// Creates Auto Hand Player rig in the scene if it doesn't exist
+    /// </summary>
+    private static GameObject CreateAutoHandRig()
+    {
+        // Check if Auto Hand rig already exists in scene
+        var existingRig = GameObject.Find("Auto Hand Player Container");
+        if (existingRig != null)
+        {
+            Debug.Log("ℹ️ Auto Hand Player rig already exists in scene");
+            return existingRig;
+        }
+
+        // Load the prefab from Resources
+        var rigPrefab = Resources.Load<GameObject>("Rigs/Auto Hand Player Container_optimized");
+
+        if (rigPrefab == null)
+        {
+            Debug.LogWarning("⚠️ Could not find Auto Hand Player Container_optimized prefab in Resources/Rigs/");
+            return null;
+        }
+
+        // Instantiate the rig
+        var rigInstance = (GameObject)PrefabUtility.InstantiatePrefab(rigPrefab);
+        rigInstance.name = "Auto Hand Player Container";
+
+        // Position at origin
+        rigInstance.transform.position = Vector3.zero;
+        rigInstance.transform.rotation = Quaternion.identity;
+
+        Debug.Log("✅ Auto Hand Player rig created successfully!");
+
+        return rigInstance;
     }
 
     [MenuItem("Sequence Builder/Create Sequence Manager")]
@@ -60,11 +98,13 @@ public class SequenceManagerCreator : EditorWindow
         if (created != null)
         {
             EditorUtility.DisplayDialog(
-                "Sequence Manager Created!",
-                "Sequence Manager has been created in your scene.\n\n" +
+                "Scene Setup Complete!",
+                "The following have been added to your scene:\n" +
+                "✅ Sequence Manager (with all step handlers)\n" +
+                "✅ Auto Hand Player Container (VR rig)\n\n" +
                 "Next steps:\n" +
                 "1. Assign a Training Sequence Asset to the controller\n" +
-                "2. Configure step handlers if needed\n" +
+                "2. Configure your training objects\n" +
                 "3. Test in Play mode",
                 "OK"
             );
