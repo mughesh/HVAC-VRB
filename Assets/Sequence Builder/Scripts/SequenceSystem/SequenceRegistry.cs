@@ -50,6 +50,9 @@ public class SequenceRegistry : MonoBehaviour
     public List<ArrowMapping> arrowMappings = new List<ArrowMapping>();
 
     [Header("Auto-Sync Settings")]
+    [Tooltip("Automatically sync from sequence asset whenever the scene is saved (Ctrl+S or auto-save)")]
+    public bool autoSyncOnSave = true;
+
     [Tooltip("Automatically sync from sequence asset when entering play mode")]
     public bool autoSyncOnPlayMode = true;
 
@@ -254,8 +257,9 @@ public class SequenceRegistry : MonoBehaviour
     }
 
     /// <summary>
-    /// AUTOMATIC SYNC: Reads all GameObject references from sequence asset and stores them in registry.
+    /// FULL REBUILD SYNC: Clears all mappings and rebuilds from sequence asset.
     /// This is the KEY METHOD that solves the persistence problem!
+    /// Strategy: Clear-then-rebuild to eliminate stale data from renames/deletions.
     /// Call this after editing references in the Sequence Builder UI.
     /// </summary>
     public int SyncFromSequenceAsset()
@@ -270,8 +274,16 @@ public class SequenceRegistry : MonoBehaviour
         int nullRefs = 0;
         int totalSteps = 0;
 
-        Debug.Log("🔄 Starting sync from sequence asset...");
+        Debug.Log("🔄 Starting FULL REBUILD sync from sequence asset...");
+        Debug.Log("   Strategy: Clear all existing mappings, then rebuild from scratch");
+        Debug.Log("   Benefits: Removes stale data, handles renames/deletions automatically");
 
+        // ✅ FULL REBUILD: Clear all existing mappings first (prevents stale data)
+        int previousMappingCount = arrowMappings.Count;
+        arrowMappings.Clear();
+        Debug.Log($"   Cleared {previousMappingCount} previous mappings");
+
+        // Rebuild from scratch
         foreach (var module in sequenceAsset.Program.modules)
         {
             foreach (var taskGroup in module.taskGroups)
@@ -281,13 +293,8 @@ public class SequenceRegistry : MonoBehaviour
                     totalSteps++;
                     string stepPath = $"{module.moduleName}/{taskGroup.groupName}/{step.stepName}";
 
-                    // Find or create mapping
-                    var mapping = arrowMappings.FirstOrDefault(m => m.stepPath == stepPath);
-                    if (mapping == null)
-                    {
-                        mapping = new ArrowMapping { stepPath = stepPath };
-                        arrowMappings.Add(mapping);
-                    }
+                    // Always create new mapping (fresh start)
+                    var mapping = new ArrowMapping { stepPath = stepPath };
 
                     // Sync target object (read from GameObjectReference)
                     GameObject targetObj = step.targetObject?.GameObject;
@@ -348,12 +355,16 @@ public class SequenceRegistry : MonoBehaviour
                     // Sync arrow behavior settings
                     mapping.hideTargetArrowAfterGrab = step.hideTargetArrowAfterGrab;
                     mapping.showDestinationAfterGrab = step.showDestinationAfterGrab;
+
+                    // ✅ Add to list (always, even if all refs are null - shows structure)
+                    arrowMappings.Add(mapping);
                 }
             }
         }
 
-        string summary = $"✅ Sync complete!\n" +
+        string summary = $"✅ Sync complete (FULL REBUILD)!\n" +
                         $"   Total steps: {totalSteps}\n" +
+                        $"   Mappings created: {arrowMappings.Count}\n" +
                         $"   References synced: {synced}\n" +
                         $"   Unresolved references: {nullRefs}";
 

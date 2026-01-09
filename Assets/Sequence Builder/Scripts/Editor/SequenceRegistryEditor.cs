@@ -71,6 +71,35 @@ public class SequenceRegistryEditor : Editor
 
         EditorGUILayout.Space();
 
+        // AUTO-SYNC CHECKBOX (Prominent placement)
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        EditorGUILayout.LabelField("Auto-Sync Settings", EditorStyles.boldLabel);
+
+        SerializedProperty autoSyncOnSaveProp = serializedObject.FindProperty("autoSyncOnSave");
+        EditorGUILayout.PropertyField(autoSyncOnSaveProp,
+            new GUIContent("Auto-Sync on Scene Save",
+                "Automatically sync registry from sequence asset whenever you save the scene (Ctrl+S or auto-save)"));
+
+        if (autoSyncOnSaveProp.boolValue)
+        {
+            EditorGUILayout.HelpBox(
+                "✓ Auto-sync ENABLED\n\n" +
+                "Registry will automatically rebuild from sequence asset every time the scene is saved.\n" +
+                "This prevents data loss and handles renamed/deleted steps automatically.",
+                MessageType.Info);
+        }
+        else
+        {
+            EditorGUILayout.HelpBox(
+                "⚠ Auto-sync DISABLED\n\n" +
+                "You must manually click 'Sync from Sequence Asset' button or use the 'Sync Registry' button in the Sequence tab.\n" +
+                "Remember to sync before saving the scene!",
+                MessageType.Warning);
+        }
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.Space();
+
         // BIG SYNC BUTTON
         GUI.backgroundColor = new Color(0.4f, 1f, 0.4f); // Green
         if (GUILayout.Button("🔄 SYNC FROM SEQUENCE ASSET", GUILayout.Height(40)))

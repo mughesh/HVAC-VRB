@@ -218,12 +218,6 @@ public class SequenceTabDrawer
             EditorGUILayout.LabelField("No training sequence assets found in project");
         }
 
-        // Use Controller Asset button
-        if (GUILayout.Button("Use Controller Asset", GUILayout.Width(140)))
-        {
-            UseControllerAsset();
-        }
-
         // Control buttons
         if (GUILayout.Button("New", GUILayout.Width(50)))
         {
@@ -239,6 +233,14 @@ public class SequenceTabDrawer
         {
             SaveCurrentAsset();
         }
+
+        // Sync Registry button (replaces "Use Controller Asset")
+        GUI.backgroundColor = new Color(0.6f, 0.8f, 1f); // Light blue
+        if (GUILayout.Button("Sync Registry", GUILayout.Width(90)))
+        {
+            SyncToRegistry();
+        }
+        GUI.backgroundColor = Color.white;
 
         // Info about keyboard shortcuts
         if (_currentTrainingAsset != null)
@@ -346,7 +348,85 @@ public class SequenceTabDrawer
     }
 
     /// <summary>
-    /// Load the asset assigned to ModularTrainingController in the scene
+    /// Sync current sequence asset to SequenceRegistry in scene
+    /// </summary>
+    private void SyncToRegistry()
+    {
+        if (_currentTrainingAsset == null)
+        {
+            EditorUtility.DisplayDialog("No Sequence Asset",
+                "No training sequence asset is currently loaded.\n\n" +
+                "Load or create a sequence asset first.",
+                "OK");
+            return;
+        }
+
+        // Find SequenceRegistry in scene
+        var registry = Object.FindObjectOfType<SequenceRegistry>();
+
+        if (registry == null)
+        {
+            bool create = EditorUtility.DisplayDialog("No Registry Found",
+                "SequenceRegistry component not found in scene.\n\n" +
+                "The registry is required to store GameObject references.\n" +
+                "Would you like to create one?",
+                "Yes, Create",
+                "Cancel");
+
+            if (create)
+            {
+                // Create GameObject with SequenceRegistry
+                var registryGO = new GameObject("SequenceRegistry");
+                registry = registryGO.AddComponent<SequenceRegistry>();
+                registry.sequenceAsset = _currentTrainingAsset;
+                EditorUtility.SetDirty(registry);
+
+                Debug.Log("[SequenceTab] Created SequenceRegistry in scene");
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        // Make sure registry has the current asset assigned
+        if (registry.sequenceAsset != _currentTrainingAsset)
+        {
+            registry.sequenceAsset = _currentTrainingAsset;
+            EditorUtility.SetDirty(registry);
+        }
+
+        // Perform sync
+        Debug.Log($"[SequenceTab] Syncing to SequenceRegistry...");
+        int synced = registry.SyncFromSequenceAsset();
+
+        if (synced > 0)
+        {
+            EditorUtility.SetDirty(registry);
+
+            EditorUtility.DisplayDialog("Sync Complete",
+                $"✅ Successfully synced {synced} references to SequenceRegistry!\n\n" +
+                $"Total mappings: {registry.arrowMappings.Count}\n\n" +
+                "Remember to save the scene (Ctrl+S) to persist these references.\n\n" +
+                "💡 Tip: Enable 'Auto-Sync on Scene Save' in the SequenceRegistry component to sync automatically.",
+                "OK");
+
+            Debug.Log($"[SequenceTab] ✅ Synced {synced} references to registry");
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("Sync Warning",
+                "No references were synced.\n\n" +
+                "This usually means:\n" +
+                "• Target objects/arrows haven't been assigned in steps yet\n" +
+                "• References were cleared by Unity (after editor restart)\n\n" +
+                "Assign GameObjects in the Sequence Builder properties panel, then sync again.",
+                "OK");
+        }
+    }
+
+    /// <summary>
+    /// Load the asset assigned to ModularTrainingController in the scene (LEGACY - kept for backward compatibility)
     /// </summary>
     private void UseControllerAsset()
     {

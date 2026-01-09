@@ -20592,6 +20592,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sequenceAsset: {fileID: 0}
   arrowMappings: []
+  autoSyncOnSave: 1
   autoSyncOnPlayMode: 1
   arrowTag: Arrow
 --- !u!114 &1077962971
@@ -78778,6 +78779,46 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: sequenceAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ee094b4559883fe448f4922407f0291a, type: 2}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: autoSyncOnSave
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: arrowMappings.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: arrowMappings.Array.data[0].stepPath
+      value: New Module/Glitch test/Glitch test
+      objectReference: {fileID: 0}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: arrowMappings.Array.data[1].stepPath
+      value: New Module/Glitch test/Glitch test
+      objectReference: {fileID: 0}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: arrowMappings.Array.data[2].stepPath
+      value: New Module/Glitch test/New Step
+      objectReference: {fileID: 0}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: arrowMappings.Array.data[0].targetObject
+      value: 
+      objectReference: {fileID: 1526925841}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: arrowMappings.Array.data[1].targetObject
+      value: 
+      objectReference: {fileID: 1526925841}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: arrowMappings.Array.data[2].targetObject
+      value: 
+      objectReference: {fileID: 870778574}
+    - target: {fileID: 4011103412846397761, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: arrowMappings.Array.data[2].destinationObject
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4033016293243208339, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
       propertyPath: sequenceAsset
       value: 
@@ -79238,6 +79279,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sequence Manager
       objectReference: {fileID: 0}
+    - target: {fileID: 8421293847946137134, guid: 7841ea1ed830d7a4e824171711e26789, type: 3}
+      propertyPath: trainingAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ee094b4559883fe448f4922407f0291a, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
